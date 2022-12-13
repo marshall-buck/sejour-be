@@ -1,19 +1,7 @@
-"use strict";
-
-const {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-} = require("../expressError");
-const db = require("../db");
-const User = require("./userModel");
-const {
-  commonBeforeAll,
-  commonBeforeEach,
-  commonAfterEach,
-  commonAfterAll,
-
-} = require("./_testCommon");
+import { NotFoundError, BadRequestError, UnauthorizedError } from "../expressError";
+import { query } from "../db";
+import { authenticate, register, get } from "./userModel";
+import { commonBeforeAll, commonBeforeEach, commonAfterEach, commonAfterAll } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -24,7 +12,7 @@ afterAll(commonAfterAll);
 
 describe("authenticate", function () {
   test("works", async function () {
-    const user = await User.authenticate("u1", "password1");
+    const user = await authenticate("u1", "password1");
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
@@ -37,7 +25,7 @@ describe("authenticate", function () {
 
   test("unauth if no such user", async function () {
     try {
-      await User.authenticate("nope", "password");
+      await authenticate("nope", "password");
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -46,7 +34,7 @@ describe("authenticate", function () {
 
   test("unauth if wrong password", async function () {
     try {
-      await User.authenticate("c1", "wrong");
+      await authenticate("c1", "wrong");
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -67,25 +55,25 @@ describe("register", function () {
   };
 
   test("works", async function () {
-    let user = await User.register({
+    let user = await register({
       ...newUser,
       password: "password",
     });
     expect(user).toEqual(newUser);
-    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
+    const found = await query("SELECT * FROM users WHERE username = 'new'");
     expect(found.rows.length).toEqual(1);
     expect(found.rows[0].is_admin).toEqual(false);
     expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
   });
 
   test("works: adds admin", async function () {
-    let user = await User.register({
+    let user = await register({
       ...newUser,
       password: "password",
       isAdmin: true,
     });
     expect(user).toEqual({ ...newUser, isAdmin: true });
-    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
+    const found = await query("SELECT * FROM users WHERE username = 'new'");
     expect(found.rows.length).toEqual(1);
     expect(found.rows[0].is_admin).toEqual(true);
     expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
@@ -93,11 +81,11 @@ describe("register", function () {
 
   test("bad request with dup data", async function () {
     try {
-      await User.register({
+      await register({
         ...newUser,
         password: "password",
       });
-      await User.register({
+      await register({
         ...newUser,
         password: "password",
       });
@@ -112,7 +100,7 @@ describe("register", function () {
 
 describe("get", function () {
   test("works", async function () {
-    let user = await User.get("u1");
+    let user = await get("u1");
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
@@ -126,10 +114,34 @@ describe("get", function () {
 
   test("not found if no such user", async function () {
     try {
-      await User.get("nope");
+      await get("nope");
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
 });
+
+function beforeAll(commonBeforeAll: any) {
+  throw new Error("Function not implemented.");
+}
+
+
+function beforeEach(commonBeforeEach: any) {
+  throw new Error("Function not implemented.");
+}
+
+
+function afterEach(commonAfterEach: any) {
+  throw new Error("Function not implemented.");
+}
+
+
+function afterAll(commonAfterAll: any) {
+  throw new Error("Function not implemented.");
+}
+
+
+function expect(user: any) {
+  throw new Error("Function not implemented.");
+}
