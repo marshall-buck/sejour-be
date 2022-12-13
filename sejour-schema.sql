@@ -20,7 +20,7 @@ CREATE TABLE properties (
   street VARCHAR(255) NOT NULL,
   city VARCHAR(30) NOT NULL,
   state VARCHAR(30) NOT NULL,
-  zip VARCHAR(11) NOT NULL,
+  zipcode VARCHAR(11) NOT NULL,
   latitude VARCHAR(14) NOT NULL,
   longitude VARCHAR(14) NOT NULL,
   description TEXT NOT NULL,
