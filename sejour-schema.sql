@@ -13,28 +13,31 @@ CREATE TABLE users (
     CHECK (position('@' IN email) > 1),
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
   avatar TEXT NOT NULL DEFAULT 'https://picsum.photos/100'
-
 );
 
 CREATE TABLE properties (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    address VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    price INTEGER NOT NULL,
-    owner_username VARCHAR(25) NOT NULL
-         REFERENCES users ON DELETE CASCADE
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  street VARCHAR(255) NOT NULL,
+  city VARCHAR(30) NOT NULL,
+  state VARCHAR(30) NOT NULL,
+  zip VARCHAR(11) NOT NULL,
+  latitude VARCHAR(14) NOT NULL,
+  longitude VARCHAR(14) NOT NULL,
+  description TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  owner_username VARCHAR(25) NOT NULL
+        REFERENCES users ON DELETE CASCADE
 );
 
-
 CREATE TABLE bookings (
-    id SERIAL PRIMARY KEY,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    property_id INT NOT NULL
-         REFERENCES properties ON DELETE CASCADE,
-    guest_username VARCHAR(25) NOT NULL
-        REFERENCES users ON DELETE CASCADE
+  id SERIAL PRIMARY KEY,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  property_id INT NOT NULL
+        REFERENCES properties ON DELETE CASCADE,
+  guest_username VARCHAR(25) NOT NULL
+      REFERENCES users ON DELETE CASCADE
 );
 
 CREATE TABLE messages (
@@ -46,11 +49,9 @@ CREATE TABLE messages (
   read_at TIMESTAMP WITH TIME ZONE
   );
 
-
 CREATE TABLE images (
-
-  key VARCHAR(255) NOT NULL PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
+  key VARCHAR(255) NOT NULL ,
   property_id INT NOT NULL
     REFERENCES properties ON DELETE CASCADE
-
 );
