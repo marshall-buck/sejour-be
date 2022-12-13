@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, Application } from "express";
+import { NotFoundError } from "./expressError";
 
 const express = require("express");
 const cors = require("cors");
@@ -9,16 +10,14 @@ const bcrypt = require("bcrypt");
 app.use(cors());
 app.use(express.json());
 
-app.get("/index", (req: Request, res: Response) => {
+app.get("/index", (req: Request, res: Response, next: NextFunction) => {
   res.send("Express +  sdfasdfsda  eck");
   console.log(bcrypt);
-
-  return;
 });
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
-  throw new Error("404 blah blah blah");
+  throw new NotFoundError();
 });
 
 /** Generic error handler; anything unhandled goes here. */
