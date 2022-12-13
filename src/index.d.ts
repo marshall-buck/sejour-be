@@ -10,13 +10,12 @@ type UserData = {
 
 type MessageData = {
   id: number;
-  to_username: UserData;
-  from_username: UserData;
+  username: string;
+  firstName: string;
+  lastName: string;
   body: string;
-  sent_at: string;
-  read_at: string;
-  first_name: string;
-  last_name: string;
+  sentAt: string;
+  readAt: string;
 };
 
 export { UserData, MessageData };
