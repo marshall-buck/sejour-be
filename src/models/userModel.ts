@@ -1,15 +1,14 @@
-"use strict";
-
-const db = require("../db");
-const bcrypt = require("bcrypt");
+import { db } from "../db";
+import bcrypt from "bcrypt";
+import { UserData, MessageData } from "../index";
 // const { sqlForPartialUpdate } = require("../helpers/sql");
-const {
+import {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
-} = require("../expressError");
+} from "../expressError";
 
-const { BCRYPT_WORK_FACTOR } = require("../config.js");
+import { BCRYPT_WORK_FACTOR } from "../config.js";
 
 /** Related functions for users. */
 
@@ -21,7 +20,10 @@ class User {
    * Throws UnauthorizedError is user not found or wrong password.
    **/
 
-  static async authenticate(username, password) {
+  static async authenticate({
+    username,
+    password,
+  }: Pick<UserData, "username" | "password">) {
     // try to find the user first
     const result = await db.query(
       `SELECT username,
@@ -33,7 +35,7 @@ class User {
                   is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
-      [username],
+      [username]
     );
 
     const user = result.rows[0];
@@ -51,19 +53,26 @@ class User {
   }
 
   /** Register user with data.
- *
- * Returns { username, firstName, lastName, phone, email, isAdmin }
- *
- * Throws BadRequestError on duplicates.
- **/
+   *
+   * Returns { username, firstName, lastName, phone, email, isAdmin }
+   *
+   * Throws BadRequestError on duplicates.
+   **/
 
-  static async register(
-    { username, password, firstName, lastName, phone, email, isAdmin }) {
+  static async register({
+    username,
+    password,
+    firstName,
+    lastName,
+    avatar,
+    email,
+    isAdmin,
+  }: UserData) {
     const duplicateCheck = await db.query(
       `SELECT username
            FROM users
            WHERE username = $1`,
-      [username],
+      [username]
     );
 
     if (duplicateCheck.rows[0]) {
@@ -78,21 +87,13 @@ class User {
             password,
             first_name,
             last_name,
-            phone,
+            avatar,
             email,
             is_admin)
            VALUES ($1, $2, $3, $4, $5, $6, $7)
            RETURNING username, first_name AS "firstName", last_name AS
-                            "lastName",phone,  email, is_admin AS "isAdmin"`,
-      [
-        username,
-        hashedPassword,
-        firstName,
-        lastName,
-        phone,
-        email,
-        isAdmin,
-      ],
+                            "lastName",avatar,  email, is_admin AS "isAdmin"`,
+      [username, hashedPassword, firstName, lastName, avatar, email, isAdmin]
     );
 
     const user = result.rows[0];
@@ -101,14 +102,14 @@ class User {
   }
 
   /** Given a username, return data about user.
-  *
-  * Returns { username, first_name, last_name, phone, email, is_admin }
-  *
-  *
-  * Throws NotFoundError if user not found.
-  **/
+   *
+   * Returns { username, first_name, last_name, phone, email, is_admin }
+   *
+   *
+   * Throws NotFoundError if user not found.
+   **/
 
-  static async get(username) {
+  static async get(username: Pick<UserData, "username">) {
     const userRes = await db.query(
       `SELECT username,
                     first_name AS "firstName",
@@ -118,7 +119,7 @@ class User {
                     is_admin AS "isAdmin"
              FROM users
              WHERE username = $1`,
-      [username],
+      [username]
     );
 
     const user = userRes.rows[0];
@@ -129,15 +130,15 @@ class User {
   }
 
   /** Return messages from this user.
- *
- * [{id, to_user: {username, first_name, last_name, phone}, body, sent_at, read_at}]
- *
- * where to_user is
- *   {username, first_name, last_name, phone}
- */
+   *
+   * [{id, to_user: {username, first_name, last_name, phone}, body, sent_at, read_at}]
+   *
+   * where to_user is
+   *   {username, first_name, last_name, phone}
+   */
 
   //changed AS, if need to rename name of column
-  static async messagesFrom(username) {
+  static async messagesFrom(username: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
               m.to_username,
@@ -151,25 +152,25 @@ class User {
             JOIN users AS u
               ON u.username = m.to_username
           WHERE from_username = $1`,
-      [username]);
+      [username]
+    );
     const messages = results.rows;
 
     if (!messages) {
       throw new NotFoundError("username not found");
     }
 
-    return messages.map(m => {
+    return messages.map((m: MessageData) => {
       return {
         id: m.id,
         to_user: {
           username: m.to_username,
           first_name: m.first_name,
           last_name: m.last_name,
-          phone: m.phone
         },
         body: m.body,
         sent_at: m.sent_at,
-        read_at: m.read_at
+        read_at: m.read_at,
       };
     });
   }
@@ -186,7 +187,7 @@ class User {
    *   {username, first_name, last_name, phone}
    */
 
-  static async messagesTo(username) {
+  static async messagesTo(username: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
               m.from_username,
@@ -200,30 +201,28 @@ class User {
             JOIN users AS u
               ON u.username = m.from_username
           WHERE to_username = $1`,
-      [username]);
+      [username]
+    );
     const messages = results.rows;
 
     if (!messages) {
       throw new NotFoundError("username not found");
     }
 
-    return messages.map(m => {
+    return messages.map((m: MessageData) => {
       return {
         id: m.id,
         from_user: {
           username: m.from_username,
           first_name: m.first_name,
           last_name: m.last_name,
-          phone: m.phone
         },
         body: m.body,
         sent_at: m.sent_at,
-        read_at: m.read_at
+        read_at: m.read_at,
       };
     });
   }
 }
 
-
-module.exports = User;
-
+export { User };
