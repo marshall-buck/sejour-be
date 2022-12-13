@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 
 import { db } from "../db";
 import { BCRYPT_WORK_FACTOR } from "../config";
-import { PropertyData } from "..";
+import { PropertyData } from "../types";
 
 const propertyIds: number[] = [];
 
@@ -61,7 +61,7 @@ async function commonAfterAll() {
   await db.end();
 }
 
-export = {
+module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,

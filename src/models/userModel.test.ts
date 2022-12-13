@@ -1,7 +1,18 @@
-import { NotFoundError, BadRequestError, UnauthorizedError } from "../expressError";
-import { query } from "../db";
-import { authenticate, register, get } from "./userModel";
-import { commonBeforeAll, commonBeforeEach, commonAfterEach, commonAfterAll } from "./_testCommon";
+import { expect, jest, test } from "@jest/globals";
+import {
+  NotFoundError,
+  BadRequestError,
+  UnauthorizedError,
+} from "../expressError";
+import { User } from "./userModel";
+
+const { query } = require("../db");
+const {
+  commonBeforeAll,
+  commonBeforeEach,
+  commonAfterEach,
+  commonAfterAll,
+} = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -12,12 +23,15 @@ afterAll(commonAfterAll);
 
 describe("authenticate", function () {
   test("works", async function () {
-    const user = await authenticate("u1", "password1");
+    const user = await User.authenticate({
+      username: "u1",
+      password: "password1",
+    });
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      phone: '123-456-7890',
+      avatar: "",
       email: "u1@email.com",
       isAdmin: false,
     });
@@ -25,7 +39,7 @@ describe("authenticate", function () {
 
   test("unauth if no such user", async function () {
     try {
-      await authenticate("nope", "password");
+      await User.authenticate({ username: "nope", password: "password" });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -49,7 +63,7 @@ describe("register", function () {
     username: "new",
     firstName: "Test",
     lastName: "Tester",
-    phone: '123-456-7890',
+    phone: "123-456-7890",
     email: "test@test.com",
     isAdmin: false,
   };
@@ -105,10 +119,9 @@ describe("get", function () {
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      phone: '123-456-7890',
+      phone: "123-456-7890",
       email: "u1@email.com",
       isAdmin: false,
-
     });
   });
 
@@ -126,21 +139,17 @@ function beforeAll(commonBeforeAll: any) {
   throw new Error("Function not implemented.");
 }
 
-
 function beforeEach(commonBeforeEach: any) {
   throw new Error("Function not implemented.");
 }
-
 
 function afterEach(commonAfterEach: any) {
   throw new Error("Function not implemented.");
 }
 
-
 function afterAll(commonAfterAll: any) {
   throw new Error("Function not implemented.");
 }
-
 
 function expect(user: any) {
   throw new Error("Function not implemented.");

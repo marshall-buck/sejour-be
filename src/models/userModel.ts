@@ -1,6 +1,6 @@
 import { db } from "../db";
 import bcrypt from "bcrypt";
-import { UserData, MessageData } from "../index";
+import { UserData, MessageData } from "../types";
 import {
   NotFoundError,
   BadRequestError,
@@ -11,7 +11,7 @@ import { BCRYPT_WORK_FACTOR } from "../config.js";
 /** Related functions for users. */
 
 class User {
-  /** authenticate user with username, password.
+  /** Authenticate user with username, password.
    *
    * Returns { username, firstName, lastName, avatar, email, isAdmin }
    *
@@ -21,7 +21,7 @@ class User {
   static async authenticate({
     username,
     password,
-  }: Pick<UserData, "username" | "password">) {
+  }: Pick<UserData, "username" | "password">): Promise<UserData> {
     // try to find the user first
     const result = await db.query(
       `SELECT username,
