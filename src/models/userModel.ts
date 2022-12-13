@@ -1,13 +1,11 @@
 import { db } from "../db";
 import bcrypt from "bcrypt";
 import { UserData, MessageData } from "../index";
-// const { sqlForPartialUpdate } = require("../helpers/sql");
 import {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
 } from "../expressError";
-
 import { BCRYPT_WORK_FACTOR } from "../config.js";
 
 /** Related functions for users. */
@@ -15,7 +13,7 @@ import { BCRYPT_WORK_FACTOR } from "../config.js";
 class User {
   /** authenticate user with username, password.
    *
-   * Returns { username, first_name, last_name, phone, email, is_admin }
+   * Returns { username, firstName, lastName, avatar, email, isAdmin }
    *
    * Throws UnauthorizedError is user not found or wrong password.
    **/
@@ -30,7 +28,7 @@ class User {
                   password,
                   first_name AS "firstName",
                   last_name AS "lastName",
-                  phone,
+                  avatar,
                   email,
                   is_admin AS "isAdmin"
            FROM users
@@ -54,7 +52,7 @@ class User {
 
   /** Register user with data.
    *
-   * Returns { username, firstName, lastName, phone, email, isAdmin }
+   * Returns { username, firstName, lastName, avatar, email, isAdmin }
    *
    * Throws BadRequestError on duplicates.
    **/
@@ -103,7 +101,7 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, phone, email, is_admin }
+   * Returns { username, first_name, last_name, avatar, email, is_admin }
    *
    *
    * Throws NotFoundError if user not found.
@@ -114,7 +112,7 @@ class User {
       `SELECT username,
                     first_name AS "firstName",
                     last_name AS "lastName",
-                    phone,
+                    avatar,
                     email,
                     is_admin AS "isAdmin"
              FROM users
@@ -131,23 +129,22 @@ class User {
 
   /** Return messages from this user.
    *
-   * [{id, to_user: {username, first_name, last_name, phone}, body, sent_at, read_at}]
+   * [{id, toUser: {username, firstName, lastName, avatar}, body, sentAt, readAt}]
    *
-   * where to_user is
-   *   {username, first_name, last_name, phone}
+   * where toUser is
+   *   {username, firstName, lastName, avatar}
    */
 
-  //changed AS, if need to rename name of column
   static async messagesFrom(username: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
-              m.to_username,
-              u.first_name,
-              u.last_name,
-              u.phone,
+              m.to_username AS m.username,
+              u.first_name AS u.firstName,
+              u.last_name AS u.lastName,
+              u.avatar,
               m.body,
-              m.sent_at,
-              m.read_at
+              m.sent_at AS m.sentAt,
+              m.read_at AS m.readAt
           FROM messages AS m
             JOIN users AS u
               ON u.username = m.to_username
@@ -163,14 +160,14 @@ class User {
     return messages.map((m: MessageData) => {
       return {
         id: m.id,
-        to_user: {
-          username: m.to_username,
-          first_name: m.first_name,
-          last_name: m.last_name,
+        toUser: {
+          username: m.username,
+          firstName: m.firstName,
+          lastName: m.lastName,
         },
         body: m.body,
-        sent_at: m.sent_at,
-        read_at: m.read_at,
+        sentAt: m.sentAt,
+        readAt: m.readAt,
       };
     });
   }
@@ -178,25 +175,25 @@ class User {
   /** Return messages to this user.
    *
    * [{id,
-   *  from_user: {username, first_name, last_name, phone},
+   *  fromUser: {username, firstName, lastName, avatar},
    *  body,
-   *  sent_at,
-   *  read_at}]
+   *  sentAt,
+   *  readAt}]
    *
-   * where from_user is
-   *   {username, first_name, last_name, phone}
+   * where fromUser is
+   *   {username, firstName, lastName, avatar}
    */
 
   static async messagesTo(username: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
-              m.from_username,
-              u.first_name,
-              u.last_name,
-              u.phone,
+              m.from_username AS m.fromUsername,
+              u.firstName AS u.firstName,
+              u.lastName AS u.lastName,
+              u.avatar,
               m.body,
-              m.sent_at,
-              m.read_at
+              m.sent_at AS m.sentAt,
+              m.read_at AS m.readAt
           FROM messages AS m
             JOIN users AS u
               ON u.username = m.from_username
@@ -212,14 +209,14 @@ class User {
     return messages.map((m: MessageData) => {
       return {
         id: m.id,
-        from_user: {
-          username: m.from_username,
-          first_name: m.first_name,
-          last_name: m.last_name,
+        fromUser: {
+          username: m.username,
+          firstName: m.firstName,
+          lastName: m.lastName,
         },
         body: m.body,
-        sent_at: m.sent_at,
-        read_at: m.read_at,
+        sentAt: m.sentAt,
+        readAt: m.readAt,
       };
     });
   }
