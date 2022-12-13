@@ -1,23 +1,22 @@
-INSERT INTO users (username, password, first_name, last_name, email, is_admin, phone)
+INSERT INTO users (username, password, first_name, last_name, email, is_admin, avatar)
 VALUES ('testuser1',
         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
         'Test1',
         'User',
         '2@2com',
-        FALSE,
-        '123-345-1234'),
+        FALSE,'https://picsum.photos/100'),
        ('testuser2',
         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
         'Test2',
         'Admin!',
         '1@1.com',
-        FALSE,'123-345-1234'),
+        FALSE,'https://picsum.photos/100'),
        ('testuser3',
         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
         'Test3',
         'Admin!',
         '3@3.com',
-        TRUE,'123-345-1234');
+        TRUE,'https://picsum.photos/100');
 
 INSERT INTO properties (title, address, description, price, owner_username)
 VALUES ('syndicate 24/7 methodologies', '18 Montana Road', 'Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus.', 897, 'testuser1'),

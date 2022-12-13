@@ -1,18 +1,18 @@
-DROP TABLE IF EXISTS images;
-DROP TABLE IF EXISTS messages;
-DROP TABLE IF EXISTS bookings;
-DROP TABLE IF EXISTS properties;
-DROP TABLE IF EXISTS users;
+-- DROP TABLE IF EXISTS images;
+-- DROP TABLE IF EXISTS messages;
+-- DROP TABLE IF EXISTS bookings;
+-- DROP TABLE IF EXISTS properties;
+-- DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
   username VARCHAR(25) PRIMARY KEY,
   password TEXT NOT NULL,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
-  phone VARCHAR(12),
   email TEXT NOT NULL,
     CHECK (position('@' IN email) > 1),
-  is_admin BOOLEAN NOT NULL DEFAULT FALSE
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  avatar TEXT NOT NULL DEFAULT 'https://picsum.photos/100'
 
 );
 
