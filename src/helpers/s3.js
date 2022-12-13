@@ -35,7 +35,7 @@ const uploadImg = multer({
 /** Construct a object URL from s3 bucket parameters
  * returns a url string
  *
- * @example https://r27-sharebnb.s3.amazonaws.com/1663108593387
+ * @example https://r27-sejour.s3.amazonaws.com/1663108593387
  */
 
 function getUrlFromBucket(key) {
