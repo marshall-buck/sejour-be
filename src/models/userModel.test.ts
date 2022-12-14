@@ -63,7 +63,7 @@ describe("register", function () {
     username: "new",
     firstName: "Test",
     lastName: "Tester",
-    phone: "123-456-7890",
+    avatar: "",
     email: "test@test.com",
     isAdmin: false,
   };
