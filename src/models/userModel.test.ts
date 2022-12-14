@@ -48,7 +48,7 @@ describe("authenticate", function () {
 
   test("unauth if wrong password", async function () {
     try {
-      await authenticate("c1", "wrong");
+      await User.authenticate("c1", "wrong");
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -69,7 +69,7 @@ describe("register", function () {
   };
 
   test("works", async function () {
-    let user = await register({
+    let user = await User.register({
       ...newUser,
       password: "password",
     });
@@ -81,7 +81,7 @@ describe("register", function () {
   });
 
   test("works: adds admin", async function () {
-    let user = await register({
+    let user = await User.register({
       ...newUser,
       password: "password",
       isAdmin: true,
@@ -95,11 +95,11 @@ describe("register", function () {
 
   test("bad request with dup data", async function () {
     try {
-      await register({
+      await User.register({
         ...newUser,
         password: "password",
       });
-      await register({
+      await User.register({
         ...newUser,
         password: "password",
       });
@@ -114,7 +114,7 @@ describe("register", function () {
 
 describe("get", function () {
   test("works", async function () {
-    let user = await get("u1");
+    let user = await User.get("u1");
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
@@ -127,7 +127,7 @@ describe("get", function () {
 
   test("not found if no such user", async function () {
     try {
-      await get("nope");
+      await User.get("nope");
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -135,22 +135,22 @@ describe("get", function () {
   });
 });
 
-function beforeAll(commonBeforeAll: any) {
-  throw new Error("Function not implemented.");
-}
+// function beforeAll(commonBeforeAll: any) {
+//   throw new Error("Function not implemented.");
+// }
 
-function beforeEach(commonBeforeEach: any) {
-  throw new Error("Function not implemented.");
-}
+// function beforeEach(commonBeforeEach: any) {
+//   throw new Error("Function not implemented.");
+// }
 
-function afterEach(commonAfterEach: any) {
-  throw new Error("Function not implemented.");
-}
+// function afterEach(commonAfterEach: any) {
+//   throw new Error("Function not implemented.");
+// }
 
-function afterAll(commonAfterAll: any) {
-  throw new Error("Function not implemented.");
-}
+// function afterAll(commonAfterAll: any) {
+//   throw new Error("Function not implemented.");
+// }
 
-function expect(user: any) {
-  throw new Error("Function not implemented.");
-}
+// function expect(user: any) {
+//   throw new Error("Function not implemented.");
+// }
