@@ -30,6 +30,7 @@ type PropertyData = {
   description: string;
   price: number;
   ownerUsername: string;
+  images?: ImagesData[];
 };
 
 type PropertySearchFilters = {
@@ -37,5 +38,16 @@ type PropertySearchFilters = {
   maxPrice?: number;
   description?: string;
 };
+type ImagesData = {
+  id: number;
+  key: string;
+  propertyId: number;
+};
 
-export { UserData, MessageData, PropertyData, PropertySearchFilters };
+export {
+  UserData,
+  MessageData,
+  PropertyData,
+  PropertySearchFilters,
+  ImagesData,
+};

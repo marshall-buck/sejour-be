@@ -1,9 +1,4 @@
-import {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-} from "../expressError";
-import { db } from "../db";
+import { NotFoundError } from "../expressError";
 import { Property } from "./propertyModel";
 import {
   commonBeforeAll,
@@ -39,6 +34,7 @@ describe("create", function () {
       ...newProperty,
       latitude: "-100.234234234",
       longitude: "50.234234234",
+
       id: expect.any(Number),
     });
   });
@@ -144,25 +140,32 @@ describe("findAll", function () {
 
 /************************************** get */
 
-// describe("get by id", function () {
-//   test("works by id", async function () {
-//     let property = await Property.get(propertyIds[0]);
-//     expect(property).toEqual({
-//       id: propertyIds[0],
-//       title: "one",
-//       address: "123 lane",
-//       description: "blah blah blah yard",
-//       price: 100,
-//       ownerUsername: "u1",
-//     });
-//   });
+describe("get by id", function () {
+  test("works by id", async function () {
+    const id = propertyIds[0] as number;
+    let property = await Property.get(id);
+    expect(property).toEqual({
+      id: propertyIds[0],
+      title: "property one",
+      street: "123 lane",
+      city: "test city",
+      state: "test state",
+      zipcode: "11111",
+      latitude: "180.0000000",
+      longitude: "-180.0000000",
+      description: "test description",
+      price: 100,
+      ownerUsername: "u1",
+      images: [],
+    });
+  });
 
-//   test("not found if no such property", async function () {
-//     try {
-//       await Property.get({ id: 0 });
-//       throw new Error("fail test, you shouldn't get here");
-//     } catch (err) {
-//       expect(err instanceof NotFoundError).toBeTruthy();
-//     }
-//   });
-// });
+  test("not found if no such property", async function () {
+    try {
+      await Property.get(0);
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});

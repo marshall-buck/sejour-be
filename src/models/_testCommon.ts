@@ -3,7 +3,7 @@ import { BCRYPT_WORK_FACTOR } from "../config";
 import { db } from "../db";
 import { PropertyData } from "../types";
 
-const propertyIds: Pick<PropertyData, "id">[] = [];
+const propertyIds: number[] = [];
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere

@@ -172,11 +172,16 @@ class Property {
    * Throws NotFoundError if not found.
    **/
 
-  static async get(id: Pick<PropertyData, "id">) {
+  static async get(id: number) {
     const propertyRes = await db.query(
       `SELECT id,
               title,
-              address,
+              street,
+              city,
+              state,
+              zipcode,
+              latitude,
+              longitude,
               description,
               price,
               owner_username AS "ownerUsername"
@@ -185,7 +190,7 @@ class Property {
       [id]
     );
 
-    const property = propertyRes.rows[0];
+    const property: PropertyData = propertyRes.rows[0];
 
     if (!property) throw new NotFoundError(`No property: ${id}`);
 
