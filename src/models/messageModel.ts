@@ -18,13 +18,12 @@ class Message {
   }: Omit<MessageData, "id" | "sentAt">): Promise<MessageData> {
     const result = await db.query(
       `INSERT INTO messages (from_username,
-                                 to_username,
-                                 body,
-                                 sent_at)
-          VALUES
-               ($1, $2, $3, current_timestamp)
+                            to_username,
+                            body,
+                            sent_at)
+          VALUES ($1, $2, $3, current_timestamp)
           RETURNING id, from_username AS "fromUsername",
-                    to_username AS "toUsername", body, sent_at`,
+                    to_username AS "toUsername", body, sent_at AS "sentAt"`,
       [fromUsername, toUsername, body]
     );
 
@@ -67,17 +66,17 @@ class Message {
   static async get(id: number): Promise<MessageResultData> {
     const result = await db.query(
       `SELECT m.id,
-              m.fromUsername,
+              m.from_username,
               f.first_name AS from_first_name,
               f.last_name AS from_last_name,
               f.avatar AS from_avatar,
-              m.toUsername,
+              m.to_username,
               t.first_name AS to_first_name,
               t.last_name AS to_last_name,
               t.avatar AS to_avatar,
               m.body,
-              m.sentAt,
-              m.readAt
+              m.sent_at,
+              m.read_at
           FROM messages AS m
               JOIN users AS f ON m.from_username = f.username
               JOIN users AS t ON m.to_username = t.username
@@ -104,8 +103,8 @@ class Message {
         avatar: message.to_avatar,
       },
       body: message.body,
-      sentAt: message.sentAt,
-      readAt: message.readAt,
+      sentAt: message.sent_at,
+      readAt: message.read_at,
     };
   }
 }

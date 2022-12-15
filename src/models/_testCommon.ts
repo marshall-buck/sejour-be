@@ -1,15 +1,14 @@
 import bcrypt from "bcrypt";
 import { BCRYPT_WORK_FACTOR } from "../config";
 import { db } from "../db";
-import { PropertyData } from "../types";
+import { MessageData, PropertyData } from "../types";
 
 const propertyIds: number[] = [];
+const messageIds: number[] = [];
 
 async function commonBeforeAll() {
-  // noinspection SqlWithoutWhere
+  await db.query("DELETE FROM messages");
   await db.query("DELETE FROM properties");
-
-  // noinspection SqlWithoutWhere
   await db.query("DELETE FROM users");
 
   await db.query(
@@ -20,7 +19,7 @@ async function commonBeforeAll() {
                           email,
                           avatar)
       VALUES ('u1', $1, 'U1F', 'U1L','u1@email.com',  'test http'),
-              ('u2', $2, 'U2F', 'U2L','u2@email.com',  'test http')
+             ('u2', $2, 'U2F', 'U2L','u2@email.com',  'test http')
       RETURNING username
       `,
     [
@@ -31,7 +30,7 @@ async function commonBeforeAll() {
   const resultsProperties = await db.query(`
       INSERT INTO properties (title, street, city, state, zipcode, latitude,
         longitude, description , price, owner_username)
-      VALUES('property one', '123 lane', 'test city', 'test state', '11111',
+      VALUES ('property one', '123 lane', 'test city', 'test state', '11111',
       '180.0000000', '-180.0000000', 'test description', 100, 'u1'),
             ('property two', '123 lane', 'test city', 'test state', '11111',
       '180.0000000', '-180.0000000', 'test description pool', 200, 'u2')
@@ -42,6 +41,17 @@ async function commonBeforeAll() {
     0,
     0,
     ...resultsProperties.rows.map((r: PropertyData) => r.id)
+  );
+
+  const resultsMessages = await db.query(`
+      INSERT INTO messages (from_username, to_username, body, sent_at)
+          VALUES ('u1', 'u2', 'test message', current_timestamp)
+              RETURNING id`);
+
+  messageIds.splice(
+    0,
+    0,
+    ...resultsMessages.rows.map((r: MessageData) => r.id)
   );
 }
 
@@ -63,4 +73,5 @@ export {
   commonAfterEach,
   commonAfterAll,
   propertyIds,
+  messageIds,
 };
