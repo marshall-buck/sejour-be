@@ -72,7 +72,7 @@ type BookingData = {
 };
 
 type BookingResultData = Omit<BookingData, "propertyId"> & {
-  property: Omit<PropertyData, "images">;
+  property: PropertyData;
 };
 
 export {
