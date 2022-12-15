@@ -34,7 +34,7 @@ type MessageResultData = {
   body: string;
   sentAt: string;
   readAt: string;
-}
+};
 
 type PropertyData = {
   id: number;
@@ -56,13 +56,28 @@ type PropertySearchFilters = {
   maxPrice?: number;
   description?: string;
 };
+
 type ImagesData = {
   id: number;
   key: string;
   propertyId: number;
 };
 
+type BookingData = {
+  id: number;
+  startDate: string;
+  endDate: string;
+  propertyId: number;
+  guestUsername: string;
+};
+
+type BookingResultData = Omit<BookingData, "propertyId"> & {
+  property: Omit<PropertyData, "images">;
+};
+
 export {
+  BookingData,
+  BookingResultData,
   UserData,
   UserMessageData,
   MessageData,
