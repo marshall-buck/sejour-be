@@ -15,7 +15,9 @@ class User {
    *
    * Returns { username, firstName, lastName, avatar, email, isAdmin }
    *
-   * Throws UnauthorizedError is user not found or wrong password.
+   * Throws UnauthorizedError if:
+   * - username not found OR
+   * - wrong password
    **/
 
   static async authenticate({
@@ -27,12 +29,12 @@ class User {
 
     const result = await db.query(
       `SELECT username,
-                  password,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  avatar,
-                  email,
-                  is_admin AS "isAdmin"
+              password,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              avatar,
+              email,
+              is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
       [username]
@@ -41,7 +43,6 @@ class User {
     const user = result.rows[0];
 
     if (user) {
-      // compare hashed password to a new hash from password
       const isValid = await bcrypt.compare(password, user.password);
       if (isValid === true) {
         delete user.password;
@@ -52,11 +53,11 @@ class User {
     throw new UnauthorizedError("Invalid username/password");
   }
 
-  /** Register user with data.
+  /** Register new user with user registration data.
    *
    * Returns { username, firstName, lastName, avatar, email, isAdmin }
    *
-   * Throws BadRequestError on duplicates.
+   * Throws BadRequestError on duplicate usernames.
    **/
 
   static async register({
@@ -70,8 +71,8 @@ class User {
   }: UserData) {
     const duplicateCheck = await db.query(
       `SELECT username
-           FROM users
-           WHERE username = $1`,
+          FROM users
+          WHERE username = $1`,
       [username]
     );
 
@@ -90,9 +91,9 @@ class User {
             avatar,
             email,
             is_admin)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)
-           RETURNING username, first_name AS "firstName", last_name AS
-                            "lastName",avatar,  email, is_admin AS "isAdmin"`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING username, first_name AS "firstName", last_name AS "lastName",
+                  avatar, email, is_admin AS "isAdmin"`,
       [username, hashedPassword, firstName, lastName, avatar, email, isAdmin]
     );
 
@@ -103,7 +104,7 @@ class User {
 
   /** Given a username, return data about user.
    *
-   * Returns { username, first_name, last_name, avatar, email, is_admin }
+   * Returns { username, firstName, lastName, avatar, email, isAdmin }
    *
    *
    * Throws NotFoundError if user not found.
@@ -112,13 +113,13 @@ class User {
   static async get({ username }: Pick<UserData, "username">) {
     const userRes = await db.query(
       `SELECT username,
-                    first_name AS "firstName",
-                    last_name AS "lastName",
-                    avatar,
-                    email,
-                    is_admin AS "isAdmin"
-             FROM users
-             WHERE username = $1`,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              avatar,
+              email,
+              is_admin AS "isAdmin"
+        FROM users
+        WHERE username = $1`,
       [username]
     );
 
