@@ -6,7 +6,7 @@ import {
   BadRequestError,
   UnauthorizedError,
 } from "../expressError";
-import { BCRYPT_WORK_FACTOR } from "../config.js";
+import { BCRYPT_WORK_FACTOR } from "../config";
 
 /** Related functions for users. */
 
@@ -23,6 +23,8 @@ class User {
     password,
   }: Pick<UserData, "username" | "password">): Promise<UserData> {
     // try to find the user first
+    console.log(username);
+
     const result = await db.query(
       `SELECT username,
                   password,
@@ -107,7 +109,7 @@ class User {
    * Throws NotFoundError if user not found.
    **/
 
-  static async get(username: Pick<UserData, "username">) {
+  static async get({ username }: Pick<UserData, "username">) {
     const userRes = await db.query(
       `SELECT username,
                     first_name AS "firstName",

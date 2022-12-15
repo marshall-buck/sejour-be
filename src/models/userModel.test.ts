@@ -5,7 +5,9 @@ import {
 } from "../expressError";
 import { User } from "./userModel";
 
-const { query } = require("../db");
+import { db } from "../db";
+
+// const { query } = require("../db");
 const {
   commonBeforeAll,
   commonBeforeEach,
@@ -26,11 +28,13 @@ describe("authenticate", function () {
       username: "u1",
       password: "password1",
     });
+
+    console.log(user);
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      avatar: "",
+      avatar: "test http",
       email: "u1@email.com",
       isAdmin: false,
     });
@@ -73,7 +77,7 @@ describe("register", function () {
       password: "password",
     });
     expect(user).toEqual(newUser);
-    const found = await query("SELECT * FROM users WHERE username = 'new'");
+    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found.rows.length).toEqual(1);
     expect(found.rows[0].is_admin).toEqual(false);
     expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
@@ -86,7 +90,7 @@ describe("register", function () {
       isAdmin: true,
     });
     expect(user).toEqual({ ...newUser, isAdmin: true });
-    const found = await query("SELECT * FROM users WHERE username = 'new'");
+    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
     expect(found.rows.length).toEqual(1);
     expect(found.rows[0].is_admin).toEqual(true);
     expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
@@ -118,15 +122,15 @@ describe("get", function () {
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      phone: "123-456-7890",
       email: "u1@email.com",
+      avatar: "test http",
       isAdmin: false,
     });
   });
 
   test("not found if no such user", async function () {
     try {
-      await User.get({ username: "u1" });
+      await User.get({ username: "c1" });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
