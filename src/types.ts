@@ -8,7 +8,7 @@ type UserData = {
   isAdmin: boolean;
 };
 
-type MessageData = {
+type UserMessageData = {
   id: number;
   username: string;
   firstName: string;
@@ -17,6 +17,24 @@ type MessageData = {
   sentAt: string;
   readAt: string;
 };
+
+type MessageData = {
+  id: number;
+  fromUsername: string;
+  toUsername: string;
+  body: string;
+  sentAt: string;
+  readAt?: string;
+};
+
+type MessageResultData = {
+  id: number;
+  fromUser: Pick<UserData, "username" | "firstName" | "lastName" | "avatar">;
+  toUser: Pick<UserData, "username" | "firstName" | "lastName" | "avatar">;
+  body: string;
+  sentAt: string;
+  readAt: string;
+}
 
 type PropertyData = {
   id: number;
@@ -46,7 +64,9 @@ type ImagesData = {
 
 export {
   UserData,
+  UserMessageData,
   MessageData,
+  MessageResultData,
   PropertyData,
   PropertySearchFilters,
   ImagesData,
