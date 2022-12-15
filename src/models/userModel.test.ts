@@ -1,4 +1,3 @@
-import { expect, jest, test } from "@jest/globals";
 import {
   NotFoundError,
   BadRequestError,
@@ -48,7 +47,7 @@ describe("authenticate", function () {
 
   test("unauth if wrong password", async function () {
     try {
-      await User.authenticate("c1", "wrong");
+      await User.authenticate({ username: "c1", password: "wrong" });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -63,7 +62,7 @@ describe("register", function () {
     username: "new",
     firstName: "Test",
     lastName: "Tester",
-    phone: "123-456-7890",
+    avatar: "",
     email: "test@test.com",
     isAdmin: false,
   };
@@ -114,7 +113,7 @@ describe("register", function () {
 
 describe("get", function () {
   test("works", async function () {
-    let user = await User.get("u1");
+    let user = await User.get({ username: "u1" });
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
@@ -127,30 +126,10 @@ describe("get", function () {
 
   test("not found if no such user", async function () {
     try {
-      await User.get("nope");
+      await User.get({ username: "u1" });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
 });
-
-// function beforeAll(commonBeforeAll: any) {
-//   throw new Error("Function not implemented.");
-// }
-
-// function beforeEach(commonBeforeEach: any) {
-//   throw new Error("Function not implemented.");
-// }
-
-// function afterEach(commonAfterEach: any) {
-//   throw new Error("Function not implemented.");
-// }
-
-// function afterAll(commonAfterAll: any) {
-//   throw new Error("Function not implemented.");
-// }
-
-// function expect(user: any) {
-//   throw new Error("Function not implemented.");
-// }
