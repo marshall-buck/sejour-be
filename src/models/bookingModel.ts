@@ -1,6 +1,7 @@
 import { db } from "../db";
-import { NotFoundError, BadRequestError } from "../expressError";
+import { BadRequestError } from "../expressError";
 import { BookingData, BookingResultData } from "../types";
+import { Property } from "./propertyModel";
 
 /** Related function for bookings */
 
@@ -10,12 +11,17 @@ class Booking {
    * returns booking {id, startDate, endDate, property, guestUsername}
    * with property as {id, title, address, description, price, ownerUsername}
    */
+
   static async create({
     startDate,
     endDate,
     propertyId,
     guestUsername,
   }: Omit<BookingData, "id">): Promise<BookingResultData> {
+    if (!this.validateDates({ startDate, endDate })) {
+      throw new BadRequestError(`Sorry, there was an error creating booking`);
+    }
+
     // checks if the property is available, throws error if overlapping dates
     const validateBooking = await db.query(
       `
@@ -49,27 +55,21 @@ class Booking {
     );
 
     const booking = bookingRes.rows[0];
-
-    const propertyRes = await db.query(
-      `SELECT id,
-              title,
-              street,
-              city,
-              state,
-              zipcode,
-              latitude,
-              longitude,
-              description,
-              price,
-              owner_username AS "ownerUsername"
-          FROM properties
-          WHERE id = $1`,
-      [propertyId]
-    );
-
-    booking.property = propertyRes.rows[0];
+    booking.property = await Property.get(propertyId);
 
     return booking;
+  }
+
+  /**
+   * Validates booking end date is after start date
+   * Returns true if valid, false otherwise
+   */
+
+  private static validateDates({
+    startDate,
+    endDate,
+  }: Pick<BookingData, "startDate" | "endDate">): boolean {
+    return endDate > startDate;
   }
 }
 

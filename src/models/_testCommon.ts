@@ -7,6 +7,7 @@ const propertyIds: number[] = [];
 const messageIds: number[] = [];
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM bookings");
   await db.query("DELETE FROM messages");
   await db.query("DELETE FROM properties");
   await db.query("DELETE FROM users");
