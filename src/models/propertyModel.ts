@@ -1,17 +1,16 @@
 import { PropertyData, PropertySearchFilters } from "../types";
-
 import { db } from "../db";
-
-const { NotFoundError, BadRequestError } = require("../expressError");
+import { NotFoundError, BadRequestError } from "../expressError";
 
 /** Related functions for Properties */
 
 class Property {
-  /** Create Property
-   * given property data { title, address, description , price }
+  /** Create new Property given property data params
+   * { title, street, city, state, zipcode, description, price, ownerUsername, }
    *
-   * return {id, title, street,  city, state, zipcode, latitude,
-   *    longitude,description ,price, username }
+   * Returns newly created Property:
+   * { id, title, street,  city, state, zipcode, latitude, longitude,
+   * description, price, username }
    */
 
   static async create({
@@ -67,14 +66,12 @@ class Property {
     return property;
   }
 
-  /** Create WHERE clause for filters, to be used by functions that query
-   * with filters.
+  /** Creates a WHERE clause for filtering
    *
    * searchFilters (all optional):
    * - description
    * - minPrice
    * - maxPrice
-   *
    *
    * Returns {
    *  where: "WHERE price >= $1 AND description ILIKE $2",
@@ -113,17 +110,17 @@ class Property {
     return { where, vals };
   }
 
-  /** Find all properties (optional filter on searchFilters).
+  /** Find all properties (with optional filter on searchFilters).
    *
    * searchFilters (all optional):
    * - description
    * - minPrice
    * - maxPrice
    *
-   * Returns array-
-   *     [{ id, title, address, description ,price, ownerUsername, key}, ...]
-   * where key is the s3 image url
-   * */
+   * Returns array:
+   *  [{id, title, street, city, state, zipcode, description, price,
+   *  ownerUsername, key}, ...] where key is the s3 image key
+   */
 
   // TODO: We're only returning one image here, so if there are multiple images
   // the Property shows up as many times as there are images
@@ -166,23 +163,11 @@ class Property {
     return propertiesRes.rows;
   }
 
-  //   SELECT p.id,
-  //   p.title,
-  //   p.address,
-  //   p.description,
-  //   p.price,
-  //   p.owner_username AS "ownerUsername",
-  //   i.key
-  // JOIN images AS i ON i.property_id = p.id
-  // FROM properties AS p
-  // ${where}
-  // ORDER BY p.title
-  // `, vals);
-
-  /** Given a property id, return data about property.
+  /** Given a property id:
    *
-   * Returns {id, title, address, description ,price, owner_username, images }
-   * where images is [{key, property_id}, ...]
+   * Returns property data if found:
+   *  {id, title, street, city, state, zipcode, description, price,
+   *  owner_username, images } where images is [{key, property_id}, ...]
    *
    * Throws NotFoundError if not found.
    **/
@@ -205,7 +190,7 @@ class Property {
     if (!property) throw new NotFoundError(`No property: ${id}`);
 
     const imagesRes = await db.query(
-      `SELECT key, property_id
+      `SELECT id, key, property_id
           FROM images
           WHERE property_id = $1
           ORDER BY key`,
@@ -217,4 +202,5 @@ class Property {
     return property;
   }
 }
+
 export { Property };
