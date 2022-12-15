@@ -4,7 +4,7 @@ import { db } from "../db";
 import { BCRYPT_WORK_FACTOR } from "../config";
 import { PropertyData } from "../types";
 
-const propertyIds: number[] = [];
+const propertyIds: Pick<PropertyData, "id">[] = [];
 
 async function commonBeforeAll() {
   console.log("common before all");
@@ -36,7 +36,7 @@ async function commonBeforeAll() {
       VALUES('property one', '123 lane', 'test city', 'test state', '11111',
       '180.0000000', '-180.0000000', 'test description', 100, 'u1'),
             ('property two', '123 lane', 'test city', 'test state', '11111',
-      '180.0000000', '-180.0000000', 'test description', 200, 'u2')
+      '180.0000000', '-180.0000000', 'test description pool', 200, 'u2')
       RETURNING id
     `);
 

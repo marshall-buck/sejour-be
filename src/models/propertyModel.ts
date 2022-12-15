@@ -47,6 +47,7 @@ class Property {
              zipcode,
              latitude,
              longitude,
+             price,
              description,owner_username AS "ownerUsername"`,
       [
         title,
@@ -144,7 +145,12 @@ class Property {
       `
         SELECT p.id,
                p.title,
-               p.address,
+               p.street,
+               p.city,
+               p.state,
+               p.zipcode,
+               p.latitude,
+               p.longitude,
                p.description,
                p.price,
                p.owner_username AS "ownerUsername",
@@ -152,6 +158,7 @@ class Property {
           FROM properties AS p
           FULL JOIN images AS i ON i.property_id = p.id
           ${where}
+          ORDER BY p.id, p.title
       `,
       vals
     );
