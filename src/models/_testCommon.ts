@@ -4,7 +4,7 @@ import { db } from "../db";
 import { BCRYPT_WORK_FACTOR } from "../config";
 import { PropertyData } from "../types";
 
-const propertyIds: Pick<PropertyData, "id">[] = [];
+const propertyIds: number[] = [];
 
 async function commonBeforeAll() {
   console.log("common before all");
