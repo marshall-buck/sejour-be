@@ -1,6 +1,6 @@
 import { db } from "../db";
 import bcrypt from "bcrypt";
-import { UserData, MessageData } from "../types";
+import { UserData, UserMessageData } from "../types";
 import {
   NotFoundError,
   BadRequestError,
@@ -160,7 +160,7 @@ class User {
       throw new NotFoundError("username not found");
     }
 
-    return messages.map((m: MessageData) => {
+    return messages.map((m: UserMessageData) => {
       return {
         id: m.id,
         toUser: {
@@ -209,7 +209,7 @@ class User {
       throw new NotFoundError("username not found");
     }
 
-    return messages.map((m: MessageData) => {
+    return messages.map((m: UserMessageData) => {
       return {
         id: m.id,
         fromUser: {
