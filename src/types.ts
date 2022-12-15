@@ -57,6 +57,11 @@ type PropertySearchFilters = {
   description?: string;
 };
 
+type PropertyUpdateData = Pick<
+  PropertyData,
+  "id" | "description" | "title" | "price"
+>;
+
 type ImagesData = {
   id: number;
   key: string;
@@ -84,5 +89,6 @@ export {
   MessageResultData,
   PropertyData,
   PropertySearchFilters,
+  PropertyUpdateData,
   ImagesData,
 };

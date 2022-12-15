@@ -30,11 +30,13 @@ async function commonBeforeAll() {
   );
   const resultsProperties = await db.query(`
       INSERT INTO properties (title, street, city, state, zipcode, latitude,
-        longitude, description , price, owner_username)
+        longitude, description, price, owner_username, archived)
       VALUES ('property one', '123 lane', 'test city', 'test state', '11111',
-      '180.0000000', '-180.0000000', 'test description', 100, 'u1'),
-            ('property two', '123 lane', 'test city', 'test state', '11111',
-      '180.0000000', '-180.0000000', 'test description pool', 200, 'u2')
+      '180.0000000', '-180.0000000', 'test description', 100, 'u1', false),
+             ('property two', '123 lane', 'test city', 'test state', '11111',
+      '180.0000000', '-180.0000000', 'test description pool', 200, 'u2', false),
+             ('property three', '123 lane', 'test city', 'test state', '11111',
+      '180.0000000', '-180.0000000', 'test description', 200, 'u2', true)
       RETURNING id
     `);
 

@@ -1,10 +1,11 @@
-import { NotFoundError } from "../expressError";
+import { db } from "../db";
+import { BadRequestError, NotFoundError } from "../expressError";
 import { Property } from "./propertyModel";
 import {
+  commonAfterAll,
+  commonAfterEach,
   commonBeforeAll,
   commonBeforeEach,
-  commonAfterEach,
-  commonAfterAll,
   propertyIds,
 } from "./_testCommon";
 
@@ -17,7 +18,7 @@ afterAll(commonAfterAll);
 
 describe("create", function () {
   test("works: create method creates new property", async function () {
-    let newProperty = {
+    const newProperty = {
       title: "1sdfsdf",
       street: "12123 bobs your uncle",
       city: "New York",
@@ -28,7 +29,7 @@ describe("create", function () {
       price: 200,
       ownerUsername: "u1",
     };
-    let property = await Property.create(newProperty);
+    const property = await Property.create(newProperty);
 
     expect(property).toEqual({
       ...newProperty,
@@ -43,8 +44,8 @@ describe("create", function () {
 /************************************** findAll */
 // TODO: refactor with images
 describe("findAll", function () {
-  test("works: no filter no images on property", async function () {
-    let properties = await Property.findAll();
+  test("works: no filter finds all but exludes archived", async function () {
+    const properties = await Property.findAll();
     expect(properties).toEqual([
       {
         id: expect.any(Number),
@@ -78,7 +79,7 @@ describe("findAll", function () {
   });
 
   test("works: filters by min price", async function () {
-    let properties = await Property.findAll({ minPrice: 150 });
+    const properties = await Property.findAll({ minPrice: 150 });
     expect(properties).toEqual([
       {
         id: expect.any(Number),
@@ -98,7 +99,7 @@ describe("findAll", function () {
   });
 
   test("works: filters by max price", async function () {
-    let properties = await Property.findAll({ maxPrice: 150 });
+    const properties = await Property.findAll({ maxPrice: 150 });
     expect(properties).toEqual([
       {
         id: expect.any(Number),
@@ -117,8 +118,19 @@ describe("findAll", function () {
     ]);
   });
 
+  test("throws an error if max price is < min price", async function () {
+    try {
+      await Property.findAll({ maxPrice: 150, minPrice: 200 });
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+      const errStatus = (err as BadRequestError).status;
+      expect(errStatus).toEqual(400);
+    }
+  });
+
   test("works: filters by description", async function () {
-    let properties = await Property.findAll({ description: "pool" });
+    const properties = await Property.findAll({ description: "pool" });
     expect(properties).toEqual([
       {
         id: expect.any(Number),
@@ -143,7 +155,7 @@ describe("findAll", function () {
 describe("get by id", function () {
   test("works get property by id", async function () {
     const id = propertyIds[0] as number;
-    let property = await Property.get(id);
+    const property = await Property.get(id);
     expect(property).toEqual({
       id: propertyIds[0],
       title: "property one",
@@ -166,6 +178,80 @@ describe("get by id", function () {
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
+    }
+  });
+});
+
+/************************************** update */
+
+describe("update", function () {
+  test("can update a property", async function () {
+    const updateProperty = {
+      id: propertyIds[0],
+      title: "updated title",
+      description: "updated description",
+      price: 1000,
+    };
+    const property = await Property.update(updateProperty);
+    expect(property).toEqual({
+      id: propertyIds[0],
+      title: "updated title",
+      street: "123 lane",
+      city: "test city",
+      state: "test state",
+      zipcode: "11111",
+      latitude: "180.0000000",
+      longitude: "-180.0000000",
+      description: "updated description",
+      price: 1000,
+      ownerUsername: "u1",
+    });
+  });
+
+  test("not found if no such property", async function () {
+    const updateProperty = {
+      id: 0,
+      title: "updated title",
+      description: "updated description",
+      price: 1000,
+    };
+    try {
+      await Property.update(updateProperty);
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
+    }
+  });
+});
+
+/************************************** delete */
+
+describe("delete", function () {
+  test("archives a deleted property", async function () {
+    await Property.delete(propertyIds[0]);
+    const property = await db.query(`
+        SELECT archived, id
+            FROM properties
+                WHERE id = '${propertyIds[0]}'
+    `);
+    expect(property.rows[0]).toEqual({
+      id: expect.any(Number),
+      archived: true,
+    });
+  });
+
+  test("not found if no such property", async function () {
+    try {
+      await Property.delete(0);
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
     }
   });
 });
