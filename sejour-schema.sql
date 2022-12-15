@@ -25,7 +25,8 @@ CREATE TABLE properties (
   longitude VARCHAR(14) NOT NULL,
   description TEXT NOT NULL,
   price INTEGER NOT NULL,
-  owner_username VARCHAR(25) NOT NULL REFERENCES users ON DELETE CASCADE
+  owner_username VARCHAR(25) NOT NULL REFERENCES users ON DELETE CASCADE,
+  archived BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE bookings (
