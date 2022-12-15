@@ -1,13 +1,11 @@
 import bcrypt from "bcrypt";
-
-import { db } from "../db";
 import { BCRYPT_WORK_FACTOR } from "../config";
+import { db } from "../db";
 import { PropertyData } from "../types";
 
 const propertyIds: Pick<PropertyData, "id">[] = [];
 
 async function commonBeforeAll() {
-  console.log("common before all");
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM properties");
 
@@ -48,17 +46,14 @@ async function commonBeforeAll() {
 }
 
 async function commonBeforeEach() {
-  console.log("common before each");
   await db.query("BEGIN");
 }
 
 async function commonAfterEach() {
-  console.log("common after each");
   await db.query("ROLLBACK");
 }
 
 async function commonAfterAll() {
-  console.log("common after all");
   await db.end();
 }
 
