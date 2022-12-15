@@ -2,7 +2,7 @@ import { NotFoundError } from "../expressError";
 import { db } from "../db";
 import { MessageData, MessageResultData } from "../types";
 
-/** Message on the site. */
+/** Related functions for Message */
 
 class Message {
   /** Add new message to database --
