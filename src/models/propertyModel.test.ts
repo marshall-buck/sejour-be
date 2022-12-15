@@ -16,12 +16,12 @@ afterAll(commonAfterAll);
 /************************************** create */
 
 describe("create", function () {
-  test("works", async function () {
+  test("works: create method creates new property", async function () {
     let newProperty = {
       title: "1sdfsdf",
       street: "12123 bobs your uncle",
-      city: "Ny",
-      state: "ny",
+      city: "New York",
+      state: "NY",
       zipcode: "11111",
       description:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, rerum.",
@@ -77,7 +77,7 @@ describe("findAll", function () {
     ]);
   });
 
-  test("works: by min price", async function () {
+  test("works: filters by min price", async function () {
     let properties = await Property.findAll({ minPrice: 150 });
     expect(properties).toEqual([
       {
@@ -97,7 +97,7 @@ describe("findAll", function () {
     ]);
   });
 
-  test("works: by max price", async function () {
+  test("works: filters by max price", async function () {
     let properties = await Property.findAll({ maxPrice: 150 });
     expect(properties).toEqual([
       {
@@ -117,7 +117,7 @@ describe("findAll", function () {
     ]);
   });
 
-  test("works: by description", async function () {
+  test("works: filters by description", async function () {
     let properties = await Property.findAll({ description: "pool" });
     expect(properties).toEqual([
       {
@@ -141,7 +141,7 @@ describe("findAll", function () {
 /************************************** get */
 
 describe("get by id", function () {
-  test("works by id", async function () {
+  test("works get property by id", async function () {
     const id = propertyIds[0] as number;
     let property = await Property.get(id);
     expect(property).toEqual({
