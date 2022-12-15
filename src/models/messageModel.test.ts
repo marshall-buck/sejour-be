@@ -51,6 +51,10 @@ describe("markRead", function () {
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
+      const errMessage = (err as Error).message;
+      const errStatus = (err as NotFoundError).status;
+      expect(errMessage).toEqual("No such message: 0");
+      expect(errStatus).toEqual(404);
     }
   });
 });
@@ -83,10 +87,14 @@ describe("get", function () {
 
   test(`throws NotFoundError if no message found for id`, async function () {
     try {
-      await Message.markRead(0);
+      await Message.get(0);
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
+      const errMessage = (err as Error).message;
+      const errStatus = (err as NotFoundError).status;
+      expect(errMessage).toEqual("No such message: 0");
+      expect(errStatus).toEqual(404);
     }
   });
 });
