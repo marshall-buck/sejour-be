@@ -29,8 +29,13 @@ type PropertyData = {
   longitude: string;
   description: string;
   price: number;
-  username: string;
+  ownerUsername: string;
 };
 
-export { UserData, MessageData, PropertyData };
+type PropertySearchFilters = {
+  minPrice?: number;
+  maxPrice?: number;
+  description?: string;
+};
 
+export { UserData, MessageData, PropertyData, PropertySearchFilters };

@@ -1,19 +1,16 @@
-"use strict";
-
 const {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
 } = require("../expressError");
-const db = require("../db");
-const Property = require("./propertyModel");
+import { db } from "../db";
+import { Property } from "./propertyModel";
 const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  propertyIds
-
+  propertyIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -21,20 +18,17 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-
 /************************************** create */
 
 describe("create", function () {
-
-
   test("works", async function () {
     let newProperty = {
-      title: '1sdfsdf',
-      address: '12123',
-      description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, rerum.',
+      title: "1sdfsdf",
+      address: "12123",
+      description:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, rerum.",
       price: 200,
-      ownerUsername: 'u1'
-
+      ownerUsername: "u1",
     };
     let property = await Property.create(newProperty);
 
@@ -43,8 +37,6 @@ describe("create", function () {
       id: expect.any(Number),
     });
   });
-
-
 });
 
 /************************************** findAll */
@@ -59,7 +51,7 @@ describe("findAll", function () {
         address: "123 lane",
         description: "blah blah blah yard",
         price: 100,
-        ownerUsername: "u1"
+        ownerUsername: "u1",
       },
       {
         id: expect.any(Number),
@@ -67,9 +59,8 @@ describe("findAll", function () {
         address: "long drive",
         description: "pool, jacuzzi, movie theatre",
         price: 300,
-        ownerUsername: "u2"
+        ownerUsername: "u2",
       },
-
     ]);
   });
 
@@ -82,12 +73,10 @@ describe("findAll", function () {
         address: "long drive",
         description: "pool, jacuzzi, movie theatre",
         price: 300,
-        ownerUsername: "u2"
-      }
+        ownerUsername: "u2",
+      },
     ]);
   });
-
-
 
   test("works: by max price", async function () {
     let properties = await Property.findAll({ maxPrice: 200 });
@@ -98,7 +87,7 @@ describe("findAll", function () {
         address: "123 lane",
         description: "blah blah blah yard",
         price: 100,
-        ownerUsername: "u1"
+        ownerUsername: "u1",
       },
     ]);
   });
@@ -112,27 +101,25 @@ describe("findAll", function () {
         address: "long drive",
         description: "pool, jacuzzi, movie theatre",
         price: 300,
-        ownerUsername: "u2"
+        ownerUsername: "u2",
       },
     ]);
   });
 });
-
 
 /************************************** get */
 
 describe("get by id", function () {
   test("works by id", async function () {
     let property = await Property.get(propertyIds[0]);
-    expect(property).toEqual(
-      {
-        id: propertyIds[0],
-        title: "one",
-        address: "123 lane",
-        description: "blah blah blah yard",
-        price: 100,
-        ownerUsername: "u1"
-      });
+    expect(property).toEqual({
+      id: propertyIds[0],
+      title: "one",
+      address: "123 lane",
+      description: "blah blah blah yard",
+      price: 100,
+      ownerUsername: "u1",
+    });
   });
 
   test("not found if no such property", async function () {

@@ -62,7 +62,7 @@ async function commonAfterAll() {
   await db.end();
 }
 
-module.exports = {
+export {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,

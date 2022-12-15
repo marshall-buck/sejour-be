@@ -8,12 +8,12 @@ import { User } from "./userModel";
 import { db } from "../db";
 
 // const { query } = require("../db");
-const {
+import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-} = require("./_testCommon");
+} from "./_testCommon";
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
