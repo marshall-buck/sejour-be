@@ -1,49 +1,55 @@
-"use strict";
-
-/** Message class for message.ly */
-
-const { NotFoundError } = require("../expressError");
-const db = require("../db");
-
+import { NotFoundError } from "../expressError";
+import { db } from "../db";
+import { MessageData, MessageResultData } from "../types";
 
 /** Message on the site. */
 
 class Message {
-
-  /** Register new message -- returns
-   *    {id, from_username, to_username, body, sent_at}
+  /** Add new message to database --
+   *
+   * Returns newly created message:
+   *  {id, fromUsername, toUsername, body, sent_at}
    */
 
-  static async create({ fromUsername, toUsername, body }) {
+  static async create({
+    fromUsername,
+    toUsername,
+    body,
+  }: Omit<MessageData, "id" | "sentAt">): Promise<MessageData> {
     const result = await db.query(
-          `INSERT INTO messages (from_username,
+      `INSERT INTO messages (from_username,
                                  to_username,
                                  body,
                                  sent_at)
-             VALUES
+          VALUES
                ($1, $2, $3, current_timestamp)
-             RETURNING id, from_username, to_username, body, sent_at`,
-        [fromUsername, toUsername, body]);
+          RETURNING id, from_username AS "fromUsername",
+                    to_username AS "toUsername", body, sent_at`,
+      [fromUsername, toUsername, body]
+    );
 
     return result.rows[0];
   }
 
-
-  /** Update read_at for message
+  /** Updates read_at for message when read by user
    *
-   * updates the read_at property to the current timestamp
+   * Modify read_at property to the current timestamp
    *
-   * returns {id, read_at}
+   * Returns {id, read_at}
+   * Throws NotFoundError if no message found for id
    *
    **/
 
-  static async markRead(id) {
+  static async markRead(
+    id: number
+  ): Promise<Pick<MessageData, "id" | "readAt">> {
     const result = await db.query(
-          `UPDATE messages
-           SET read_at = current_timestamp
+      `UPDATE messages
+          SET read_at = current_timestamp
              WHERE id = $1
-             RETURNING id, read_at`,
-        [id]);
+             RETURNING id, read_at AS "readAt"`,
+      [id]
+    );
     const message = result.rows[0];
 
     if (!message) throw new NotFoundError(`No such message: ${id}`);
@@ -51,58 +57,57 @@ class Message {
     return message;
   }
 
-  /** Get: get message by id
+  /** Get a message by id
    *
-   * returns {id, from_user, to_user, body, sent_at, read_at}
-   *
-   * both to_user and from_user = {username, first_name, last_name, phone}
-   *
+   * Returns {id, fromUser, toUser, body, sentAt, readAt}
+   * where both toUser and fromUser = {username, firstName, lastName, phone}
+   * Throws NotFoundError if no message found for id
    */
 
-  static async get(id) {
+  static async get(id: number): Promise<MessageResultData> {
     const result = await db.query(
-          `SELECT m.id,
-                  m.from_username,
-                  f.first_name AS from_first_name,
-                  f.last_name AS from_last_name,
-                  f.phone AS from_phone,
-                  m.to_username,
-                  t.first_name AS to_first_name,
-                  t.last_name AS to_last_name,
-                  t.phone AS to_phone,
-                  m.body,
-                  m.sent_at,
-                  m.read_at
-             FROM messages AS m
-                    JOIN users AS f ON m.from_username = f.username
-                    JOIN users AS t ON m.to_username = t.username
-             WHERE m.id = $1`,
-        [id]);
+      `SELECT m.id,
+              m.fromUsername,
+              f.first_name AS from_first_name,
+              f.last_name AS from_last_name,
+              f.avatar AS from_avatar,
+              m.toUsername,
+              t.first_name AS to_first_name,
+              t.last_name AS to_last_name,
+              t.avatar AS to_avatar,
+              m.body,
+              m.sentAt,
+              m.readAt
+          FROM messages AS m
+              JOIN users AS f ON m.from_username = f.username
+              JOIN users AS t ON m.to_username = t.username
+          WHERE m.id = $1`,
+      [id]
+    );
 
-    let m = result.rows[0];
+    let message = result.rows[0];
 
-    if (!m) throw new NotFoundError(`No such message: ${id}`);
+    if (!message) throw new NotFoundError(`No such message: ${id}`);
 
     return {
-      id: m.id,
-      from_user: {
-        username: m.from_username,
-        first_name: m.from_first_name,
-        last_name: m.from_last_name,
-        phone: m.from_phone,
+      id: message.id,
+      fromUser: {
+        username: message.from_username,
+        firstName: message.from_first_name,
+        lastName: message.from_last_name,
+        avatar: message.from_avatar,
       },
-      to_user: {
-        username: m.to_username,
-        first_name: m.to_first_name,
-        last_name: m.to_last_name,
-        phone: m.to_phone,
+      toUser: {
+        username: message.to_username,
+        firstName: message.to_first_name,
+        lastName: message.to_last_name,
+        avatar: message.to_avatar,
       },
-      body: m.body,
-      sent_at: m.sent_at,
-      read_at: m.read_at,
+      body: message.body,
+      sentAt: message.sentAt,
+      readAt: message.readAt,
     };
   }
 }
 
-
-module.exports = Message;
+export { Message };
