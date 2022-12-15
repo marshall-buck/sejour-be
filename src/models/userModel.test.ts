@@ -4,10 +4,7 @@ import {
   UnauthorizedError,
 } from "../expressError";
 import { User } from "./userModel";
-
 import { db } from "../db";
-
-// const { query } = require("../db");
 import {
   commonBeforeAll,
   commonBeforeEach,
@@ -28,8 +25,7 @@ describe("authenticate", function () {
       username: "u1",
       password: "password1",
     });
-
-    console.log(user);
+    
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
