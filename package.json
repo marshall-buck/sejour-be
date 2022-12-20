@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "nodemon ./src/server.ts",
     "test": "jest",
+    "test-c": "jest --coverage",
     "build": "tsc --build"
   },
   "keywords": [],
