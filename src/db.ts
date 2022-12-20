@@ -1,7 +1,7 @@
 /** Database setup for sejour. */
 
-const { Client } = require("pg");
-const { getDatabaseUri } = require("./config");
+import { Client } from "pg";
+import { getDatabaseUri } from "./config";
 
 const db = new Client({
   connectionString: getDatabaseUri(),
