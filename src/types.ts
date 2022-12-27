@@ -49,7 +49,6 @@ type PropertyData = {
   price: number;
   ownerUsername: string;
   images?: Omit<ImagesData, "property_id">[];
-  preview?: number;
 };
 
 type PropertySearchFilters = {
@@ -69,6 +68,7 @@ type ImagesData = {
   id: number;
   imageKey: string;
   propertyId: number;
+  isCoverImage: boolean;
 };
 
 type BookingData = {

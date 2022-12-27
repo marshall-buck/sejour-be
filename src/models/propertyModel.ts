@@ -104,7 +104,7 @@ class Property {
     let filterParts: string[] = [];
     let vals: (string | number)[] = [];
 
-    //account for $1 and $2 arg placeholders used for pageSize & pageNumber
+    // Account for $1 and $2 arg placeholders used for pageSize & pageNumber
     const defaultArgumentsOffset = 2;
 
     if (minPrice !== undefined) {
@@ -144,14 +144,17 @@ class Property {
    *
    * Returns array:
    *  [{id, title, street, city, state, zipcode, description, price,
-   *  ownerUsername, images, preview}, ...]
-   * where images is [{id, image_key}, ...]
+   *  ownerUsername, images}, ...]
+   * where images is [{id, imageKey, isCoverImage}, ...]
    */
 
   static async findAll(
     searchFilters: PropertySearchFilters = PAGINATION
   ): Promise<PropertyData[]> {
+
     const { minPrice, maxPrice, description } = searchFilters;
+
+    // Validate logic for min and max price parameters
     if (minPrice && maxPrice) {
       if (minPrice > maxPrice) {
         throw new BadRequestError("Min price cannot be greater than max");
@@ -198,7 +201,8 @@ class Property {
    *
    * Returns property data if found:
    *  {id, title, street, city, state, zipcode, description, price,
-   *  owner_username, images } where images is [{id, image_key}, ...]
+   *  owner_username, images }
+   * where images is [{id, imagKey, isCoverImage}, ...]
    *
    * Throws new NotFoundError if not found.
    **/

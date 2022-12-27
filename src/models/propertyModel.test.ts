@@ -60,9 +60,9 @@ describe("findAll", function () {
         price: 100,
         ownerUsername: "u1",
         images: [
-          { id: expect.any(Number), imageKey: "12345678" },
-          { id: expect.any(Number), imageKey: "23456789" },
-          { id: expect.any(Number), imageKey: "34567890" },
+          { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
+          { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
+          { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
         ],
       },
       {
@@ -98,9 +98,9 @@ describe("findAll", function () {
         price: 100,
         ownerUsername: "u1",
         images: [
-          { id: expect.any(Number), imageKey: "12345678" },
-          { id: expect.any(Number), imageKey: "23456789" },
-          { id: expect.any(Number), imageKey: "34567890" },
+          { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
+          { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
+          { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
         ],
       },
     ]);
@@ -162,9 +162,9 @@ describe("findAll", function () {
         price: 100,
         ownerUsername: "u1",
         images: [
-          { id: expect.any(Number), imageKey: "12345678" },
-          { id: expect.any(Number), imageKey: "23456789" },
-          { id: expect.any(Number), imageKey: "34567890" },
+          { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
+          { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
+          { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
         ],
       },
     ]);
@@ -221,9 +221,9 @@ describe("get by id", function () {
       price: 100,
       ownerUsername: "u1",
       images: [
-        { id: expect.any(Number), imageKey: "12345678" },
-        { id: expect.any(Number), imageKey: "23456789" },
-        { id: expect.any(Number), imageKey: "34567890" },
+        { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
+        { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
+        { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
       ],
     });
   });

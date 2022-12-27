@@ -7,7 +7,6 @@ const propertyIds: number[] = [];
 const messageIds: number[] = [];
 
 async function commonBeforeAll() {
-  await db.query("DELETE FROM previews");
   await db.query("DELETE FROM images");
   await db.query("DELETE FROM bookings");
   await db.query("DELETE FROM messages");
@@ -69,10 +68,10 @@ async function commonBeforeAll() {
   );
 
   await db.query(`
-      INSERT INTO images (image_key, property_id)
-          VALUES ('12345678', ${propertyIds[0]}),
-                 ('23456789', ${propertyIds[0]}),
-                 ('34567890', ${propertyIds[0]})
+      INSERT INTO images (image_key, property_id, is_cover_image)
+          VALUES ('12345678', ${propertyIds[0]}, true),
+                 ('23456789', ${propertyIds[0]}, false),
+                 ('34567890', ${propertyIds[0]}, false)
       `)
 }
 

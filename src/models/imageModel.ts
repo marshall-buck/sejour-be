@@ -23,7 +23,7 @@ class Image {
 
   static async getAllByProperty(propertyId: number) {
     const result = await db.query(
-      `SELECT id, image_key AS "imageKey"
+      `SELECT id, image_key AS "imageKey", is_cover_image AS "isCoverImage"
           FROM images
               WHERE property_id = $1
       `,
