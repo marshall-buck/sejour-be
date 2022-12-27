@@ -5,6 +5,7 @@ import {
 } from "../types";
 import { db } from "../db";
 import { NotFoundError, BadRequestError } from "../expressError";
+import { Image } from "./imageModel"
 
 /** Related functions for Properties */
 
@@ -46,7 +47,7 @@ class Property {
               price,
               owner_username)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-          RETURNING id,
+              RETURNING id,
                     title,
                     street,
                     city,
@@ -129,11 +130,10 @@ class Property {
    *
    * Returns array:
    *  [{id, title, street, city, state, zipcode, description, price,
-   *  ownerUsername, key}, ...] where key is the s3 image key
+   *  ownerUsername, images, preview}, ...]
+   * where images is [{id, image_key}, ...]
    */
 
-  // TODO: We're only returning one image here, so if there are multiple images
-  // the Property shows up as many times as there are images
   static async findAll(
     searchFilters: PropertySearchFilters = {}
   ): Promise<PropertyData[]> {
@@ -151,27 +151,29 @@ class Property {
     });
 
     const propertiesRes = await db.query(
-      `
-        SELECT p.id,
-               p.title,
-               p.street,
-               p.city,
-               p.state,
-               p.zipcode,
-               p.latitude,
-               p.longitude,
-               p.description,
-               p.price,
-               p.owner_username AS "ownerUsername",
-               i.key
-          FROM properties AS p
-          FULL JOIN images AS i ON i.property_id = p.id
-          WHERE archived = false
-          ${filter}
-          ORDER BY p.id, p.title
+      `SELECT p.id,
+              p.title,
+              p.street,
+              p.city,
+              p.state,
+              p.zipcode,
+              p.latitude,
+              p.longitude,
+              p.description,
+              p.price,
+              p.owner_username AS "ownerUsername"
+            FROM properties AS p
+                WHERE archived = false
+                ${filter}
+                    ORDER BY p.id, p.title
       `,
       vals
     );
+
+    for (let i = 0; i < propertiesRes.rows.length; i++) {
+      const imagesRes = await Image.getAllByProperty(propertiesRes.rows[i].id)
+      propertiesRes.rows[i].images = imagesRes;
+    }
 
     return propertiesRes.rows as PropertyData[];
   }
@@ -180,9 +182,9 @@ class Property {
    *
    * Returns property data if found:
    *  {id, title, street, city, state, zipcode, description, price,
-   *  owner_username, images } where images is [{key, property_id}, ...]
+   *  owner_username, images } where images is [{id, image_key}, ...]
    *
-   * Throws NotFoundError if not found.
+   * Throws new NotFoundError if not found.
    **/
 
   static async get(id: number): Promise<PropertyData> {
@@ -198,8 +200,8 @@ class Property {
               description,
               price,
               owner_username AS "ownerUsername"
-            FROM properties
-            WHERE id = $1`,
+          FROM properties
+              WHERE id = $1`,
       [id]
     );
 
@@ -207,15 +209,8 @@ class Property {
 
     if (!property) throw new NotFoundError(`No property: ${id}`);
 
-    const imagesRes = await db.query(
-      `SELECT id, key, property_id
-          FROM images
-          WHERE property_id = $1
-          ORDER BY key`,
-      [id]
-    );
-
-    property.images = imagesRes.rows;
+    const imagesRes = await Image.getAllByProperty(id);
+    property.images = imagesRes;
 
     return property;
   }

@@ -48,7 +48,8 @@ type PropertyData = {
   description: string;
   price: number;
   ownerUsername: string;
-  images?: ImagesData[];
+  images?: Omit<ImagesData, "property_id">[];
+  preview?: number;
 };
 
 type PropertySearchFilters = {
@@ -64,7 +65,7 @@ type PropertyUpdateData = Pick<
 
 type ImagesData = {
   id: number;
-  key: string;
+  imageKey: string;
   propertyId: number;
 };
 

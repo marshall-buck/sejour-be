@@ -59,7 +59,11 @@ describe("findAll", function () {
         description: "test description",
         price: 100,
         ownerUsername: "u1",
-        key: null,
+        images: [
+          { id: expect.any(Number), imageKey: "12345678" },
+          { id: expect.any(Number), imageKey: "23456789" },
+          { id: expect.any(Number), imageKey: "34567890" },
+        ],
       },
       {
         id: expect.any(Number),
@@ -73,7 +77,7 @@ describe("findAll", function () {
         description: "test description pool",
         price: 200,
         ownerUsername: "u2",
-        key: null,
+        images: [],
       },
     ]);
   });
@@ -93,7 +97,7 @@ describe("findAll", function () {
         description: "test description pool",
         price: 200,
         ownerUsername: "u2",
-        key: null,
+        images: [],
       },
     ]);
   });
@@ -113,7 +117,11 @@ describe("findAll", function () {
         description: "test description",
         price: 100,
         ownerUsername: "u1",
-        key: null,
+        images: [
+          { id: expect.any(Number), imageKey: "12345678" },
+          { id: expect.any(Number), imageKey: "23456789" },
+          { id: expect.any(Number), imageKey: "34567890" },
+        ],
       },
     ]);
   });
@@ -144,7 +152,7 @@ describe("findAll", function () {
         description: "test description pool",
         price: 200,
         ownerUsername: "u2",
-        key: null,
+        images: [],
       },
     ]);
   });
@@ -168,7 +176,11 @@ describe("get by id", function () {
       description: "test description",
       price: 100,
       ownerUsername: "u1",
-      images: [],
+      images: [
+        { id: expect.any(Number), imageKey: "12345678" },
+        { id: expect.any(Number), imageKey: "23456789" },
+        { id: expect.any(Number), imageKey: "34567890" },
+      ],
     });
   });
 

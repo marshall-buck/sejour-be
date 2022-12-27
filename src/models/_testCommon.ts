@@ -7,6 +7,8 @@ const propertyIds: number[] = [];
 const messageIds: number[] = [];
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM previews");
+  await db.query("DELETE FROM images");
   await db.query("DELETE FROM bookings");
   await db.query("DELETE FROM messages");
   await db.query("DELETE FROM properties");
@@ -14,23 +16,32 @@ async function commonBeforeAll() {
 
   await db.query(
     ` INSERT INTO users (username,
-                          password,
-                          first_name,
-                          last_name,
-                          email,
-                          avatar)
+                        password,
+                        first_name,
+                        last_name,
+                        email,
+                        avatar)
       VALUES ('u1', $1, 'U1F', 'U1L','u1@email.com',  'test http'),
              ('u2', $2, 'U2F', 'U2L','u2@email.com',  'test http')
       RETURNING username
-      `,
+    `,
     [
       await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
       await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
     ]
   );
   const resultsProperties = await db.query(`
-      INSERT INTO properties (title, street, city, state, zipcode, latitude,
-        longitude, description, price, owner_username, archived)
+      INSERT INTO properties (title,
+                              street,
+                              city,
+                              state,
+                              zipcode,
+                              latitude,
+                              longitude,
+                              description,
+                              price,
+                              owner_username,
+                              archived)
       VALUES ('property one', '123 lane', 'test city', 'test state', '11111',
       '180.0000000', '-180.0000000', 'test description', 100, 'u1', false),
              ('property two', '123 lane', 'test city', 'test state', '11111',
@@ -56,6 +67,13 @@ async function commonBeforeAll() {
     0,
     ...resultsMessages.rows.map((r: MessageData) => r.id)
   );
+
+  await db.query(`
+      INSERT INTO images (image_key, property_id)
+          VALUES ('12345678', ${propertyIds[0]}),
+                 ('23456789', ${propertyIds[0]}),
+                 ('34567890', ${propertyIds[0]})
+      `)
 }
 
 async function commonBeforeEach() {
