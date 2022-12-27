@@ -3,13 +3,13 @@
 -- DROP TABLE IF EXISTS bookings;
 -- DROP TABLE IF EXISTS properties;
 -- DROP TABLE IF EXISTS users;
+
 CREATE TABLE users (
   username VARCHAR(25) PRIMARY KEY,
   password TEXT NOT NULL,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  CHECK (position('@' IN email) > 1),
+  email TEXT NOT NULL CHECK (position('@' IN email) > 1),
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
   avatar TEXT NOT NULL DEFAULT 'https://picsum.photos/100'
 );
@@ -48,6 +48,10 @@ CREATE TABLE messages (
 
 CREATE TABLE images (
   id SERIAL PRIMARY KEY,
-  key VARCHAR(255) NOT NULL,
+  image_key VARCHAR(255) NOT NULL,
   property_id INT NOT NULL REFERENCES properties ON DELETE CASCADE
 );
+
+CREATE TABLE previews (
+  id INT PRIMARY KEY REFERENCES images ON DELETE CASCADE
+)
