@@ -5,7 +5,13 @@ import {
 } from "../types";
 import { db } from "../db";
 import { NotFoundError, BadRequestError } from "../expressError";
-import { Image } from "./imageModel"
+import { Image } from "./imageModel";
+
+// Default pagination parameters
+const PAGINATION = {
+  pageSize: 12,
+  pageNumber: 1,
+};
 
 /** Related functions for Properties */
 
@@ -85,7 +91,7 @@ class Property {
    * - maxPrice
    *
    * Returns {
-   *  filter: "AND price >= $1 AND description ILIKE $2",
+   *  filter: "AND price >= $3 AND description ILIKE $4",
    *  vals: [100, '%Apple%']
    * }
    */
@@ -94,24 +100,29 @@ class Property {
     minPrice,
     maxPrice,
     description,
-  }: PropertySearchFilters) {
+  }: Omit<PropertySearchFilters, "pageSize" | "pageNumber">) {
     let filterParts: string[] = [];
     let vals: (string | number)[] = [];
 
+    //account for $1 and $2 arg placeholders used for pageSize & pageNumber
+    const defaultArgumentsOffset = 2;
+
     if (minPrice !== undefined) {
       vals.push(minPrice);
-      filterParts.push(`price >= $${vals.length}`);
+      filterParts.push(`price >= $${vals.length + defaultArgumentsOffset}`);
     }
 
     if (maxPrice !== undefined) {
       vals.push(maxPrice);
-      filterParts.push(`price <= $${vals.length}`);
+      filterParts.push(`price <= $${vals.length + defaultArgumentsOffset}`);
     }
 
     if (description) {
       vals.push(`%${description}%`);
       filterParts.push(
-        `description ILIKE $${vals.length} OR title ILIKE $${vals.length}`
+        `description ILIKE $${
+          vals.length + defaultArgumentsOffset
+        } OR title ILIKE $${vals.length + defaultArgumentsOffset}`
       );
     }
 
@@ -127,6 +138,9 @@ class Property {
    * - description
    * - minPrice
    * - maxPrice
+   * - pageSize (default PAGINATION.pageSize)
+   * - pageNumber (default PAGINATION.pageNumber)
+   *
    *
    * Returns array:
    *  [{id, title, street, city, state, zipcode, description, price,
@@ -135,7 +149,7 @@ class Property {
    */
 
   static async findAll(
-    searchFilters: PropertySearchFilters = {}
+    searchFilters: PropertySearchFilters = PAGINATION
   ): Promise<PropertyData[]> {
     const { minPrice, maxPrice, description } = searchFilters;
     if (minPrice && maxPrice) {
@@ -166,12 +180,14 @@ class Property {
                 WHERE archived = false
                 ${filter}
                     ORDER BY p.id, p.title
+                    LIMIT $1
+                    OFFSET (($2-1) * $1);
       `,
-      vals
+      [searchFilters.pageSize, searchFilters.pageNumber, ...vals]
     );
 
     for (let i = 0; i < propertiesRes.rows.length; i++) {
-      const imagesRes = await Image.getAllByProperty(propertiesRes.rows[i].id)
+      const imagesRes = await Image.getAllByProperty(propertiesRes.rows[i].id);
       propertiesRes.rows[i].images = imagesRes;
     }
 

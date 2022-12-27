@@ -56,6 +56,8 @@ type PropertySearchFilters = {
   minPrice?: number;
   maxPrice?: number;
   description?: string;
+  pageSize?: number;
+  pageNumber?: number;
 };
 
 type PropertyUpdateData = Pick<

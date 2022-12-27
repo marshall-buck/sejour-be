@@ -82,6 +82,50 @@ describe("findAll", function () {
     ]);
   });
 
+  test("pagination and page size works on search queries", async function () {
+    const properties = await Property.findAll({ pageSize: 1 });
+    expect(properties).toEqual([
+      {
+        id: expect.any(Number),
+        title: "property one",
+        street: "123 lane",
+        city: "test city",
+        state: "test state",
+        zipcode: "11111",
+        latitude: "180.0000000",
+        longitude: "-180.0000000",
+        description: "test description",
+        price: 100,
+        ownerUsername: "u1",
+        images: [
+          { id: expect.any(Number), imageKey: "12345678" },
+          { id: expect.any(Number), imageKey: "23456789" },
+          { id: expect.any(Number), imageKey: "34567890" },
+        ],
+      },
+    ]);
+  });
+
+  test("page number works on search queries", async function () {
+    const properties = await Property.findAll({ pageSize: 1, pageNumber: 2 });
+    expect(properties).toEqual([
+      {
+        id: expect.any(Number),
+        title: "property two",
+        street: "123 lane",
+        city: "test city",
+        state: "test state",
+        zipcode: "11111",
+        latitude: "180.0000000",
+        longitude: "-180.0000000",
+        description: "test description pool",
+        price: 200,
+        ownerUsername: "u2",
+        images: [],
+      },
+    ]);
+  });
+
   test("works: filters by min price", async function () {
     const properties = await Property.findAll({ minPrice: 150 });
     expect(properties).toEqual([
