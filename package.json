@@ -8,8 +8,8 @@
   "main": "server.ts",
   "scripts": {
     "dev": "nodemon ./src/server.ts",
-    "test": "jest",
-    "test-c": "jest --coverage",
+    "test": "jest -i",
+    "test-c": "jest -i --coverage",
     "build": "tsc --build"
   },
   "keywords": [],
