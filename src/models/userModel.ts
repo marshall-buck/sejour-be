@@ -25,7 +25,6 @@ class User {
     password,
   }: Pick<UserData, "username" | "password">): Promise<UserData> {
     // try to find the user first
-    console.log(username);
 
     const result = await db.query(
       `SELECT username,
