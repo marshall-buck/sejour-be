@@ -42,7 +42,7 @@ describe("create", function () {
 });
 
 /************************************** findAll */
-// TODO: refactor with images
+
 describe("findAll", function () {
   test("works: no filter finds all but exludes archived", async function () {
     const properties = await Property.findAll();
