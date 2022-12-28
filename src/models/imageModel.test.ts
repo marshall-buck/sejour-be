@@ -92,13 +92,7 @@ describe("delete image", function () {
 /************************************** update */
 
 describe("update isCoverImage image", function () {
-  test("changes isCoverImage to true", async function () {
-    const updatedImage = await Image.update(imageIds[1], propertyIds[0]);
-
-    expect(updatedImage.isCoverImage).toBeTruthy();
-  });
-
-  test("changes isCoverImage to false", async function () {
+  test("update works as expected", async function () {
     const updatedImage = await Image.update(imageIds[1], propertyIds[0]);
     expect(updatedImage.isCoverImage).toBeTruthy();
 
