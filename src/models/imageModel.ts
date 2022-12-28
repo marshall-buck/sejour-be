@@ -1,12 +1,12 @@
 import { db } from "../db";
-import { NotFoundError, BadRequestError } from "../expressError";
-import { ImageData, PropertyData } from "../types";
+import { NotFoundError } from "../expressError";
+import { ImageData } from "../types";
 
 /** Related functions for Images */
 class Image {
   /** Create image entry in DB
-   * Takes in a { imageKey, propertyId, isCoverImage}
-   * Returns {id, imageKey, propertyId, isCoverImage }
+   * Takes in a { imageKey, propertyId, isCoverImage }
+   * Returns { id, imageKey, propertyId, isCoverImage }
    */
   static async create({
     imageKey,
@@ -29,8 +29,8 @@ class Image {
   }
 
   /** Get all images by property id
-   * throws NotFoundError if no property
-   * Returns [{id,imageKey, isCoverImage}, ...] || []
+   * Throws NotFoundError if no property
+   * Returns [{id,imageKey, isCoverImage}, ...] or [] if no images
    */
   static async getAllByProperty(
     propertyId: number
@@ -57,10 +57,10 @@ class Image {
     return images.rows as Omit<ImageData, "propertyId">[];
   }
 
-  /** Delete image from  DB by image id
-   * throws NotFoundError if no id exists
+  /** Delete image from DB by image id
+   * Throws NotFoundError if no id exists
    *
-   * returns undefined on success
+   * Returns undefined on success
    */
   static async delete(id: number) {
     const result = await db.query(
@@ -77,9 +77,11 @@ class Image {
     return;
   }
 
-  /** Update isCoveredImage by id
-   * takes an imageId, and changes isCoveredImage to true
-   * returns image object of new cover image {id,imageKey, propertyId, isCoverImage}
+  /** Update isCoverImage to TRUE by id
+   * Finds current image with isCoverImage TRUE by property id and toggles FALSE
+   * Takes an image id, and changes isCoveredImage to TRUE
+   * Throws a new NotFoundError if no image id
+   * Returns image object {id, imageKey, propertyId, isCoverImage}
    */
   static async update(id: number, propertyId: number): Promise<ImageData> {
     await db.query(

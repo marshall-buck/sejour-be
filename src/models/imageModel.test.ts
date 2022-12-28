@@ -1,18 +1,14 @@
-import {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-} from "../expressError";
-import { Image } from "./imageModel";
 import { db } from "../db";
+import { NotFoundError } from "../expressError";
+import { Image } from "./imageModel";
 
 import {
+  commonAfterAll,
+  commonAfterEach,
   commonBeforeAll,
   commonBeforeEach,
-  commonAfterEach,
-  commonAfterAll,
-  propertyIds,
   imageIds,
+  propertyIds,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -49,6 +45,9 @@ describe("getAllByProperty", function () {
     }
   });
 });
+
+/************************************** create */
+
 describe("create image", function () {
   test("adds image to db", async function () {
     const images = await Image.create({
@@ -65,12 +64,15 @@ describe("create image", function () {
   });
 });
 
+/************************************** delete */
+
 describe("delete image", function () {
   test("deletes image from db", async function () {
     await Image.delete(imageIds[0]);
-    const images = await db.query(`SELECT id
-                              FROM images
-                                WHERE id = ${imageIds[0]}`);
+    const images = await db.query(`
+        SELECT id
+          FROM images
+            WHERE id = ${imageIds[0]}`);
 
     expect(images.rows).toEqual([]);
   });
@@ -86,6 +88,9 @@ describe("delete image", function () {
     }
   });
 });
+
+/************************************** update */
+
 describe("update isCoverImage image", function () {
   test("changes isCoverImage to true", async function () {
     const updatedImage = await Image.update(imageIds[1], propertyIds[0]);
