@@ -48,7 +48,7 @@ type PropertyData = {
   description: string;
   price: number;
   ownerUsername: string;
-  images?: Omit<ImagesData, "property_id">[];
+  images?: Omit<ImageData, "propertyId">[];
 };
 
 type PropertySearchFilters = {
@@ -64,7 +64,7 @@ type PropertyUpdateData = Pick<
   "id" | "description" | "title" | "price"
 >;
 
-type ImagesData = {
+type ImageData = {
   id: number;
   imageKey: string;
   propertyId: number;
@@ -93,5 +93,5 @@ export {
   PropertyData,
   PropertySearchFilters,
   PropertyUpdateData,
-  ImagesData,
+  ImageData,
 };

@@ -1,4 +1,5 @@
 import {
+  ImageData,
   PropertyData,
   PropertySearchFilters,
   PropertyUpdateData,
@@ -151,7 +152,6 @@ class Property {
   static async findAll(
     searchFilters: PropertySearchFilters = PAGINATION
   ): Promise<PropertyData[]> {
-
     const { minPrice, maxPrice, description } = searchFilters;
 
     // Validate logic for min and max price parameters
@@ -225,7 +225,7 @@ class Property {
       [id]
     );
 
-    const property: PropertyData = propertyRes.rows[0];
+    const property = propertyRes.rows[0] as PropertyData;
 
     if (!property) throw new NotFoundError(`No property: ${id}`);
 
