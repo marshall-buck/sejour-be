@@ -5,22 +5,29 @@ import { ImageData, PropertyData } from "../types";
 /** Related functions for Images */
 class Image {
   /** Create image entry in DB
-   * Takes in a { key, propertyId}
-   * Returns { key, propertyId }
+   * Takes in a { imageKey, propertyId, isCoverImage}
+   * Returns {id, imageKey, propertyId, isCoverImage }
    */
+  static async create({
+    imageKey,
+    propertyId,
+    isCoverImage = false,
+  }: Omit<ImageData, "id">): Promise<ImageData> {
+    const result = await db.query(
+      `INSERT INTO images (image_key , property_id, is_cover_image)
+        VALUES ($1, $2, $3)
+          RETURNING id,
+                    image_key AS "imageKey",
+                    property_id AS "propertyId",
+                    is_cover_image AS "isCoverImage"
+      `,
+      [imageKey, propertyId, isCoverImage]
+    );
 
-  // static async create({ key, propertyId }) {
-  //   const result = await db.query(
-  //     `INSERT INTO images (key, property_id)
-  //       VALUES ($1, $2)
-  //         RETURNING key, property_id AS "propertyId"
-  //     `,
-  //     [key, propertyId]
-  //   );
+    const image = result.rows[0] as ImageData;
+    return image;
+  }
 
-  //   const image = result.rows[0];
-  //   return image;
-  // }
   /** Get all images by property id
    * throws NotFoundError if no property
    * Returns [{id,imageKey, isCoverImage}, ...] || []
@@ -47,11 +54,28 @@ class Image {
       [propertyId]
     );
 
-    return images.rows;
+    return images.rows as Omit<ImageData, "propertyId">[];
   }
 
-  // /** Delete image entry in DB by image key */
-  // static async delete({ key }) {}
+  /** Delete image from  DB by image id
+   * throws NotFoundError if no id exists
+   *
+   * returns undefined on success
+   */
+  static async delete(id: number) {
+    const result = await db.query(
+      `DELETE FROM images
+         WHERE id = $1
+            RETURNING id
+      `,
+      [id]
+    );
+    const imageId: number = result.rows[0];
+
+    if (!imageId) throw new NotFoundError(`No image: ${id}`);
+
+    return;
+  }
 }
 
 export { Image };
