@@ -68,7 +68,7 @@ type ImageData = {
   id: number;
   imageKey: string;
   propertyId: number;
-  isCoverImage: boolean;
+  isCoverImage?: boolean;
 };
 
 type BookingData = {
