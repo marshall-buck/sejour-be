@@ -76,6 +76,33 @@ class Image {
 
     return;
   }
+
+  /** Update isCoveredImage by id
+   * takes an imageId, and changes isCoveredImage to true
+   * returns image object of new cover image {id,imageKey, propertyId, isCoverImage}
+   */
+  static async update(id: number, propertyId: number): Promise<ImageData> {
+    await db.query(
+      `UPDATE images
+          SET is_cover_image = FALSE
+              WHERE is_cover_image = TRUE AND property_id = $1`,
+      [propertyId]
+    );
+
+    const image = await db.query(
+      `UPDATE images
+          SET is_cover_image = TRUE
+              WHERE id = $1
+                RETURNING id,
+                          image_key AS "imageKey",
+                          property_id AS "propertyId",
+                          is_cover_image AS "isCoverImage"
+              `,
+      [id]
+    );
+    if (!image.rows[0]) throw new NotFoundError(`No image: ${id}`);
+    return image.rows[0];
+  }
 }
 
 export { Image };
