@@ -42,9 +42,9 @@ describe("getAllByProperty", function () {
       await Image.getAllByProperty(0);
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-      const errStatus = (err as BadRequestError).status;
-      expect(errStatus).toEqual(400);
+      expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
     }
   });
 });

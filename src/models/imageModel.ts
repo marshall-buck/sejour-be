@@ -22,13 +22,24 @@ class Image {
   //   return image;
   // }
   /** Get all images by property id
-   *
-   * Returns [{id,imageKey, isCoverImage}, ...] ||
+   * throws NotFoundError if no property
+   * Returns [{id,imageKey, isCoverImage}, ...] || []
    */
   static async getAllByProperty(
     propertyId: number
   ): Promise<Omit<ImageData, "propertyId">[]> {
-    const result = await db.query(
+    const property = await db.query(
+      `SELECT id
+          FROM properties
+            WHERE id = $1
+          `,
+      [propertyId]
+    );
+
+    if (!property.rows[0])
+      throw new NotFoundError(`No property: ${propertyId}`);
+
+    const images = await db.query(
       `SELECT id, image_key AS "imageKey", is_cover_image AS "isCoverImage"
           FROM images
               WHERE property_id = $1
@@ -36,9 +47,7 @@ class Image {
       [propertyId]
     );
 
-    if (!result) throw new NotFoundError(`No property: ${propertyId}`);
-
-    return result.rows;
+    return images.rows;
   }
 
   // /** Delete image entry in DB by image key */
