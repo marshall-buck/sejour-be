@@ -300,7 +300,7 @@ describe("delete", function () {
     });
   });
 
-  test("not found if no such property", async function () {
+  test("throws not found if no such property", async function () {
     try {
       await Property.delete(0);
       throw new Error("fail test, you shouldn't get here");
