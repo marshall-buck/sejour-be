@@ -17,6 +17,22 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
+/************************************** notFoundHandler */
+
+describe("notFoundHandler", function () {
+  test("not found if no result", async function () {
+    try {
+      User._notFoundHandler(
+        undefined,
+      );
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err: any) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      expect(err.message).toEqual("not found");
+    }
+  });
+});
+
 /************************************** authenticate */
 
 describe("authenticate", function () {
@@ -25,12 +41,12 @@ describe("authenticate", function () {
       username: "u1",
       password: "password1",
     });
-    
+
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
-      avatar: "test http",
+      avatar: "test url",
       email: "u1@email.com",
       isAdmin: false,
     });
@@ -113,23 +129,58 @@ describe("register", function () {
 
 describe("get", function () {
   test("works", async function () {
-    let user = await User.get({ username: "u1" });
+    const user = await User.get({ username: "u1" });
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
-      avatar: "test http",
+      avatar: "test url",
       isAdmin: false,
     });
   });
+});
 
-  test("not found if no such user", async function () {
-    try {
-      await User.get({ username: "c1" });
-      throw new Error("fail test, you shouldn't get here");
-    } catch (err) {
-      expect(err instanceof NotFoundError).toBeTruthy();
-    }
+/************************************** messagesFrom */
+
+describe("messagesFrom", function () {
+  test("successfully get messages from user", async function () {
+    const message = await User.messagesFrom({ username: "u1" });
+    expect(message).toEqual([
+      {
+        id: expect.any(Number),
+        toUser: {
+          username: "u2",
+          firstName: "U2F",
+          lastName: "U2L",
+          avatar: "test url",
+        },
+        body: "test message",
+        sentAt: expect.any(Date),
+        readAt: null,
+      },
+    ]);
+  });
+});
+
+/************************************** messagesTo */
+
+describe("messagesTo", function () {
+  test("successfully get messages to user", async function () {
+    const message = await User.messagesTo({ username: "u2" });
+    expect(message).toEqual([
+      {
+        id: expect.any(Number),
+        fromUser: {
+          username: "u1",
+          firstName: "U1F",
+          lastName: "U1L",
+          avatar: "test url",
+        },
+        body: "test message",
+        sentAt: expect.any(Date),
+        readAt: null,
+      },
+    ]);
   });
 });

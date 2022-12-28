@@ -11,6 +11,14 @@ import { BCRYPT_WORK_FACTOR } from "../config";
 /** Related functions for users. */
 
 class User {
+  /** Given result data and an error message
+   * Throws a new NotFoundError if result data is undefined,
+   * along with error message */
+
+  static _notFoundHandler<Type>(result: Type, message = "not found"): void {
+    if (!result) throw new NotFoundError(message);
+  }
+
   /** Authenticate user with username, password.
    *
    * Returns { username, firstName, lastName, avatar, email, isAdmin }
@@ -109,7 +117,9 @@ class User {
    * Throws NotFoundError if user not found.
    **/
 
-  static async get({ username }: Pick<UserData, "username">) {
+  static async get({
+    username,
+  }: Pick<UserData, "username">): Promise<UserData> {
     const userRes = await db.query(
       `SELECT username,
               first_name AS "firstName",
@@ -122,9 +132,9 @@ class User {
       [username]
     );
 
-    const user = userRes.rows[0];
+    const user: UserData = userRes.rows[0];
 
-    if (!user) throw new NotFoundError(`No user: ${username}`);
+    this._notFoundHandler(user, `No user: ${username}`);
 
     return user;
   }
@@ -137,27 +147,25 @@ class User {
    *   {username, firstName, lastName, avatar}
    */
 
-  static async messagesFrom(username: Pick<UserData, "username">) {
+  static async messagesFrom({ username }: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
-              m.to_username AS m.username,
-              u.first_name AS u.firstName,
-              u.last_name AS u.lastName,
-              u.avatar,
+              m.to_username AS "username",
+              u.first_name AS "firstName",
+              u.last_name AS "lastName",
+              u.avatar AS "avatar",
               m.body,
-              m.sent_at AS m.sentAt,
-              m.read_at AS m.readAt
+              m.sent_at AS "sentAt",
+              m.read_at AS "readAt"
           FROM messages AS m
             JOIN users AS u
               ON u.username = m.to_username
           WHERE from_username = $1`,
       [username]
     );
-    const messages = results.rows;
+    const messages: UserMessageData[] = results.rows;
 
-    if (!messages) {
-      throw new NotFoundError("username not found");
-    }
+    this._notFoundHandler(messages, `No messages found from ${username}`);
 
     return messages.map((m: UserMessageData) => {
       return {
@@ -166,6 +174,7 @@ class User {
           username: m.username,
           firstName: m.firstName,
           lastName: m.lastName,
+          avatar: m.avatar,
         },
         body: m.body,
         sentAt: m.sentAt,
@@ -186,16 +195,16 @@ class User {
    *   {username, firstName, lastName, avatar}
    */
 
-  static async messagesTo(username: Pick<UserData, "username">) {
+  static async messagesTo({username}: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
-              m.from_username AS m.fromUsername,
-              u.firstName AS u.firstName,
-              u.lastName AS u.lastName,
-              u.avatar,
+              m.from_username AS "username",
+              u.first_name AS "firstName",
+              u.last_name AS "lastName",
+              u.avatar AS "avatar",
               m.body,
-              m.sent_at AS m.sentAt,
-              m.read_at AS m.readAt
+              m.sent_at AS "sentAt",
+              m.read_at AS "readAt"
           FROM messages AS m
             JOIN users AS u
               ON u.username = m.from_username
@@ -204,9 +213,7 @@ class User {
     );
     const messages = results.rows;
 
-    if (!messages) {
-      throw new NotFoundError("username not found");
-    }
+    this._notFoundHandler(messages, `No messages found for ${username}`);
 
     return messages.map((m: UserMessageData) => {
       return {
@@ -215,6 +222,7 @@ class User {
           username: m.username,
           firstName: m.firstName,
           lastName: m.lastName,
+          avatar: m.avatar,
         },
         body: m.body,
         sentAt: m.sentAt,

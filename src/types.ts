@@ -13,6 +13,7 @@ type UserMessageData = {
   username: string;
   firstName: string;
   lastName: string;
+  avatar: string;
   body: string;
   sentAt: string;
   readAt: string;
