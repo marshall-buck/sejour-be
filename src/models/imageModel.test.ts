@@ -86,3 +86,32 @@ describe("delete image", function () {
     }
   });
 });
+describe("update isCoverImage image", function () {
+  test("changes isCoverImage to true", async function () {
+    const updatedImage = await Image.update(imageIds[1], propertyIds[0]);
+
+    expect(updatedImage.isCoverImage).toBeTruthy();
+  });
+
+  test("changes isCoverImage to false", async function () {
+    const updatedImage = await Image.update(imageIds[1], propertyIds[0]);
+    expect(updatedImage.isCoverImage).toBeTruthy();
+
+    const images = await db.query(`SELECT id, is_cover_image  AS "isCoverImage"
+                                      FROM images
+                                          WHERE id = ${imageIds[0]}`);
+    expect(updatedImage.isCoverImage).toBeTruthy();
+    expect(images.rows[0].isCoverImage).toEqual(false);
+  });
+
+  test("throws not found if no such image", async function () {
+    try {
+      await Image.update(0, propertyIds[0]);
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
+    }
+  });
+});
