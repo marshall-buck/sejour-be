@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import { BCRYPT_WORK_FACTOR } from "../config";
 import { db } from "../db";
-import { MessageData, PropertyData } from "../types";
+import { MessageData, PropertyData, ImageData } from "../types";
 
 const propertyIds: number[] = [];
 const messageIds: number[] = [];
+const imageIds: number[] = [];
 
 async function commonBeforeAll() {
   await db.query("DELETE FROM images");
@@ -67,12 +68,15 @@ async function commonBeforeAll() {
     ...resultsMessages.rows.map((r: MessageData) => r.id)
   );
 
-  await db.query(`
+  const resultsImages = await db.query(`
       INSERT INTO images (image_key, property_id, is_cover_image)
           VALUES ('12345678', ${propertyIds[0]}, true),
                  ('23456789', ${propertyIds[0]}, false),
                  ('34567890', ${propertyIds[0]}, false)
-      `)
+                RETURNING id
+      `);
+
+  imageIds.splice(0, 0, ...resultsImages.rows.map((r: ImageData) => r.id));
 }
 
 async function commonBeforeEach() {
@@ -94,4 +98,5 @@ export {
   commonAfterAll,
   propertyIds,
   messageIds,
+  imageIds,
 };
