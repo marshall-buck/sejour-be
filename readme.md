@@ -4,3 +4,7 @@
 ##### Run all tests with coverage `npm run test-c`
 
 Please note tests are set to EST timezone
+
+
+### TODOs
+- [ ] refactor findAll fn() in propertyModels
