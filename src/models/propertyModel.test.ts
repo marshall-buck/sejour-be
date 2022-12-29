@@ -45,129 +45,185 @@ describe("create", function () {
 
 describe("findAll", function () {
   test("works: no filter finds all but exludes archived", async function () {
-    const properties = await Property.findAll();
-    expect(properties).toEqual([
-      {
-        id: expect.any(Number),
-        title: "property one",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description",
-        price: 100,
-        ownerUsername: "u1",
-        images: [
-          { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
-          { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
-          { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
-        ],
-      },
-      {
-        id: expect.any(Number),
-        title: "property two",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description pool",
-        price: 200,
-        ownerUsername: "u2",
-        images: [],
-      },
-    ]);
+    const properties = await Property.findAll({});
+    expect(properties).toEqual({
+      pagination: { currentPage: 1, limit: 12, totalPages: 1, totalResults: 2 },
+      properties: [
+        {
+          city: "test city",
+          description: "test description",
+          id: expect.any(Number),
+          images: [
+            {
+              id: expect.any(Number),
+              imageKey: "12345678",
+              isCoverImage: true,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: "23456789",
+              isCoverImage: false,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: "34567890",
+              isCoverImage: false,
+            },
+          ],
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          ownerUsername: "u1",
+          price: 100,
+          state: "test state",
+          street: "123 lane",
+          title: "property one",
+          zipcode: "11111",
+        },
+        {
+          city: "test city",
+          description: "test description pool",
+          id: expect.any(Number),
+          images: [],
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          ownerUsername: "u2",
+          price: 200,
+          state: "test state",
+          street: "123 lane",
+          title: "property two",
+          zipcode: "11111",
+        },
+      ],
+    });
   });
 
   test("pagination and page size works on search queries", async function () {
-    const properties = await Property.findAll({ pageSize: 1 });
-    expect(properties).toEqual([
-      {
-        id: expect.any(Number),
-        title: "property one",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description",
-        price: 100,
-        ownerUsername: "u1",
-        images: [
-          { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
-          { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
-          { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
-        ],
-      },
-    ]);
+    const properties = await Property.findAll({ limit: 1 });
+    expect(properties).toEqual({
+      pagination: { currentPage: 1, limit: 1, totalPages: 2, totalResults: 2 },
+      properties: [
+        {
+          city: "test city",
+          description: "test description",
+          id: expect.any(Number),
+          images: [
+            {
+              id: expect.any(Number),
+              imageKey: "12345678",
+              isCoverImage: true,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: "23456789",
+              isCoverImage: false,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: "34567890",
+              isCoverImage: false,
+            },
+          ],
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          ownerUsername: "u1",
+          price: 100,
+          state: "test state",
+          street: "123 lane",
+          title: "property one",
+          zipcode: "11111",
+        },
+      ],
+    });
   });
 
   test("page number works on search queries", async function () {
-    const properties = await Property.findAll({ pageSize: 1, pageNumber: 2 });
-    expect(properties).toEqual([
-      {
-        id: expect.any(Number),
-        title: "property two",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description pool",
-        price: 200,
-        ownerUsername: "u2",
-        images: [],
+    const properties = await Property.findAll({ limit: 1, pageNumber: 2 });
+    expect(properties).toEqual({
+      pagination: {
+        currentPage: 2,
+        limit: 1,
+        totalPages: 2,
+        totalResults: 2,
       },
-    ]);
+      properties: [
+        {
+          city: "test city",
+          description: "test description pool",
+          id: expect.any(Number),
+          images: [],
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          ownerUsername: "u2",
+          price: 200,
+          state: "test state",
+          street: "123 lane",
+          title: "property two",
+          zipcode: "11111",
+        },
+      ],
+    });
   });
 
   test("works: filters by min price", async function () {
     const properties = await Property.findAll({ minPrice: 150 });
-    expect(properties).toEqual([
-      {
-        id: expect.any(Number),
-        title: "property two",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description pool",
-        price: 200,
-        ownerUsername: "u2",
-        images: [],
-      },
-    ]);
+    expect(properties).toEqual({
+      pagination: { currentPage: 1, limit: 12, totalPages: 1, totalResults: 1 },
+      properties: [
+        {
+          city: "test city",
+          description: "test description pool",
+          id: expect.any(Number),
+          images: [],
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          ownerUsername: "u2",
+          price: 200,
+          state: "test state",
+          street: "123 lane",
+          title: "property two",
+          zipcode: "11111",
+        },
+      ],
+    });
   });
 
   test("works: filters by max price", async function () {
     const properties = await Property.findAll({ maxPrice: 150 });
-    expect(properties).toEqual([
-      {
-        id: expect.any(Number),
-        title: "property one",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description",
-        price: 100,
-        ownerUsername: "u1",
-        images: [
-          { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
-          { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
-          { id: expect.any(Number), imageKey: "34567890", isCoverImage: false },
-        ],
-      },
-    ]);
+    expect(properties).toEqual({
+      pagination: { currentPage: 1, limit: 12, totalPages: 1, totalResults: 1 },
+      properties: [
+        {
+          city: "test city",
+          description: "test description",
+          id: expect.any(Number),
+          images: [
+            {
+              id: expect.any(Number),
+              imageKey: "12345678",
+              isCoverImage: true,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: "23456789",
+              isCoverImage: false,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: "34567890",
+              isCoverImage: false,
+            },
+          ],
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          ownerUsername: "u1",
+          price: 100,
+          state: "test state",
+          street: "123 lane",
+          title: "property one",
+          zipcode: "11111",
+        },
+      ],
+    });
   });
 
   test("throws an error if max price is < min price", async function () {
@@ -183,22 +239,30 @@ describe("findAll", function () {
 
   test("works: filters by description", async function () {
     const properties = await Property.findAll({ description: "pool" });
-    expect(properties).toEqual([
-      {
-        id: expect.any(Number),
-        title: "property two",
-        street: "123 lane",
-        city: "test city",
-        state: "test state",
-        zipcode: "11111",
-        latitude: "180.0000000",
-        longitude: "-180.0000000",
-        description: "test description pool",
-        price: 200,
-        ownerUsername: "u2",
-        images: [],
+    expect(properties).toEqual({
+      properties: [
+        {
+          id: expect.any(Number),
+          title: "property two",
+          street: "123 lane",
+          city: "test city",
+          state: "test state",
+          zipcode: "11111",
+          latitude: "180.0000000",
+          longitude: "-180.0000000",
+          description: "test description pool",
+          price: 200,
+          ownerUsername: "u2",
+          images: [],
+        },
+      ],
+      pagination: {
+        currentPage: 1,
+        limit: 12,
+        totalPages: 1,
+        totalResults: 1,
       },
-    ]);
+    });
   });
 });
 
@@ -206,8 +270,7 @@ describe("findAll", function () {
 
 describe("get by id", function () {
   test("works get property by id", async function () {
-    const id = propertyIds[0] as number;
-    const property = await Property.get(id);
+    const property = await Property.get({ id: propertyIds[0] });
     expect(property).toEqual({
       id: propertyIds[0],
       title: "property one",
@@ -230,7 +293,7 @@ describe("get by id", function () {
 
   test("not found if no such property", async function () {
     try {
-      await Property.get(0);
+      await Property.get({ id: 0 });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -288,7 +351,7 @@ describe("update", function () {
 
 describe("delete", function () {
   test("archives a deleted property", async function () {
-    await Property.delete(propertyIds[0]);
+    await Property.delete({ id: propertyIds[0] });
     const property = await db.query(`
         SELECT archived, id
             FROM properties
@@ -302,7 +365,7 @@ describe("delete", function () {
 
   test("throws not found if no such property", async function () {
     try {
-      await Property.delete(0);
+      await Property.delete({ id: 0 });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();

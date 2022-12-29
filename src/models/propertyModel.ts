@@ -1,4 +1,5 @@
 import {
+  PropertyResponse,
   PropertyData,
   PropertySearchFilters,
   PropertyUpdateData,
@@ -9,12 +10,11 @@ import { Image } from "./imageModel";
 
 // Default pagination parameters
 const PAGINATION = {
-  pageSize: 12,
+  limit: 12,
   pageNumber: 1,
 };
 
 /** Related functions for Properties */
-
 class Property {
   /** Create new Property given property data params
    * { title, street, city, state, zipcode, description, price, ownerUsername, }
@@ -23,7 +23,6 @@ class Property {
    * { id, title, street, city, state, zipcode, latitude, longitude,
    * description, price, username }
    */
-
   static async create({
     title,
     street,
@@ -95,34 +94,28 @@ class Property {
    *  vals: [100, '%Apple%']
    * }
    */
-
   private static _filterBuilder({
     minPrice,
     maxPrice,
     description,
-  }: Omit<PropertySearchFilters, "pageSize" | "pageNumber">) {
+  }: Omit<PropertySearchFilters, "limit" | "pageNumber">) {
     let filterParts: string[] = [];
     let vals: (string | number)[] = [];
 
-    // Account for $1 and $2 arg placeholders used for pageSize & pageNumber
-    const defaultArgumentsOffset = 2;
-
     if (minPrice !== undefined) {
       vals.push(minPrice);
-      filterParts.push(`price >= $${vals.length + defaultArgumentsOffset}`);
+      filterParts.push(`price >= $${vals.length}`);
     }
 
     if (maxPrice !== undefined) {
       vals.push(maxPrice);
-      filterParts.push(`price <= $${vals.length + defaultArgumentsOffset}`);
+      filterParts.push(`price <= $${vals.length}`);
     }
 
     if (description) {
       vals.push(`%${description}%`);
       filterParts.push(
-        `description ILIKE $${
-          vals.length + defaultArgumentsOffset
-        } OR title ILIKE $${vals.length + defaultArgumentsOffset}`
+        `description ILIKE $${vals.length} OR title ILIKE $${vals.length}`
       );
     }
 
@@ -132,13 +125,13 @@ class Property {
     return { filter, vals };
   }
 
-  /** Find all properties (with optional filter on searchFilters).
+  /** Find all properties (with optional filters):
    *
-   * searchFilters (all optional):
+   * search filters (all optional):
    * - description
    * - minPrice
    * - maxPrice
-   * - pageSize (default PAGINATION.pageSize)
+   * - limit (default PAGINATION.limit)
    * - pageNumber (default PAGINATION.pageNumber)
    *
    *
@@ -147,12 +140,13 @@ class Property {
    *  ownerUsername, images}, ...]
    * where images is [{id, imageKey, isCoverImage}, ...]
    */
-
-  static async findAll(
-    searchFilters: PropertySearchFilters = PAGINATION
-  ): Promise<PropertyData[]> {
-    const { minPrice, maxPrice, description } = searchFilters;
-
+  static async findAll({
+    minPrice,
+    maxPrice,
+    description,
+    limit = PAGINATION.limit,
+    pageNumber = PAGINATION.pageNumber,
+  }: PropertySearchFilters): Promise<PropertyResponse> {
     // Validate logic for min and max price parameters
     if (minPrice && maxPrice) {
       if (minPrice > maxPrice) {
@@ -165,6 +159,15 @@ class Property {
       maxPrice,
       description,
     });
+
+    const count = await db.query(
+      `SELECT COUNT(id) AS "totalResults"
+          FROM properties
+          WHERE archived = false
+          ${filter}
+      `,
+      [...vals]
+    );
 
     const propertiesRes = await db.query(
       `SELECT p.id,
@@ -182,10 +185,10 @@ class Property {
                 WHERE archived = false
                 ${filter}
                     ORDER BY p.id, p.title
-                    LIMIT $1
-                    OFFSET (($2-1) * $1);
+                    LIMIT $${vals.length + 1}
+                    OFFSET (($${vals.length + 2} - 1) * $${vals.length + 1});
       `,
-      [searchFilters.pageSize, searchFilters.pageNumber, ...vals]
+      [...vals, limit, pageNumber]
     );
 
     for (let i = 0; i < propertiesRes.rows.length; i++) {
@@ -193,7 +196,22 @@ class Property {
       propertiesRes.rows[i].images = imagesRes;
     }
     const properties: PropertyData[] = propertiesRes.rows;
-    return properties;
+    const totalResults: number = +count.rows[0].totalResults;
+    const totalPages = Math.ceil(totalResults / limit);
+
+    const pagination = {
+      currentPage: pageNumber,
+      totalResults: totalResults,
+      totalPages: totalPages,
+      limit: limit,
+    };
+
+    const propertiesResponse: PropertyResponse = {
+      properties: properties,
+      pagination: pagination,
+    };
+
+    return propertiesResponse;
   }
 
   /** Given a property id:
@@ -204,9 +222,8 @@ class Property {
    * where images is [{id, imagKey, isCoverImage}, ...]
    *
    * Throws new NotFoundError if not found.
-   **/
-
-  static async get(id: number): Promise<PropertyData> {
+   */
+  static async get({ id }: Pick<PropertyData, "id">): Promise<PropertyData> {
     const result = await db.query(
       `SELECT id,
               title,
@@ -241,7 +258,6 @@ class Property {
    * description, price, username }
    * Throws NotFoundError if no property found for id
    */
-
   static async update({
     id,
     title,
@@ -277,8 +293,7 @@ class Property {
    * Set archived status to true
    * Throws NotFoundError if no property found for id
    */
-
-  static async delete(id: number) {
+  static async delete({ id }: Pick<PropertyData, "id">) {
     const result = await db.query(
       `UPDATE properties
           SET archived = true
@@ -287,7 +302,7 @@ class Property {
       `,
       [id]
     );
-    const propertyId: number = result.rows[0];
+    const propertyId: Pick<PropertyData, "id"> = result.rows[0];
     NotFoundError.handler(propertyId, `No property: ${id}`);
 
     return;

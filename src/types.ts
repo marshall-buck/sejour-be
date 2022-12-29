@@ -76,7 +76,7 @@ type PropertySearchFilters = {
   minPrice?: number;
   maxPrice?: number;
   description?: string;
-  pageSize?: number;
+  limit?: number;
   pageNumber?: number;
 };
 
@@ -111,6 +111,11 @@ type PaginationInfo = {
   limit: number;
 };
 
+type PropertyResponse = {
+  properties: PropertyData[];
+  pagination: PaginationInfo;
+};
+
 export {
   BookingData,
   BookingResultData,
@@ -121,6 +126,7 @@ export {
   PropertyData,
   PropertySearchFilters,
   PropertyUpdateData,
+  PropertyResponse,
   ImageData,
   PaginationInfo,
   MessageQueryResult,

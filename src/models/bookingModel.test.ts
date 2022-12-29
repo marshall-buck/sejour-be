@@ -27,7 +27,7 @@ describe("create", function () {
       guestUsername: "u2",
     };
     const booking = await Booking.create(newBooking);
-    const property = await Property.get(propertyIds[0]);
+    const property = await Property.get({id: propertyIds[0]});
 
     expect(booking).toEqual({
       id: expect.any(Number),

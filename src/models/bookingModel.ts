@@ -53,7 +53,7 @@ class Booking {
     );
 
     const booking: BookingResultData = bookingRes.rows[0];
-    booking.property = await Property.get(propertyId);
+    booking.property = await Property.get({id: propertyId});
 
     return booking;
   }
