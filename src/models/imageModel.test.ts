@@ -68,7 +68,7 @@ describe("create image", function () {
 
 describe("delete image", function () {
   test("deletes image from db", async function () {
-    await Image.delete(imageIds[0]);
+    await Image.delete({id: imageIds[0]});
     const images = await db.query(`
         SELECT id
           FROM images
@@ -79,7 +79,7 @@ describe("delete image", function () {
 
   test("throws not found if no such image", async function () {
     try {
-      await Image.delete(0);
+      await Image.delete({id: 0});
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -93,10 +93,13 @@ describe("delete image", function () {
 
 describe("update isCoverImage image", function () {
   test("update works as expected", async function () {
-    const updatedImage = await Image.update(imageIds[1], propertyIds[0]);
+    const updatedImage = await Image.update({
+      id: imageIds[1],
+      propertyId: propertyIds[0],
+    });
     expect(updatedImage.isCoverImage).toBeTruthy();
 
-    const images = await db.query(`SELECT id, is_cover_image  AS "isCoverImage"
+    const images = await db.query(`SELECT id, is_cover_image AS "isCoverImage"
                                       FROM images
                                           WHERE id = ${imageIds[0]}`);
     expect(updatedImage.isCoverImage).toBeTruthy();
@@ -105,7 +108,7 @@ describe("update isCoverImage image", function () {
 
   test("throws not found if no such image", async function () {
     try {
-      await Image.update(0, propertyIds[0]);
+      await Image.update({ id: 0, propertyId: propertyIds[0] });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
