@@ -28,6 +28,10 @@ type MessageData = {
   readAt?: string;
 };
 
+// type MessageQueryResult = {
+
+// }
+
 type MessageResultData = {
   id: number;
   fromUser: Pick<UserData, "username" | "firstName" | "lastName" | "avatar">;
