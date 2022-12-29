@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { BadRequestError } from "../expressError";
+import { BadRequestError, NotFoundError } from "../expressError";
 import { BookingData, BookingResultData } from "../types";
 import { Property } from "./propertyModel";
 
@@ -11,7 +11,7 @@ class Booking {
    * returns booking {id, startDate, endDate, property, guestUsername}
    * with property as {id, title, address, description, price, ownerUsername}
    */
-  // TODO: add Edit Booking -cancel booking and rebook
+
   static async create({
     startDate,
     endDate,
@@ -58,6 +58,26 @@ class Booking {
     booking.property = await Property.get(propertyId);
 
     return booking;
+  }
+
+  /** Delete a  booking with {id}
+   * throws Error if no id
+   * returns undefined
+   *
+   */
+  static async delete({ id }: Pick<BookingData, "id">) {
+    const result = await db.query(
+      `DELETE FROM bookings
+         WHERE id = $1
+            RETURNING id
+      `,
+      [id]
+    );
+    const bookingId: Pick<BookingData, "id"> = result.rows[0];
+
+    if (!bookingId) throw new NotFoundError(`No booking: ${id}`);
+
+    return;
   }
 
   /**
