@@ -225,7 +225,7 @@ class Property {
       [id]
     );
 
-    const property = propertyRes.rows[0] as PropertyData;
+    const property: PropertyData = propertyRes.rows[0];
 
     if (!property) throw new NotFoundError(`No property: ${id}`);
 
