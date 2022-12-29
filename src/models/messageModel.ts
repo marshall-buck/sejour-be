@@ -27,7 +27,7 @@ class Message {
       [fromUsername, toUsername, body]
     );
 
-    return result.rows[0];
+    return result.rows[0] as MessageData;
   }
 
   /** Updates read_at for message when read by user
@@ -49,7 +49,7 @@ class Message {
              RETURNING id, read_at AS "readAt"`,
       [id]
     );
-    const message = result.rows[0];
+    const message: Pick<MessageData, "id" | "readAt"> = result.rows[0];
 
     if (!message) throw new NotFoundError(`No such message: ${id}`);
 
@@ -83,8 +83,8 @@ class Message {
           WHERE m.id = $1`,
       [id]
     );
-
-    let message = result.rows[0];
+    // TODO: Create type for query results, and change to camelCase
+    const message = result.rows[0];
 
     if (!message) throw new NotFoundError(`No such message: ${id}`);
 
@@ -105,7 +105,7 @@ class Message {
       body: message.body,
       sentAt: message.sent_at,
       readAt: message.read_at,
-    };
+    } as MessageResultData;
   }
 }
 
