@@ -7,7 +7,7 @@ import { Property } from "./propertyModel";
 class Booking {
   /** Create a new booking with {startDate, endDate, propertyId, guestUsername}
    *
-   * returns booking {id, startDate, endDate, property, guestUsername}
+   * Returns booking {id, startDate, endDate, property, guestUsername}
    * with property as {id, title, address, description, price, ownerUsername}
    */
   static async create({
@@ -58,9 +58,9 @@ class Booking {
     return booking;
   }
 
-  /** Delete a  booking with {id}
-   * throws Error if no id
-   * returns undefined
+  /** Delete a booking with {id}
+   * Throws NotFoundError if no id
+   * Returns undefined
    *
    */
   static async delete({ id }: Pick<BookingData, "id">) {
@@ -77,8 +77,7 @@ class Booking {
     return;
   }
 
-  /**
-   * Validates booking end date is after start date
+  /** Validates booking end date is after start date
    * Returns true if valid, false otherwise
    */
   private static validateDates({
