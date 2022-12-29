@@ -11,7 +11,7 @@ class Booking {
    * returns booking {id, startDate, endDate, property, guestUsername}
    * with property as {id, title, address, description, price, ownerUsername}
    */
-
+  // TODO: Edit Booking
   static async create({
     startDate,
     endDate,
@@ -54,7 +54,7 @@ class Booking {
       [startDate, endDate, propertyId, guestUsername]
     );
 
-    const booking = bookingRes.rows[0];
+    const booking: BookingResultData = bookingRes.rows[0];
     booking.property = await Property.get(propertyId);
 
     return booking;
