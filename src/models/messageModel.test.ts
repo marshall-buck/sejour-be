@@ -36,7 +36,7 @@ describe("create", function () {
 
 describe("markRead", function () {
   test("can mark a message as read by id", async function () {
-    const result = await Message.markRead(messageIds[0]);
+    const result = await Message.markRead({id: messageIds[0]});
 
     expect(result).toEqual({
       id: expect.any(Number),
@@ -47,7 +47,7 @@ describe("markRead", function () {
   test(`throws NotFoundError if no message found for id,
     cannot mark as read`, async function () {
     try {
-      const result = await Message.markRead(0);
+      const result = await Message.markRead({id: 0});
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -63,7 +63,7 @@ describe("markRead", function () {
 
 describe("get", function () {
   test("can get a message details by id", async function () {
-    const result = await Message.get(messageIds[0]);
+    const result = await Message.get({id: messageIds[0]});
 
     expect(result).toEqual({
       id: expect.any(Number),
@@ -87,7 +87,7 @@ describe("get", function () {
 
   test(`throws NotFoundError if no message found for id`, async function () {
     try {
-      await Message.get(0);
+      await Message.get({id: 0});
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();

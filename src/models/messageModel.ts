@@ -38,7 +38,7 @@ class Message {
    *
    **/
   static async markRead(
-    id: number
+    {id}: Pick<MessageData, "id">
   ): Promise<Pick<MessageData, "id" | "readAt">> {
     const result = await db.query(
       `UPDATE messages
@@ -59,7 +59,7 @@ class Message {
    * where both toUser and fromUser = {username, firstName, lastName, phone}
    * Throws NotFoundError if no message found for id
    */
-  static async get(id: number): Promise<MessageResultData> {
+  static async get({id}: Pick<MessageData, "id">): Promise<MessageResultData> {
     const result = await db.query(
       `SELECT m.id,
               m.from_username AS "fromUsername",
