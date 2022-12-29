@@ -1,6 +1,6 @@
 ### To run tests
-`npm test`
-`npm test -- --watchAll`
-`npm test <filename> -- --watchAll`
-`npm run test-c`
-`npm run test-c <filename>`
+##### Run all tests `npm test`
+##### Run all tests with watch all `npm test-w`
+##### Run all tests with coverage `npm run test-c`
+
+Please note tests are set to EST timezone

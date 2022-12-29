@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "nodemon ./src/server.ts",
     "test": "TZ=EST jest -i",
+    "test-w": "TZ=EST jest -i --watchAll",
     "test-c": "TZ=EST jest -i --coverage",
     "build": "tsc --build"
   },
