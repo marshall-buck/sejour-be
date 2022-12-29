@@ -83,7 +83,7 @@ class Message {
           WHERE m.id = $1`,
       [id]
     );
-    // TODO: Create type for query results, and change to camelCase
+
     const messageResult: MessageQueryResult = result.rows[0];
 
     if (!messageResult) throw new NotFoundError(`No such message: ${id}`);
