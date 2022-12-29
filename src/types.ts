@@ -8,6 +8,8 @@ type UserData = {
   isAdmin: boolean;
 };
 
+type UserResponse = Omit<UserData, "password">;
+
 type UserMessageData = {
   id: number;
   username: string;
@@ -28,9 +30,20 @@ type MessageData = {
   readAt?: string;
 };
 
-// type MessageQueryResult = {
-
-// }
+type MessageQueryResult = {
+  id: number;
+  fromUsername: string;
+  fromFirstName: string;
+  fromLastName: string;
+  fromAvatar: string;
+  toUsername: string;
+  toFirstName: string;
+  toLastName: string;
+  toAvatar: string;
+  body: string;
+  sentAt: string;
+  readAt: string;
+};
 
 type MessageResultData = {
   id: number;
@@ -40,6 +53,9 @@ type MessageResultData = {
   sentAt: string;
   readAt: string;
 };
+
+type MessageFromResponse = Omit<MessageResultData, "fromUser">;
+type MessageToResponse = Omit<MessageResultData, "toUser">;
 
 type PropertyData = {
   id: number;
@@ -107,4 +123,8 @@ export {
   PropertyUpdateData,
   ImageData,
   PaginationInfo,
+  MessageQueryResult,
+  UserResponse,
+  MessageFromResponse,
+  MessageToResponse,
 };
