@@ -1,6 +1,12 @@
 import { db } from "../db";
 import bcrypt from "bcrypt";
-import { UserData, UserMessageData } from "../types";
+import {
+  MessageFromResponse,
+  MessageToResponse,
+  UserData,
+  UserMessageData,
+  UserResponse,
+} from "../types";
 import {
   NotFoundError,
   BadRequestError,
@@ -31,7 +37,7 @@ class User {
   static async authenticate({
     username,
     password,
-  }: Pick<UserData, "username" | "password">): Promise<UserData> {
+  }: Pick<UserData, "username" | "password">): Promise<UserResponse> {
     // try to find the user first
 
     const result = await db.query(
@@ -47,12 +53,20 @@ class User {
       [username]
     );
 
-    const user = result.rows[0];
+    const userResult: UserData = result.rows[0];
 
-    if (user) {
-      const isValid = await bcrypt.compare(password, user.password);
+    if (userResult) {
+      const isValid = await bcrypt.compare(password, userResult.password);
       if (isValid === true) {
-        delete user.password;
+        const user: UserResponse = {
+          username: userResult.username,
+          firstName: userResult.firstName,
+          lastName: userResult.lastName,
+          avatar: userResult.avatar,
+          email: userResult.email,
+          isAdmin: userResult.isAdmin,
+        };
+
         return user;
       }
     }
@@ -75,7 +89,7 @@ class User {
     avatar,
     email,
     isAdmin,
-  }: UserData) {
+  }: UserData): Promise<UserResponse> {
     const duplicateCheck = await db.query(
       `SELECT username
           FROM users
@@ -104,7 +118,7 @@ class User {
       [username, hashedPassword, firstName, lastName, avatar, email, isAdmin]
     );
 
-    const user = result.rows[0];
+    const user: UserResponse = result.rows[0];
 
     return user;
   }
@@ -119,7 +133,7 @@ class User {
 
   static async get({
     username,
-  }: Pick<UserData, "username">): Promise<UserData> {
+  }: Pick<UserData, "username">): Promise<UserResponse> {
     const userRes = await db.query(
       `SELECT username,
               first_name AS "firstName",
@@ -132,7 +146,7 @@ class User {
       [username]
     );
 
-    const user: UserData = userRes.rows[0];
+    const user: UserResponse = userRes.rows[0];
 
     this._notFoundHandler(user, `No user: ${username}`);
 
@@ -163,24 +177,28 @@ class User {
           WHERE from_username = $1`,
       [username]
     );
-    const messages: UserMessageData[] = results.rows;
+    const messagesResult: UserMessageData[] = results.rows;
 
-    this._notFoundHandler(messages, `No messages found from ${username}`);
+    this._notFoundHandler(messagesResult, `No messages found from ${username}`);
 
-    return messages.map((m: UserMessageData) => {
-      return {
-        id: m.id,
-        toUser: {
-          username: m.username,
-          firstName: m.firstName,
-          lastName: m.lastName,
-          avatar: m.avatar,
-        },
-        body: m.body,
-        sentAt: m.sentAt,
-        readAt: m.readAt,
-      };
-    });
+    const messages: MessageFromResponse[] = messagesResult.map(
+      (m: UserMessageData) => {
+        return {
+          id: m.id,
+          toUser: {
+            username: m.username,
+            firstName: m.firstName,
+            lastName: m.lastName,
+            avatar: m.avatar,
+          },
+          body: m.body,
+          sentAt: m.sentAt,
+          readAt: m.readAt,
+        };
+      }
+    );
+
+    return messages;
   }
 
   /** Return messages to this user.
@@ -195,7 +213,7 @@ class User {
    *   {username, firstName, lastName, avatar}
    */
 
-  static async messagesTo({username}: Pick<UserData, "username">) {
+  static async messagesTo({ username }: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
               m.from_username AS "username",
@@ -211,24 +229,28 @@ class User {
           WHERE to_username = $1`,
       [username]
     );
-    const messages = results.rows;
+    const messagesResults: UserMessageData[] = results.rows;
 
-    this._notFoundHandler(messages, `No messages found for ${username}`);
+    this._notFoundHandler(messagesResults, `No messages found for ${username}`);
 
-    return messages.map((m: UserMessageData) => {
-      return {
-        id: m.id,
-        fromUser: {
-          username: m.username,
-          firstName: m.firstName,
-          lastName: m.lastName,
-          avatar: m.avatar,
-        },
-        body: m.body,
-        sentAt: m.sentAt,
-        readAt: m.readAt,
-      };
-    });
+    const messages: MessageToResponse[] = messagesResults.map(
+      (m: UserMessageData) => {
+        return {
+          id: m.id,
+          fromUser: {
+            username: m.username,
+            firstName: m.firstName,
+            lastName: m.lastName,
+            avatar: m.avatar,
+          },
+          body: m.body,
+          sentAt: m.sentAt,
+          readAt: m.readAt,
+        };
+      }
+    );
+
+    return messages;
   }
 }
 

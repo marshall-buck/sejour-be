@@ -1,5 +1,4 @@
 import {
-  ImageData,
   PropertyData,
   PropertySearchFilters,
   PropertyUpdateData,
@@ -193,8 +192,8 @@ class Property {
       const imagesRes = await Image.getAllByProperty(propertiesRes.rows[i].id);
       propertiesRes.rows[i].images = imagesRes;
     }
-
-    return propertiesRes.rows as PropertyData[];
+    const properties: PropertyData[] = propertiesRes.rows;
+    return properties;
   }
 
   /** Given a property id:
@@ -208,7 +207,7 @@ class Property {
    **/
 
   static async get(id: number): Promise<PropertyData> {
-    const propertyRes = await db.query(
+    const result = await db.query(
       `SELECT id,
               title,
               street,
@@ -225,12 +224,12 @@ class Property {
       [id]
     );
 
-    const property: PropertyData = propertyRes.rows[0];
+    const property: PropertyData = result.rows[0];
 
     if (!property) throw new NotFoundError(`No property: ${id}`);
 
-    const imagesRes = await Image.getAllByProperty(id);
-    property.images = imagesRes;
+    const imagesResult = await Image.getAllByProperty(id);
+    property.images = imagesResult;
 
     return property;
   }

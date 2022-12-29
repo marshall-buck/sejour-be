@@ -1,6 +1,6 @@
 import { NotFoundError } from "../expressError";
 import { db } from "../db";
-import { MessageData, MessageResultData } from "../types";
+import { MessageData, MessageQueryResult, MessageResultData } from "../types";
 
 /** Related functions for Message */
 
@@ -26,8 +26,8 @@ class Message {
                     to_username AS "toUsername", body, sent_at AS "sentAt"`,
       [fromUsername, toUsername, body]
     );
-
-    return result.rows[0] as MessageData;
+    const message: MessageData = result.rows[0];
+    return message;
   }
 
   /** Updates read_at for message when read by user
@@ -66,17 +66,17 @@ class Message {
   static async get(id: number): Promise<MessageResultData> {
     const result = await db.query(
       `SELECT m.id,
-              m.from_username,
-              f.first_name AS from_first_name,
-              f.last_name AS from_last_name,
-              f.avatar AS from_avatar,
-              m.to_username,
-              t.first_name AS to_first_name,
-              t.last_name AS to_last_name,
-              t.avatar AS to_avatar,
+              m.from_username AS "fromUsername",
+              f.first_name AS "fromFirstName",
+              f.last_name AS "fromLastName",
+              f.avatar AS "fromAvatar",
+              m.to_username AS "toUsername",
+              t.first_name AS "toFirstName",
+              t.last_name AS "toLastName",
+              t.avatar AS "toAvatar",
               m.body,
-              m.sent_at,
-              m.read_at
+              m.sent_at AS "sentAt",
+              m.read_at AS "readAt"
           FROM messages AS m
               JOIN users AS f ON m.from_username = f.username
               JOIN users AS t ON m.to_username = t.username
@@ -84,28 +84,30 @@ class Message {
       [id]
     );
     // TODO: Create type for query results, and change to camelCase
-    const message = result.rows[0];
+    const messageResult: MessageQueryResult = result.rows[0];
 
-    if (!message) throw new NotFoundError(`No such message: ${id}`);
+    if (!messageResult) throw new NotFoundError(`No such message: ${id}`);
 
-    return {
-      id: message.id,
+    const message: MessageResultData = {
+      id: messageResult.id,
       fromUser: {
-        username: message.from_username,
-        firstName: message.from_first_name,
-        lastName: message.from_last_name,
-        avatar: message.from_avatar,
+        username: messageResult.fromUsername,
+        firstName: messageResult.fromFirstName,
+        lastName: messageResult.fromLastName,
+        avatar: messageResult.fromAvatar,
       },
       toUser: {
-        username: message.to_username,
-        firstName: message.to_first_name,
-        lastName: message.to_last_name,
-        avatar: message.to_avatar,
+        username: messageResult.toUsername,
+        firstName: messageResult.toFirstName,
+        lastName: messageResult.toLastName,
+        avatar: messageResult.toAvatar,
       },
-      body: message.body,
-      sentAt: message.sent_at,
-      readAt: message.read_at,
-    } as MessageResultData;
+      body: messageResult.body,
+      sentAt: messageResult.sentAt,
+      readAt: messageResult.readAt,
+    };
+
+    return message;
   }
 }
 

@@ -54,7 +54,9 @@ class Image {
       [propertyId]
     );
 
-    return images.rows as Omit<ImageData, "propertyId">[];
+    const imageData: Omit<ImageData, "propertyId">[] = images.rows;
+
+    return imageData;
   }
 
   /** Delete image from DB by image id
@@ -103,7 +105,8 @@ class Image {
       [id]
     );
     if (!image.rows[0]) throw new NotFoundError(`No image: ${id}`);
-    return image.rows[0];
+    const coverImage: ImageData = image.rows[0];
+    return coverImage;
   }
 }
 

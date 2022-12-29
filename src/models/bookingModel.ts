@@ -11,7 +11,7 @@ class Booking {
    * returns booking {id, startDate, endDate, property, guestUsername}
    * with property as {id, title, address, description, price, ownerUsername}
    */
-  // TODO: Edit Booking
+  // TODO: add Edit Booking -cancel booking and rebook
   static async create({
     startDate,
     endDate,
