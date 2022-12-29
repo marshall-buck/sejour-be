@@ -84,6 +84,13 @@ type BookingResultData = Omit<BookingData, "propertyId"> & {
   property: PropertyData;
 };
 
+type PaginationInfo = {
+  currentPage: number;
+  totalResults: number;
+  totalPages: number;
+  limit: number;
+};
+
 export {
   BookingData,
   BookingResultData,
@@ -95,4 +102,5 @@ export {
   PropertySearchFilters,
   PropertyUpdateData,
   ImageData,
+  PaginationInfo,
 };

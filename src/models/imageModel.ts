@@ -24,7 +24,7 @@ class Image {
       [imageKey, propertyId, isCoverImage]
     );
 
-    const image = result.rows[0] as ImageData;
+    const image: ImageData = result.rows[0];
     return image;
   }
 
