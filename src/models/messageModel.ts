@@ -3,14 +3,12 @@ import { db } from "../db";
 import { MessageData, MessageQueryResult, MessageResultData } from "../types";
 
 /** Related functions for Message */
-
 class Message {
   /** Add new message to database --
    *
    * Returns newly created message:
    *  {id, fromUsername, toUsername, body, sent_at}
    */
-
   static async create({
     fromUsername,
     toUsername,
@@ -26,6 +24,7 @@ class Message {
                     to_username AS "toUsername", body, sent_at AS "sentAt"`,
       [fromUsername, toUsername, body]
     );
+
     const message: MessageData = result.rows[0];
     return message;
   }
@@ -38,7 +37,6 @@ class Message {
    * Throws NotFoundError if no message found for id
    *
    **/
-
   static async markRead(
     id: number
   ): Promise<Pick<MessageData, "id" | "readAt">> {
@@ -50,8 +48,7 @@ class Message {
       [id]
     );
     const message: Pick<MessageData, "id" | "readAt"> = result.rows[0];
-
-    if (!message) throw new NotFoundError(`No such message: ${id}`);
+    NotFoundError.handler(message, `No such message: ${id}`);
 
     return message;
   }
@@ -62,7 +59,6 @@ class Message {
    * where both toUser and fromUser = {username, firstName, lastName, phone}
    * Throws NotFoundError if no message found for id
    */
-
   static async get(id: number): Promise<MessageResultData> {
     const result = await db.query(
       `SELECT m.id,
@@ -85,8 +81,7 @@ class Message {
     );
 
     const messageResult: MessageQueryResult = result.rows[0];
-
-    if (!messageResult) throw new NotFoundError(`No such message: ${id}`);
+    NotFoundError.handler(messageResult, `No such message: ${id}`);
 
     const message: MessageResultData = {
       id: messageResult.id,

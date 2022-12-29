@@ -17,21 +17,6 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-/************************************** notFoundHandler */
-
-describe("notFoundHandler", function () {
-  test("not found if no result", async function () {
-    try {
-      User._notFoundHandler(
-        undefined,
-      );
-      throw new Error("fail test, you shouldn't get here");
-    } catch (err: any) {
-      expect(err instanceof NotFoundError).toBeTruthy();
-      expect(err.message).toEqual("not found");
-    }
-  });
-});
 
 /************************************** authenticate */
 
@@ -41,7 +26,6 @@ describe("authenticate", function () {
       username: "u1",
       password: "password1",
     });
-
     expect(user).toEqual({
       username: "u1",
       firstName: "U1F",
@@ -138,6 +122,16 @@ describe("get", function () {
       avatar: "test url",
       isAdmin: false,
     });
+  });
+
+  test("not found if no result", async function () {
+    try {
+      await User.get({username: "bad_user"});
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err: any) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      expect(err.message).toEqual("No user: bad_user");
+    }
   });
 });
 

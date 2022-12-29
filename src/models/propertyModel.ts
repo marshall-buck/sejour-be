@@ -225,8 +225,7 @@ class Property {
     );
 
     const property: PropertyData = result.rows[0];
-
-    if (!property) throw new NotFoundError(`No property: ${id}`);
+    NotFoundError.handler(property, `No property: ${id}`);
 
     const imagesResult = await Image.getAllByProperty(id);
     property.images = imagesResult;
@@ -268,8 +267,7 @@ class Property {
     );
 
     const property: PropertyData = result.rows[0];
-
-    if (!property) throw new NotFoundError(`No property: ${id}`);
+    NotFoundError.handler(property, `No property: ${id}`);
 
     return property;
   }
@@ -290,8 +288,7 @@ class Property {
       [id]
     );
     const propertyId: number = result.rows[0];
-
-    if (!propertyId) throw new NotFoundError(`No property: ${id}`);
+    NotFoundError.handler(propertyId, `No property: ${id}`);
 
     return;
   }

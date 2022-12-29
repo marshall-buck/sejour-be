@@ -42,9 +42,7 @@ class Image {
           `,
       [propertyId]
     );
-
-    if (!property.rows[0])
-      throw new NotFoundError(`No property: ${propertyId}`);
+    NotFoundError.handler(property.rows[0], `No property: ${propertyId}`);
 
     const images = await db.query(
       `SELECT id, image_key AS "imageKey", is_cover_image AS "isCoverImage"
@@ -53,7 +51,6 @@ class Image {
       `,
       [propertyId]
     );
-
     const imageData: Omit<ImageData, "propertyId">[] = images.rows;
 
     return imageData;
@@ -73,8 +70,7 @@ class Image {
       [id]
     );
     const imageId: number = result.rows[0];
-
-    if (!imageId) throw new NotFoundError(`No image: ${id}`);
+    NotFoundError.handler(imageId, `No image: ${id}`);
 
     return;
   }
@@ -104,8 +100,9 @@ class Image {
               `,
       [id]
     );
-    if (!image.rows[0]) throw new NotFoundError(`No image: ${id}`);
     const coverImage: ImageData = image.rows[0];
+    NotFoundError.handler(coverImage, `No image: ${id}`);
+
     return coverImage;
   }
 }

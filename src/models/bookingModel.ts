@@ -4,14 +4,12 @@ import { BookingData, BookingResultData } from "../types";
 import { Property } from "./propertyModel";
 
 /** Related function for bookings */
-
 class Booking {
   /** Create a new booking with {startDate, endDate, propertyId, guestUsername}
    *
    * returns booking {id, startDate, endDate, property, guestUsername}
    * with property as {id, title, address, description, price, ownerUsername}
    */
-
   static async create({
     startDate,
     endDate,
@@ -74,8 +72,7 @@ class Booking {
       [id]
     );
     const bookingId: Pick<BookingData, "id"> = result.rows[0];
-
-    if (!bookingId) throw new NotFoundError(`No booking: ${id}`);
+    NotFoundError.handler(bookingId, `No booking: ${id}`);
 
     return;
   }
@@ -84,7 +81,6 @@ class Booking {
    * Validates booking end date is after start date
    * Returns true if valid, false otherwise
    */
-
   private static validateDates({
     startDate,
     endDate,

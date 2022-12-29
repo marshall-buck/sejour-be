@@ -3,7 +3,6 @@
  *
  *  The error-handling middleware will return this.
  */
-
 class ExpressError extends Error {
   message: string;
   status: number;
@@ -15,15 +14,21 @@ class ExpressError extends Error {
 }
 
 /** 404 NOT FOUND error. */
-
 class NotFoundError extends ExpressError {
+  static message: string;
   constructor(message = "Not Found") {
     super(message, 404);
+  }
+
+  /** Given result data and an error message
+   * Throws a new NotFoundError if result data is undefined,
+   * along with error message */
+  static handler<Type>(result: Type, message = this.message): void {
+    if (!result) throw new NotFoundError(message);
   }
 }
 
 /** 401 UNAUTHORIZED error. */
-
 class UnauthorizedError extends ExpressError {
   constructor(message = "Unauthorized") {
     super(message, 401);
@@ -31,7 +36,6 @@ class UnauthorizedError extends ExpressError {
 }
 
 /** 400 BAD REQUEST error. */
-
 class BadRequestError extends ExpressError {
   constructor(message = "Bad Request") {
     super(message, 400);
@@ -39,7 +43,6 @@ class BadRequestError extends ExpressError {
 }
 
 /** 403 Forbidden REQUEST error. */
-
 class ForbiddenError extends ExpressError {
   constructor(message = "Forbidden Request") {
     super(message, 403);

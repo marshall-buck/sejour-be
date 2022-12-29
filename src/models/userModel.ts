@@ -1,5 +1,11 @@
-import { db } from "../db";
 import bcrypt from "bcrypt";
+import { BCRYPT_WORK_FACTOR } from "../config";
+import { db } from "../db";
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../expressError";
 import {
   MessageFromResponse,
   MessageToResponse,
@@ -7,24 +13,9 @@ import {
   UserMessageData,
   UserResponse,
 } from "../types";
-import {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-} from "../expressError";
-import { BCRYPT_WORK_FACTOR } from "../config";
 
 /** Related functions for users. */
-
 class User {
-  /** Given result data and an error message
-   * Throws a new NotFoundError if result data is undefined,
-   * along with error message */
-
-  static _notFoundHandler<Type>(result: Type, message = "not found"): void {
-    if (!result) throw new NotFoundError(message);
-  }
-
   /** Authenticate user with username, password.
    *
    * Returns { username, firstName, lastName, avatar, email, isAdmin }
@@ -33,13 +24,11 @@ class User {
    * - username not found OR
    * - wrong password
    **/
-
   static async authenticate({
     username,
     password,
   }: Pick<UserData, "username" | "password">): Promise<UserResponse> {
     // try to find the user first
-
     const result = await db.query(
       `SELECT username,
               password,
@@ -52,7 +41,6 @@ class User {
            WHERE username = $1`,
       [username]
     );
-
     const userResult: UserData = result.rows[0];
 
     if (userResult) {
@@ -70,7 +58,6 @@ class User {
         return user;
       }
     }
-
     throw new UnauthorizedError("Invalid username/password");
   }
 
@@ -80,7 +67,6 @@ class User {
    *
    * Throws BadRequestError on duplicate usernames.
    **/
-
   static async register({
     username,
     password,
@@ -122,7 +108,6 @@ class User {
 
     return user;
   }
-
   /** Given a username, return data about user.
    *
    * Returns { username, firstName, lastName, avatar, email, isAdmin }
@@ -130,7 +115,6 @@ class User {
    *
    * Throws NotFoundError if user not found.
    **/
-
   static async get({
     username,
   }: Pick<UserData, "username">): Promise<UserResponse> {
@@ -147,20 +131,16 @@ class User {
     );
 
     const user: UserResponse = userRes.rows[0];
-
-    this._notFoundHandler(user, `No user: ${username}`);
+    NotFoundError.handler(user, `No user: ${username}`);
 
     return user;
   }
 
-  /** Return messages from this user.
-   *
+  /** Get all messages sent from a user by username
+   * Return messages from this user:
    * [{id, toUser: {username, firstName, lastName, avatar}, body, sentAt, readAt}]
-   *
-   * where toUser is
-   *   {username, firstName, lastName, avatar}
+   * where toUser is {username, firstName, lastName, avatar}
    */
-
   static async messagesFrom({ username }: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
@@ -178,8 +158,7 @@ class User {
       [username]
     );
     const messagesResult: UserMessageData[] = results.rows;
-
-    this._notFoundHandler(messagesResult, `No messages found from ${username}`);
+    NotFoundError.handler(messagesResult, `No messages found from ${username}`);
 
     const messages: MessageFromResponse[] = messagesResult.map(
       (m: UserMessageData) => {
@@ -197,7 +176,6 @@ class User {
         };
       }
     );
-
     return messages;
   }
 
@@ -212,7 +190,6 @@ class User {
    * where fromUser is
    *   {username, firstName, lastName, avatar}
    */
-
   static async messagesTo({ username }: Pick<UserData, "username">) {
     const results = await db.query(
       `SELECT m.id,
@@ -230,8 +207,7 @@ class User {
       [username]
     );
     const messagesResults: UserMessageData[] = results.rows;
-
-    this._notFoundHandler(messagesResults, `No messages found for ${username}`);
+    NotFoundError.handler(messagesResults, `No messages found for ${username}`);
 
     const messages: MessageToResponse[] = messagesResults.map(
       (m: UserMessageData) => {
