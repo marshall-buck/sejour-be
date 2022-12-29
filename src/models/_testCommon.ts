@@ -1,11 +1,12 @@
 import bcrypt from "bcrypt";
 import { BCRYPT_WORK_FACTOR } from "../config";
 import { db } from "../db";
-import { MessageData, PropertyData, ImageData } from "../types";
+import { MessageData, PropertyData, ImageData, BookingData } from "../types";
 
 const propertyIds: number[] = [];
 const messageIds: number[] = [];
 const imageIds: number[] = [];
+const bookingIds: number[] = [];
 
 async function commonBeforeAll() {
   await db.query("DELETE FROM images");
@@ -77,6 +78,19 @@ async function commonBeforeAll() {
       `);
 
   imageIds.splice(0, 0, ...resultsImages.rows.map((r: ImageData) => r.id));
+
+  const resultsBookings = await db.query(`
+        INSERT INTO bookings (start_date, end_date, property_id, guest_username)
+            VALUES('2022-11-29T05:00:00.000Z',
+                  '2022-11-30T05:00:00.000Z',
+                  ${propertyIds[0]}, 'u2')
+                  RETURNING id
+      `);
+  bookingIds.splice(
+    0,
+    0,
+    ...resultsBookings.rows.map((r: BookingData) => r.id)
+  );
 }
 
 async function commonBeforeEach() {
@@ -99,4 +113,5 @@ export {
   propertyIds,
   messageIds,
   imageIds,
+  bookingIds,
 };

@@ -1,4 +1,5 @@
-import { BadRequestError } from "../expressError";
+import { db } from "../db";
+import { BadRequestError, NotFoundError } from "../expressError";
 import { Booking } from "./bookingModel";
 import { Property } from "./propertyModel";
 import {
@@ -7,6 +8,7 @@ import {
   commonAfterEach,
   commonAfterAll,
   propertyIds,
+  bookingIds,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -118,6 +120,29 @@ describe("create", function () {
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
+
+describe("delete", function () {
+  test("Deletes booking", async function () {
+    await Booking.delete({ id: bookingIds[0] });
+    const booking = await db.query(`
+        SELECT id
+          FROM bookings
+            WHERE id = ${bookingIds[0]}`);
+
+    expect(booking.rows).toEqual([]);
+  });
+
+  test("throws not found if no such booking", async function () {
+    try {
+      await Booking.delete({ id: 0 });
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
     }
   });
 });
