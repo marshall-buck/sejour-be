@@ -50,16 +50,16 @@ export {
 /** Seed users DB with test users and encrypts passwords before insertion */
 async function seedUsers() {
   await db.query(
-    ` INSERT INTO users (username,
+    `
+      INSERT INTO users (username,
                         password,
                         first_name,
                         last_name,
                         email,
                         avatar)
-      VALUES ('u1', $1, 'U1F', 'U1L','u1@email.com',  'test url'),
-             ('u2', $2, 'U2F', 'U2L','u2@email.com',  'test url')
-      RETURNING username
-    `,
+          VALUES ('u1', $1, 'U1F', 'U1L','u1@email.com',  'test url'),
+                ('u2', $2, 'U2F', 'U2L','u2@email.com',  'test url')
+          RETURNING username`,
     [
       await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
       await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
@@ -90,8 +90,7 @@ async function seedProperties() {
                  ('property three', '123 lane', 'test city', 'test state',
                  '11111', '180.0000000', '-180.0000000', 'test description', 200,
                  'u2', true)
-          RETURNING id
-`);
+          RETURNING id`);
 
   propertyIds.splice(
     0,
@@ -135,6 +134,7 @@ async function seedBookings() {
                 '2022-11-30T05:00:00.000Z',
                 ${propertyIds[0]}, 'u2')
               RETURNING id`);
+              
   bookingIds.splice(
     0,
     0,
