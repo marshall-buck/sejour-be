@@ -70,24 +70,27 @@ async function seedUsers() {
 /** Seed properties DB with test properties, creates an array of property Ids */
 async function seedProperties() {
   const resultsProperties = await db.query(`
-  INSERT INTO properties (title,
-                          street,
-                          city,
-                          state,
-                          zipcode,
-                          latitude,
-                          longitude,
-                          description,
-                          price,
-                          owner_username,
-                          archived)
-  VALUES ('property one', '123 lane', 'test city', 'test state', '11111',
-  '180.0000000', '-180.0000000', 'test description', 100, 'u1', false),
-         ('property two', '123 lane', 'test city', 'test state', '11111',
-  '180.0000000', '-180.0000000', 'test description pool', 200, 'u2', false),
-         ('property three', '123 lane', 'test city', 'test state', '11111',
-  '180.0000000', '-180.0000000', 'test description', 200, 'u2', true)
-  RETURNING id
+      INSERT INTO properties (title,
+                              street,
+                              city,
+                              state,
+                              zipcode,
+                              latitude,
+                              longitude,
+                              description,
+                              price,
+                              owner_username,
+                              archived)
+          VALUES ('property one', '123 lane', 'test city', 'test state', '11111',
+                  '180.0000000', '-180.0000000', 'test description', 100, 'u1',
+                  false),
+                 ('property two', '123 lane', 'test city', 'test state', '11111',
+                  '180.0000000', '-180.0000000', 'test description pool', 200,
+                  'u2', false),
+                 ('property three', '123 lane', 'test city', 'test state',
+                 '11111', '180.0000000', '-180.0000000', 'test description', 200,
+                 'u2', true)
+          RETURNING id
 `);
 
   propertyIds.splice(
@@ -118,7 +121,7 @@ async function seedImages() {
           VALUES ('12345678', ${propertyIds[0]}, true),
                  ('23456789', ${propertyIds[0]}, false),
                  ('34567890', ${propertyIds[0]}, false)
-                RETURNING id
+              RETURNING id
       `);
 
   imageIds.splice(0, 0, ...resultsImages.rows.map((r: ImageData) => r.id));
@@ -127,12 +130,11 @@ async function seedImages() {
 /** Seed bookings DB with test bookings, creates an array of booking Ids */
 async function seedBookings() {
   const resultsBookings = await db.query(`
-  INSERT INTO bookings (start_date, end_date, property_id, guest_username)
-      VALUES('2022-11-29T05:00:00.000Z',
-            '2022-11-30T05:00:00.000Z',
-            ${propertyIds[0]}, 'u2')
-            RETURNING id
-`);
+      INSERT INTO bookings (start_date, end_date, property_id, guest_username)
+          VALUES('2022-11-29T05:00:00.000Z',
+                '2022-11-30T05:00:00.000Z',
+                ${propertyIds[0]}, 'u2')
+              RETURNING id`);
   bookingIds.splice(
     0,
     0,

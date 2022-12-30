@@ -15,11 +15,11 @@ class Image {
   }: Omit<ImageData, "id">): Promise<ImageData> {
     const result = await db.query(
       `INSERT INTO images (image_key , property_id, is_cover_image)
-        VALUES ($1, $2, $3)
-          RETURNING id,
-                    image_key AS "imageKey",
-                    property_id AS "propertyId",
-                    is_cover_image AS "isCoverImage"
+          VALUES ($1, $2, $3)
+              RETURNING id,
+                        image_key AS "imageKey",
+                        property_id AS "propertyId",
+                        is_cover_image AS "isCoverImage"
       `,
       [imageKey, propertyId, isCoverImage]
     );
@@ -64,8 +64,8 @@ class Image {
   static async delete({id}: Pick<ImageData, "id">) {
     const result = await db.query(
       `DELETE FROM images
-         WHERE id = $1
-            RETURNING id
+          WHERE id = $1
+              RETURNING id
       `,
       [id]
     );

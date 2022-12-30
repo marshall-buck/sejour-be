@@ -43,8 +43,8 @@ class Message {
     const result = await db.query(
       `UPDATE messages
           SET read_at = current_timestamp
-             WHERE id = $1
-             RETURNING id, read_at AS "readAt"`,
+              WHERE id = $1
+              RETURNING id, read_at AS "readAt"`,
       [id]
     );
     const message: Pick<MessageData, "id" | "readAt"> = result.rows[0];
@@ -76,7 +76,7 @@ class Message {
           FROM messages AS m
               JOIN users AS f ON m.from_username = f.username
               JOIN users AS t ON m.to_username = t.username
-          WHERE m.id = $1`,
+                  WHERE m.id = $1`,
       [id]
     );
 

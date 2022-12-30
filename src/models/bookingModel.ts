@@ -26,10 +26,10 @@ class Booking {
         SELECT id, start_date, end_date
             FROM bookings
                 WHERE property_id = $1
-                AND ((start_date  between $2 and $3)
-                OR (end_date  between $2 and $3)
-                OR ($2 between start_date and end_date)
-                OR ($3 between start_date and end_date));
+                    AND ((start_date  between $2 and $3)
+                    OR (end_date  between $2 and $3)
+                    OR ($2 between start_date and end_date)
+                    OR ($3 between start_date and end_date));
       `,
       [propertyId, startDate, endDate]
     );
