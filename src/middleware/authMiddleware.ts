@@ -44,7 +44,6 @@ function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
  *
  *  If not, raises Unauthorized.
  */
-
 function ensureCorrectUser(req: Request, res: Response, next: NextFunction) {
   try {
     const user = res.locals.user;

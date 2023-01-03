@@ -3,14 +3,13 @@ import { SECRET_KEY } from "../config";
 import { TokenPayload } from "../types";
 
 /** return signed JWT from user data. */
-
 function createToken({ username, isAdmin }: TokenPayload) {
   console.assert(
     isAdmin !== undefined,
     "createToken passed user without isAdmin property"
   );
 
-  let payload = {
+  const payload = {
     username: username,
     isAdmin: isAdmin || false,
   };
