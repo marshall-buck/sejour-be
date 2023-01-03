@@ -116,6 +116,11 @@ type PropertyResponse = {
   pagination: PaginationInfo;
 };
 
+type TokenPayload = {
+  isAdmin: Pick<UserData, "isAdmin">;
+  username: Pick<UserData, "username">;
+};
+
 export {
   BookingData,
   BookingResultData,
@@ -133,4 +138,5 @@ export {
   UserResponse,
   MessageFromResponse,
   MessageToResponse,
+  TokenPayload,
 };
