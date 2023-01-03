@@ -12,11 +12,11 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-/************************************** POST /auth/token */
+/************************************** POST /auth/login */
 
-describe("POST /auth/token", function () {
+describe("POST /auth/login", function () {
   test("works", async function () {
-    const resp = await request(app).post("/auth/token").send({
+    const resp = await request(app).post("/auth/login").send({
       username: "u1",
       password: "password1",
     });
@@ -26,7 +26,7 @@ describe("POST /auth/token", function () {
   });
 
   test("unauth with non-existent user", async function () {
-    const resp = await request(app).post("/auth/token").send({
+    const resp = await request(app).post("/auth/login").send({
       username: "no-such-user",
       password: "password1",
     });
@@ -34,7 +34,7 @@ describe("POST /auth/token", function () {
   });
 
   test("unauth with wrong password", async function () {
-    const resp = await request(app).post("/auth/token").send({
+    const resp = await request(app).post("/auth/login").send({
       username: "u1",
       password: "nope",
     });
@@ -42,14 +42,14 @@ describe("POST /auth/token", function () {
   });
 
   test("bad request with missing data", async function () {
-    const resp = await request(app).post("/auth/token").send({
+    const resp = await request(app).post("/auth/login").send({
       username: "u1",
     });
     expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request with invalid data", async function () {
-    const resp = await request(app).post("/auth/token").send({
+    const resp = await request(app).post("/auth/login").send({
       username: 42,
       password: "above-is-a-number",
     });
@@ -60,9 +60,9 @@ describe("POST /auth/token", function () {
 /************************************** POST /auth/register */
 
 describe("POST /auth/register", function () {
-  test("works for anon", async function () {
+  test("works", async function () {
     const resp = await request(app).post("/auth/register").send({
-      username: "new",
+      username: "new_user",
       firstName: "first",
       lastName: "last",
       password: "password",

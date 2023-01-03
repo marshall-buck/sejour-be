@@ -4,9 +4,9 @@ import { createToken } from "../helpers/tokens";
 // import Company from "../models/company";
 // import Job from "../models/job";
 
-const testJobIds = [];
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM messages")
   await db.query("DELETE FROM users");
 
   await registerTestUsers();

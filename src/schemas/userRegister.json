@@ -23,10 +23,8 @@
         "minLength": 1,
         "maxLength": 30
       },
-      "phone": {
-        "type": "string",
-        "minLength": 12,
-        "maxLength": 12
+      "avatar": {
+        "type": "string"
       },
       "email": {
         "type": "string",
