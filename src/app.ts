@@ -1,19 +1,21 @@
 import { NextFunction, Request, Response, Application } from "express";
 import { NotFoundError } from "./expressError";
 
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
+import { authenticateJWT } from "./middleware/authMiddleware";
+import bodyParser from "body-parser";
+
+import { authRoutes } from "./routes/authRoutes";
 
 const app: Application = express();
-const bcrypt = require("bcrypt");
 
 app.use(cors());
-app.use(express.json());
-
-app.get("/index", (req: Request, res: Response, next: NextFunction) => {
-  res.send("Express +  sdfasdfsda  eck");
-  console.log(bcrypt);
-});
+// app.use(express.json());
+app.use(authenticateJWT);
+app.use(bodyParser.json({ limit: "50mb", type: "application/json" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use("/auth", authRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
