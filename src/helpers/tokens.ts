@@ -1,9 +1,10 @@
-const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config");
+import jwt from "jsonwebtoken";
+import { SECRET_KEY } from "../config";
+import { TokenPayload } from "../types";
 
 /** return signed JWT from user data. */
 
-function createToken(user) {
+function createToken(user: TokenPayload) {
   console.assert(
     user.isAdmin !== undefined,
     "createToken passed user without isAdmin property"
