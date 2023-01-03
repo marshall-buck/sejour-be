@@ -116,10 +116,7 @@ type PropertyResponse = {
   pagination: PaginationInfo;
 };
 
-type TokenPayload = {
-  isAdmin: Pick<UserData, "isAdmin">;
-  username: Pick<UserData, "username">;
-};
+type TokenPayload = Pick<UserData, "isAdmin" | "username">;
 
 export {
   BookingData,

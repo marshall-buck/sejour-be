@@ -4,15 +4,15 @@ import { TokenPayload } from "../types";
 
 /** return signed JWT from user data. */
 
-function createToken(user: TokenPayload) {
+function createToken({ username, isAdmin }: TokenPayload) {
   console.assert(
-    user.isAdmin !== undefined,
+    isAdmin !== undefined,
     "createToken passed user without isAdmin property"
   );
 
   let payload = {
-    username: user.username,
-    isAdmin: user.isAdmin || false,
+    username: username,
+    isAdmin: isAdmin || false,
   };
 
   return jwt.sign(payload, SECRET_KEY);
