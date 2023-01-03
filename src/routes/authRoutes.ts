@@ -23,14 +23,13 @@ router.post(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<any> {
+  ) {
     const validator = jsonschema.validate(req.body, userAuthSchema, {
       required: true,
     });
     if (!validator.valid) {
       throw new BadRequestError();
     }
-
     const { username, password } = req.body;
     const user = await User.authenticate({ username, password });
     const token = createToken(user);
@@ -40,13 +39,12 @@ router.post(
 
 /** POST /auth/register:   { user } => { token }
  *
- * user must include { username, password, firstName, lastName, email }
+ * { user } must include { username, password, firstName, lastName, email }
  *
  * Returns JWT token which can be used to authenticate further requests.
  *
  * Authorization required: none
  */
-
 router.post(
   "/register",
   async function (req: Request, res: Response, next: NextFunction) {
@@ -54,8 +52,7 @@ router.post(
       required: true,
     });
     if (!validator.valid) {
-      const errs = validator.errors.map((e) => e.stack);
-      throw new BadRequestError(errs);
+      throw new BadRequestError();
     }
 
     const newUser = await User.register({ ...req.body, isAdmin: false });
