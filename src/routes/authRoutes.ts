@@ -1,17 +1,15 @@
-import { NextFunction, Router } from "express";
-
-/** Routes for authentication. */
-
+import express, { NextFunction, Router, Request, Response } from "express";
 import jsonschema from "jsonschema";
-
-import { User } from "../models/userModel";
-import express from "express";
-const router: Router = express.Router();
+import { BadRequestError } from "../expressError";
 import { createToken } from "../helpers/tokens";
+import { User } from "../models/userModel";
 import userAuthSchema from "../schemas/userAuth.json";
 import userRegisterSchema from "../schemas/userRegister.json";
-import { BadRequestError } from "../expressError";
-import { UserData } from "../types";
+
+
+/** Routes for authentication. */
+const router: Router = express.Router();
+
 
 /** POST /auth/login:  { username, password } => { token }
  *
@@ -19,7 +17,6 @@ import { UserData } from "../types";
  *
  * Authorization required: none
  */
-
 router.post(
   "/login",
   async function (
