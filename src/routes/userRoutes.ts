@@ -18,7 +18,7 @@ router.get(
   ensureCorrectUser,
   async function (req: Request, res: Response, next: NextFunction) {
     try {
-      const id = req.params.id;
+      const id = +req.params.id;
       const user = await User.get({ id });
       return res.json({ user });
     } catch (err) {
@@ -40,7 +40,7 @@ router.get(
   "/:id/to",
   ensureCorrectUser,
   async function (req: Request, res: Response, next: NextFunction) {
-    const id = req.params.id;
+    const id = +req.params.id;
     const messages = await User.messagesTo({ id });
 
     return res.json({ messages });
@@ -60,7 +60,7 @@ router.get(
   "/:id/from",
   ensureCorrectUser,
   async function (req: Request, res: Response, next: NextFunction) {
-    const id = req.params.id;
+    const id = +req.params.id;
     const messages = await User.messagesFrom({ id });
 
     return res.json({ messages });

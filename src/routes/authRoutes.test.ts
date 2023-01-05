@@ -16,44 +16,44 @@ afterAll(commonAfterAll);
 
 describe("POST /auth/login", function () {
   test("works", async function () {
-    const resp = await request(app).post("/auth/login").send({
-      id: "u1",
+    const res = await request(app).post("/auth/login").send({
+      email: "user1@user.com",
       password: "password1",
     });
-    expect(resp.body).toEqual({
+    expect(res.body).toEqual({
       token: expect.any(String),
     });
   });
 
   test("unauth with non-existent user", async function () {
-    const resp = await request(app).post("/auth/login").send({
-      id: "no-such-user",
+    const res = await request(app).post("/auth/login").send({
+      email: "baduser@user.com",
       password: "password1",
     });
-    expect(resp.statusCode).toEqual(401);
+    expect(res.statusCode).toEqual(401);
   });
 
   test("unauth with wrong password", async function () {
-    const resp = await request(app).post("/auth/login").send({
-      id: "u1",
-      password: "nope",
+    const res = await request(app).post("/auth/login").send({
+      email: "user1@user.com",
+      password: "nope1234",
     });
-    expect(resp.statusCode).toEqual(401);
+    expect(res.statusCode).toEqual(401);
   });
 
   test("bad request with missing data", async function () {
-    const resp = await request(app).post("/auth/login").send({
-      id: "u1",
+    const res = await request(app).post("/auth/login").send({
+      email: "user1@user.com",
     });
-    expect(resp.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(400);
   });
 
   test("bad request with invalid data", async function () {
-    const resp = await request(app).post("/auth/login").send({
-      id: 42,
+    const res = await request(app).post("/auth/login").send({
+      email: 42,
       password: "above-is-a-number",
     });
-    expect(resp.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(400);
   });
 });
 
@@ -61,36 +61,34 @@ describe("POST /auth/login", function () {
 
 describe("POST /auth/register", function () {
   test("works", async function () {
-    const resp = await request(app).post("/auth/register").send({
-      id: "new_user",
+    const res = await request(app).post("/auth/register").send({
       firstName: "first",
       lastName: "last",
       password: "password",
       email: "new@email.com",
       avatar: "avatar_url",
     });
-    expect(resp.statusCode).toEqual(201);
-    expect(resp.body).toEqual({
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toEqual({
       token: expect.any(String),
     });
   });
 
   test("bad request with missing fields", async function () {
-    const resp = await request(app).post("/auth/register").send({
-      id: "new",
+    const res = await request(app).post("/auth/register").send({
+      email: "new@email.com",
     });
-    expect(resp.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(400);
   });
 
   test("bad request with invalid data", async function () {
-    const resp = await request(app).post("/auth/register").send({
-      id: "new",
+    const res = await request(app).post("/auth/register").send({
       firstName: "first",
       lastName: "last",
       password: "password",
       email: "not-an-email",
       avatar: "avatar_url",
     });
-    expect(resp.statusCode).toEqual(400);
+    expect(res.statusCode).toEqual(400);
   });
 });

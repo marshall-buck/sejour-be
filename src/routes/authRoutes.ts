@@ -9,7 +9,7 @@ import userRegisterSchema from "../schemas/userRegister.json";
 /** Routes for authentication. */
 const router: Router = express.Router();
 
-/** POST /auth/login:  { id, password } => { token }
+/** POST /auth/login:  { email, password } => { token }
  *
  * Returns JWT token which can be used to authenticate further requests.
  *
@@ -24,8 +24,8 @@ router.post(
     if (!validator.valid) {
       throw new BadRequestError();
     }
-    const { id, password } = req.body;
-    const user = await User.authenticate({ id, password });
+    const { email, password } = req.body;
+    const user = await User.authenticate({ email, password });
     const token = createToken(user);
     return res.json({ token });
   }
