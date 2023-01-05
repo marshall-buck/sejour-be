@@ -13,7 +13,6 @@ function createToken({ id, isAdmin }: TokenPayload) {
     id: id,
     isAdmin: isAdmin || false,
   };
-
   return jwt.sign(payload, SECRET_KEY);
 }
 export { createToken };
