@@ -7,6 +7,7 @@ import {
   commonBeforeAll,
   commonBeforeEach,
   propertyIds,
+  userIds,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -27,7 +28,7 @@ describe("create", function () {
       description:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, rerum.",
       price: 200,
-      ownerId: "u1",
+      ownerId: userIds[0],
     };
     const property = await Property.create(newProperty);
 
@@ -44,7 +45,7 @@ describe("create", function () {
 /************************************** findAll */
 
 describe("findAll", function () {
-  test("works: no filter finds all but exludes archived", async function () {
+  test("works: no filter finds all but excludes archived", async function () {
     const properties = await Property.findAll({});
     expect(properties).toEqual({
       pagination: { currentPage: 1, limit: 12, totalPages: 1, totalResults: 2 },
@@ -72,7 +73,7 @@ describe("findAll", function () {
           ],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerId: "u1",
+          ownerId: userIds[0],
           price: 100,
           state: "test state",
           street: "123 lane",
@@ -86,7 +87,7 @@ describe("findAll", function () {
           images: [],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerId: "u2",
+          ownerId: userIds[1],
           price: 200,
           state: "test state",
           street: "123 lane",
@@ -125,7 +126,7 @@ describe("findAll", function () {
           ],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerId: "u1",
+          ownerId: userIds[0],
           price: 100,
           state: "test state",
           street: "123 lane",
@@ -153,7 +154,7 @@ describe("findAll", function () {
           images: [],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerId: "u2",
+          ownerId: userIds[1],
           price: 200,
           state: "test state",
           street: "123 lane",
@@ -176,7 +177,7 @@ describe("findAll", function () {
           images: [],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerId: "u2",
+          ownerId: userIds[1],
           price: 200,
           state: "test state",
           street: "123 lane",
@@ -215,7 +216,7 @@ describe("findAll", function () {
           ],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerId: "u1",
+          ownerId: userIds[0],
           price: 100,
           state: "test state",
           street: "123 lane",
@@ -252,7 +253,7 @@ describe("findAll", function () {
           longitude: "-180.0000000",
           description: "test description pool",
           price: 200,
-          ownerId: "u2",
+          ownerId: userIds[1],
           images: [],
         },
       ],
@@ -282,7 +283,7 @@ describe("get by id", function () {
       longitude: "-180.0000000",
       description: "test description",
       price: 100,
-      ownerId: "u1",
+      ownerId: userIds[0],
       images: [
         { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
         { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
@@ -325,7 +326,7 @@ describe("update", function () {
       longitude: "-180.0000000",
       description: "updated description",
       price: 1000,
-      ownerId: "u1",
+      ownerId: userIds[0],
     });
   });
 
