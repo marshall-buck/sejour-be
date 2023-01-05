@@ -8,7 +8,7 @@ describe("createToken", function () {
 
   test("createToken works as expected", function () {
     const token = createToken({
-      id: "test",
+      id: 1,
       isAdmin: false,
     });
     expect(token).toEqual("random token string");

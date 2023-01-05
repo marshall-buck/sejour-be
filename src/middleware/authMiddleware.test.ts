@@ -7,8 +7,11 @@ import {
 } from "./authMiddleware";
 
 import { SECRET_KEY } from "../config";
-const testJwt = jwt.sign({ id: "test", isAdmin: false }, SECRET_KEY);
-const badJwt = jwt.sign({ id: "test", isAdmin: false }, "wrong");
+
+const USER_ID = 1;
+
+const testJwt = jwt.sign({ id: USER_ID, isAdmin: false }, SECRET_KEY);
+const badJwt = jwt.sign({ id: USER_ID, isAdmin: false }, "wrong");
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
@@ -24,7 +27,7 @@ describe("authenticateJWT", function () {
     expect(res.locals).toEqual({
       user: {
         iat: expect.any(Number),
-        id: "test",
+        id: USER_ID,
         isAdmin: false,
       },
     });
@@ -57,7 +60,7 @@ describe("ensureLoggedIn", function () {
   test("works", function () {
     expect.assertions(1);
     const req: any = {};
-    const res: any = { locals: { user: { id: "test" } } };
+    const res: any = { locals: { user: { id: USER_ID } } };
     const next = function (err: any) {
       expect(err).toBeFalsy();
     };
@@ -78,8 +81,8 @@ describe("ensureLoggedIn", function () {
 describe("ensureCorrectUser", function () {
   test("works", function () {
     expect.assertions(1);
-    const req: any = { params: { id: "test" } };
-    const res: any = { locals: { user: { id: "test" } } };
+    const req: any = { params: { id: USER_ID } };
+    const res: any = { locals: { user: { id: USER_ID } } };
     const next = function (err: any) {
       expect(err).toBeFalsy();
     };
@@ -88,8 +91,8 @@ describe("ensureCorrectUser", function () {
 
   test("id doesn't match", function () {
     expect.assertions(3);
-    const req: any = { params: { id: "test" } };
-    const res: any = { locals: { user: { id: "bad user" } } };
+    const req: any = { params: { id: USER_ID } };
+    const res: any = { locals: { user: { id: USER_ID + 1 } } };
     const next = function (err: any) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
       expect(err.status).toEqual(401);
