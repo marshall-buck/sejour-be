@@ -3,6 +3,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import { NotFoundError } from "./expressError";
 import { authenticateJWT } from "./middleware/authMiddleware";
 import { authRoutes } from "./routes/authRoutes";
+import { userRoutes } from "./routes/userRoutes";
 
 const app: Application = express();
 
@@ -12,6 +13,7 @@ app.use(authenticateJWT);
 
 /** Routes */
 app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
