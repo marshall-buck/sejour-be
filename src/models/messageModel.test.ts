@@ -6,6 +6,7 @@ import {
   commonAfterEach,
   commonAfterAll,
   messageIds,
+  userIds,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -18,8 +19,8 @@ afterAll(commonAfterAll);
 describe("create", function () {
   test("can create a new message", async function () {
     const newMessage = {
-      fromId: "u1",
-      toId: "u2",
+      fromId: userIds[0],
+      toId: userIds[1],
       body: "hello world",
     };
     const message = await Message.create(newMessage);
@@ -68,13 +69,13 @@ describe("get", function () {
     expect(result).toEqual({
       id: expect.any(Number),
       fromUser: {
-        id: "u1",
+        id: userIds[0],
         firstName: "U1F",
         lastName: "U1L",
         avatar: "test url",
       },
       toUser: {
-        id: "u2",
+        id: userIds[1],
         firstName: "U2F",
         lastName: "U2L",
         avatar: "test url",
