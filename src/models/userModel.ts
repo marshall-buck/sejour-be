@@ -228,6 +228,43 @@ class User {
 
     return messages;
   }
+  /** Updates user information
+   * Returns { id, username, firstName, lastName, avatar, email, isAdmin}
+   *
+   *
+   */
+  static async update({
+    username,
+    firstName,
+    lastName,
+
+    email,
+  }: Omit<UserData, "id" | "password" | "isAdmin">) {
+    // checked if username exists already
+    // select all from users where username = true throw
+    const result = await db.query(
+      `UPDATE users
+          SET username = $1, first_name = $2, last_name = $3, avatar = $4
+              WHERE id = $4
+                  RETURNING id,
+                            title,
+                            street,
+                            city,
+                            state,
+                            zipcode,
+                            latitude,
+                            longitude,
+                            price,
+                            description,
+                            owner_username AS "ownerUsername"`,
+      [title, description, price, id]
+    );
+
+    const property: PropertyData = result.rows[0];
+    NotFoundError.handler(property, `No property: ${id}`);
+
+    return property;
+  }
 }
 
 export { User };
