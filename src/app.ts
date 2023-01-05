@@ -13,7 +13,6 @@ app.use(authenticateJWT);
 /** Routes */
 app.use("/auth", authRoutes);
 
-
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
   throw new NotFoundError();
