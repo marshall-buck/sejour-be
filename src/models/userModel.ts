@@ -224,43 +224,77 @@ class User {
 
     return messages;
   }
-  /** Updates user information
-   * Returns { id, id, firstName, lastName, avatar, email, isAdmin}
+
+  /** Updates user firstName and lastName
+   * Finds user by id
    *
+   * Returns { id, firstName, lastName, avatar, email, isAdmin}
    *
+   * Throws NotFoundError if user not found.
    */
-  // static async update({
-  //   id,
-  //   firstName,
-  //   lastName,
+  static async updateName({
+    id,
+    firstName,
+    lastName,
+  }: Pick<UserData, "id" | "firstName" | "lastName">): Promise<UserResponse> {
+    const result = await db.query(
+      `UPDATE users
+          SET first_name = $2, last_name = $3
+              WHERE id = $1
+                  RETURNING id,
+                            first_name AS "firstName",
+                            last_name AS "lastName",
+                            avatar,
+                            email,
+                            is_admin AS "isAdmin"`,
+      [id, firstName, lastName]
+    );
+    const user: UserData = result.rows[0];
+    NotFoundError.handler(user, `No user: ${id}`);
 
-  //   email,
-  // }: Omit<UserData, "id" | "password" | "isAdmin">) {
-  //   // checked if id exists already
-  //   // select all from users where id = true throw
-  //   const result = await db.query(
-  //     `UPDATE users
-  //         SET id = $1, first_name = $2, last_name = $3, avatar = $4
-  //             WHERE id = $4
-  //                 RETURNING id,
-  //                           title,
-  //                           street,
-  //                           city,
-  //                           state,
-  //                           zipcode,
-  //                           latitude,
-  //                           longitude,
-  //                           price,
-  //                           description,
-  //                           owner_id AS "ownerId"`,
-  //     [title, description, price, id]
-  //   );
+    return user;
+  }
 
-  //   const property: PropertyData = result.rows[0];
-  //   NotFoundError.handler(property, `No property: ${id}`);
+  /** Updates user email
+   * Finds user by id
+   *
+   * Returns { id, firstName, lastName, avatar, email, isAdmin}
+   *
+   * Throws NotFoundError if user not found.
+   * Throws BadRequestError if email already exists
+   */
+  static async updateEmail({
+    id,
+    email,
+  }: Pick<UserData, "id" | "email">): Promise<UserResponse> {
+    // verify email is unique
+    const emailRes = await db.query(
+      `SELECT email
+          FROM users
+          WHERE email = $1`,
+      [email]
+    );
+    if (emailRes.rows[0]) {
+      throw new BadRequestError(`An account for ${email} already exists`);
+    }
 
-  //   return property;
-  // }
+    const result = await db.query(
+      `UPDATE users
+          SET email = $2
+              WHERE id = $1
+                  RETURNING id,
+                            first_name AS "firstName",
+                            last_name AS "lastName",
+                            avatar,
+                            email,
+                            is_admin AS "isAdmin"`,
+      [id, email]
+    );
+    const user: UserData = result.rows[0];
+    NotFoundError.handler(user, `No user: ${id}`);
+
+    return user;
+  }
 }
 
 export { User };

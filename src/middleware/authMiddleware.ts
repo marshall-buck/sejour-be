@@ -46,7 +46,7 @@ function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
 function ensureCorrectUser(req: Request, res: Response, next: NextFunction) {
   try {
     const user = res.locals.user;
-    if (!user || user.id !== req.params.id) {
+    if (!(user && user.id === +req.params.id)) {
       throw new UnauthorizedError();
     }
     return next();

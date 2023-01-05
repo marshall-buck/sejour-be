@@ -92,7 +92,7 @@ describe("ensureCorrectUser", function () {
   test("id doesn't match", function () {
     expect.assertions(3);
     const req: any = { params: { id: USER_ID } };
-    const res: any = { locals: { user: { id: USER_ID + 1 } } };
+    const res: any = { locals: { user: { id: 0 } } };
     const next = function (err: any) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
       expect(err.status).toEqual(401);

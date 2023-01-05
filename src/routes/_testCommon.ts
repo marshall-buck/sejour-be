@@ -1,15 +1,21 @@
 import { db } from "../db";
 import { User } from "../models/userModel";
+import { Message } from "../models/messageModel";
 import { createToken } from "../helpers/tokens";
-import { UserResponse } from "../types";
 
-const testUsers: number[] = [];
+
+type UserTestData = {
+  id: number;
+  token: string;
+};
+const testUserIds: UserTestData[] = [];
 
 async function commonBeforeAll() {
   await db.query("DELETE FROM messages");
   await db.query("DELETE FROM users");
 
   await registerTestUsers();
+  await createTestMessages();
 }
 
 async function commonBeforeEach() {
@@ -24,19 +30,12 @@ async function commonAfterAll() {
   await db.end();
 }
 
-/** Test JWT tokens */
-const u1Token = createToken({ id: testUsers[0], isAdmin: false });
-const u2Token = createToken({ id: testUsers[1], isAdmin: false });
-const adminToken = createToken({ id: testUsers[2], isAdmin: true });
-
 export {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  u1Token,
-  u2Token,
-  adminToken,
+  testUserIds,
 };
 
 /***************** HELPER FUNCTIONS FOR POPULATING DB BEFORE ALL **************/
@@ -68,5 +67,32 @@ async function registerTestUsers() {
     avatar: "test_url3",
   });
 
-  testUsers.push(u1.id, u2.id, u3.id);
+  testUserIds.push(
+    {
+      id: u1.id,
+      token: createToken({ id: u1.id, isAdmin: false }),
+    },
+    {
+      id: u2.id,
+      token: createToken({ id: u2.id, isAdmin: false }),
+    },
+    {
+      id: u3.id,
+      token: createToken({ id: u3.id, isAdmin: true }),
+    }
+  );
+}
+
+async function createTestMessages() {
+  await Message.create({
+    fromId: testUserIds[1].id,
+    toId: testUserIds[0].id,
+    body: "hello u1"
+  })
+
+  await Message.create({
+    fromId: testUserIds[0].id,
+    toId: testUserIds[1].id,
+    body: "hello u2"
+  })
 }

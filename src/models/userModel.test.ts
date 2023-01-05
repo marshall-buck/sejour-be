@@ -181,3 +181,56 @@ describe("messagesTo", function () {
     ]);
   });
 });
+
+/************************************** updateName */
+
+describe("updateName", function () {
+  test("successfully updates user's name", async function () {
+    const user = await User.updateName({
+      id: userIds[0],
+      firstName: "newU1F",
+      lastName: "newU1L",
+    });
+    expect(user).toEqual({
+      id: userIds[0],
+      firstName: "newU1F",
+      lastName: "newU1L",
+      email: "u1@email.com",
+      avatar: "test url",
+      isAdmin: false,
+    });
+  });
+});
+
+/************************************** updateEmail */
+
+describe("updateEmail", function () {
+  test("successfully updates user's email", async function () {
+    const user = await User.updateEmail({
+      id: userIds[0],
+      email: "newemail@email.com",
+    });
+    expect(user).toEqual({
+      id: userIds[0],
+      firstName: "U1F",
+      lastName: "U1L",
+      email: "newemail@email.com",
+      avatar: "test url",
+      isAdmin: false,
+    });
+  });
+  test("throws error if user's email already exits", async function () {
+    try {
+      await User.updateEmail({
+        id: userIds[0],
+        email: "u2@email.com",
+      });
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err: any) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+      expect(err.message).toEqual(
+        "An account for u2@email.com already exists"
+      );
+    }
+  });
+});
