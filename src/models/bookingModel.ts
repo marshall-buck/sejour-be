@@ -5,16 +5,16 @@ import { Property } from "./propertyModel";
 
 /** Related function for bookings */
 class Booking {
-  /** Create a new booking with {startDate, endDate, propertyId, guestUsername}
+  /** Create a new booking with {startDate, endDate, propertyId, guestId}
    *
-   * Returns booking {id, startDate, endDate, property, guestUsername}
-   * with property as {id, title, address, description, price, ownerUsername}
+   * Returns booking {id, startDate, endDate, property, guestId}
+   * with property as {id, title, address, description, price, ownerId}
    */
   static async create({
     startDate,
     endDate,
     propertyId,
-    guestUsername,
+    guestId,
   }: Omit<BookingData, "id">): Promise<BookingResultData> {
     if (!this.validateDates({ startDate, endDate })) {
       throw new BadRequestError(`Sorry, there was an error creating booking`);
@@ -43,17 +43,17 @@ class Booking {
     // if property is available, add booking reservation
     const bookingRes = await db.query(
       `
-      INSERT INTO bookings (start_date, end_date, property_id, guest_username)
+      INSERT INTO bookings (start_date, end_date, property_id, guest_id)
           VALUES ($1, $2, $3, $4)
           RETURNING id,
                     start_date AS "startDate",
                     end_date AS "endDate",
-                    guest_username AS "guestUsername"`,
-      [startDate, endDate, propertyId, guestUsername]
+                    guest_id AS "guestId"`,
+      [startDate, endDate, propertyId, guestId]
     );
 
     const booking: BookingResultData = bookingRes.rows[0];
-    booking.property = await Property.get({id: propertyId});
+    booking.property = await Property.get({ id: propertyId });
 
     return booking;
   }

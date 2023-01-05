@@ -16,21 +16,21 @@ import {
 
 /** Related functions for users. */
 class User {
-  /** Authenticate user with username, password.
+  /** Authenticate user with email, password.
    *
-   * Returns { username, firstName, lastName, avatar, email, isAdmin }
+   * Returns { id, firstName, lastName, avatar, email, isAdmin }
    *
    * Throws UnauthorizedError if:
-   * - username not found OR
+   * - email not found OR
    * - wrong password
    **/
   static async authenticate({
-    username,
+    email,
     password,
-  }: Pick<UserData, "username" | "password">): Promise<UserResponse> {
+  }: Pick<UserData, "email" | "password">): Promise<UserResponse> {
     // try to find the user first
     const result = await db.query(
-      `SELECT username,
+      `SELECT id,
               password,
               first_name AS "firstName",
               last_name AS "lastName",
@@ -38,8 +38,8 @@ class User {
               email,
               is_admin AS "isAdmin"
            FROM users
-           WHERE username = $1`,
-      [username]
+           WHERE email = $1`,
+      [email]
     );
     const userResult: UserData = result.rows[0];
 
@@ -47,7 +47,7 @@ class User {
       const isValid = await bcrypt.compare(password, userResult.password);
       if (isValid === true) {
         const user: UserResponse = {
-          username: userResult.username,
+          id: userResult.id,
           firstName: userResult.firstName,
           lastName: userResult.lastName,
           avatar: userResult.avatar,
@@ -58,93 +58,89 @@ class User {
         return user;
       }
     }
-    throw new UnauthorizedError("Invalid username/password");
+    throw new UnauthorizedError("Invalid id/password");
   }
 
   /** Register new user with user registration data.
    *
-   * Returns { username, firstName, lastName, avatar, email, isAdmin }
+   * Returns { id, firstName, lastName, avatar, email, isAdmin }
    *
-   * Throws BadRequestError on duplicate usernames.
+   * Throws BadRequestError on duplicate ids.
    **/
   static async register({
-    username,
     password,
     firstName,
     lastName,
     avatar,
     email,
     isAdmin,
-  }: UserData): Promise<UserResponse> {
+  }: Omit<UserData, "id">): Promise<UserResponse> {
     const duplicateCheck = await db.query(
-      `SELECT username
+      `SELECT email
           FROM users
-          WHERE username = $1`,
-      [username]
+          WHERE email = $1`,
+      [email]
     );
 
     if (duplicateCheck.rows[0]) {
-      throw new BadRequestError(`Duplicate username: ${username}`);
+      throw new BadRequestError(`Duplicate email: ${email}`);
     }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 
     const result = await db.query(
       `INSERT INTO users
-           (username,
-            password,
+           (password,
             first_name,
             last_name,
             avatar,
             email,
             is_admin)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING username, first_name AS "firstName", last_name AS "lastName",
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, first_name AS "firstName", last_name AS "lastName",
                   avatar, email, is_admin AS "isAdmin"`,
-      [username, hashedPassword, firstName, lastName, avatar, email, isAdmin]
+      [hashedPassword, firstName, lastName, avatar, email, isAdmin]
     );
 
     const user: UserResponse = result.rows[0];
 
     return user;
   }
-  /** Given a username, return data about user.
+  /** Given a id, return data about user.
    *
-   * Returns { username, firstName, lastName, avatar, email, isAdmin }
+   * Returns { id, firstName, lastName, avatar, email, isAdmin }
    *
    *
    * Throws NotFoundError if user not found.
    **/
-  static async get({
-    username,
-  }: Pick<UserData, "username">): Promise<UserResponse> {
+  static async get({ id }: Pick<UserData, "id">): Promise<UserResponse> {
     const userRes = await db.query(
-      `SELECT username,
+      `SELECT id,
               first_name AS "firstName",
               last_name AS "lastName",
               avatar,
               email,
               is_admin AS "isAdmin"
         FROM users
-        WHERE username = $1`,
-      [username]
+        WHERE id = $1`,
+      [id]
     );
 
     const user: UserResponse = userRes.rows[0];
-    NotFoundError.handler(user, `No user: ${username}`);
+    NotFoundError.handler(user, `No user: ${id}`);
 
     return user;
   }
 
-  /** Get all messages sent from a user by username
+  /** Get all messages sent from a user by id
    * Return messages from this user:
-   * [{id, toUser: {username, firstName, lastName, avatar}, body, sentAt, readAt}]
-   * where toUser is {username, firstName, lastName, avatar}
+   * [{id, toUser: {id, firstName, lastName, avatar}, body, sentAt, readAt}]
+   * where toUser is {id, firstName, lastName, avatar}
    */
-  static async messagesFrom({ username }: Pick<UserData, "username">) {
+  static async messagesFrom({ id }: Pick<UserData, "id">) {
     const results = await db.query(
       `SELECT m.id,
-              m.to_username AS "username",
+              m.to_id AS "userId",
               u.first_name AS "firstName",
               u.last_name AS "lastName",
               u.avatar AS "avatar",
@@ -153,19 +149,19 @@ class User {
               m.read_at AS "readAt"
           FROM messages AS m
             JOIN users AS u
-              ON u.username = m.to_username
-          WHERE from_username = $1`,
-      [username]
+              ON u.id = m.to_id
+          WHERE from_id = $1`,
+      [id]
     );
     const messagesResult: UserMessageData[] = results.rows;
-    NotFoundError.handler(messagesResult, `No messages found from ${username}`);
+    NotFoundError.handler(messagesResult, `No messages found from ${id}`);
 
     const messages: MessageFromResponse[] = messagesResult.map(
       (m: UserMessageData) => {
         return {
           id: m.id,
           toUser: {
-            username: m.username,
+            id: m.userId,
             firstName: m.firstName,
             lastName: m.lastName,
             avatar: m.avatar,
@@ -182,18 +178,18 @@ class User {
   /** Return messages to this user.
    *
    * [{id,
-   *  fromUser: {username, firstName, lastName, avatar},
+   *  fromUser: {id, firstName, lastName, avatar},
    *  body,
    *  sentAt,
    *  readAt}]
    *
    * where fromUser is
-   *   {username, firstName, lastName, avatar}
+   *   {id, firstName, lastName, avatar}
    */
-  static async messagesTo({ username }: Pick<UserData, "username">) {
+  static async messagesTo({ id }: Pick<UserData, "id">) {
     const results = await db.query(
       `SELECT m.id,
-              m.from_username AS "username",
+              m.from_id AS "userId",
               u.first_name AS "firstName",
               u.last_name AS "lastName",
               u.avatar AS "avatar",
@@ -202,19 +198,19 @@ class User {
               m.read_at AS "readAt"
           FROM messages AS m
             JOIN users AS u
-              ON u.username = m.from_username
-          WHERE to_username = $1`,
-      [username]
+              ON u.id = m.from_id
+          WHERE to_id = $1`,
+      [id]
     );
     const messagesResults: UserMessageData[] = results.rows;
-    NotFoundError.handler(messagesResults, `No messages found for ${username}`);
+    NotFoundError.handler(messagesResults, `No messages found for ${id}`);
 
     const messages: MessageToResponse[] = messagesResults.map(
       (m: UserMessageData) => {
         return {
           id: m.id,
           fromUser: {
-            username: m.username,
+            id: m.userId,
             firstName: m.firstName,
             lastName: m.lastName,
             avatar: m.avatar,
@@ -229,42 +225,42 @@ class User {
     return messages;
   }
   /** Updates user information
-   * Returns { id, username, firstName, lastName, avatar, email, isAdmin}
+   * Returns { id, id, firstName, lastName, avatar, email, isAdmin}
    *
    *
    */
-  static async update({
-    username,
-    firstName,
-    lastName,
+  // static async update({
+  //   id,
+  //   firstName,
+  //   lastName,
 
-    email,
-  }: Omit<UserData, "id" | "password" | "isAdmin">) {
-    // checked if username exists already
-    // select all from users where username = true throw
-    const result = await db.query(
-      `UPDATE users
-          SET username = $1, first_name = $2, last_name = $3, avatar = $4
-              WHERE id = $4
-                  RETURNING id,
-                            title,
-                            street,
-                            city,
-                            state,
-                            zipcode,
-                            latitude,
-                            longitude,
-                            price,
-                            description,
-                            owner_username AS "ownerUsername"`,
-      [title, description, price, id]
-    );
+  //   email,
+  // }: Omit<UserData, "id" | "password" | "isAdmin">) {
+  //   // checked if id exists already
+  //   // select all from users where id = true throw
+  //   const result = await db.query(
+  //     `UPDATE users
+  //         SET id = $1, first_name = $2, last_name = $3, avatar = $4
+  //             WHERE id = $4
+  //                 RETURNING id,
+  //                           title,
+  //                           street,
+  //                           city,
+  //                           state,
+  //                           zipcode,
+  //                           latitude,
+  //                           longitude,
+  //                           price,
+  //                           description,
+  //                           owner_id AS "ownerId"`,
+  //     [title, description, price, id]
+  //   );
 
-    const property: PropertyData = result.rows[0];
-    NotFoundError.handler(property, `No property: ${id}`);
+  //   const property: PropertyData = result.rows[0];
+  //   NotFoundError.handler(property, `No property: ${id}`);
 
-    return property;
-  }
+  //   return property;
+  // }
 }
 
 export { User };

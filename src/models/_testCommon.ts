@@ -1,8 +1,15 @@
 import bcrypt from "bcrypt";
 import { BCRYPT_WORK_FACTOR } from "../config";
 import { db } from "../db";
-import { MessageData, PropertyData, ImageData, BookingData } from "../types";
+import {
+  MessageData,
+  PropertyData,
+  ImageData,
+  BookingData,
+  UserData,
+} from "../types";
 
+const userIds: number[] = [];
 const propertyIds: number[] = [];
 const messageIds: number[] = [];
 const imageIds: number[] = [];
@@ -34,42 +41,33 @@ async function commonAfterAll() {
   await db.end();
 }
 
-export {
-  commonBeforeAll,
-  commonBeforeEach,
-  commonAfterEach,
-  commonAfterAll,
-  propertyIds,
-  messageIds,
-  imageIds,
-  bookingIds,
-};
-
 /******************** HELPER FUNCTIONS FOR SEEDING DB BEFORE ALL **************/
 
 /** Seed users DB with test users and encrypts passwords before insertion */
 async function seedUsers() {
-  await db.query(
+  const resultUsers = await db.query(
     `
-      INSERT INTO users (username,
-                        password,
+    INSERT INTO users  (password,
                         first_name,
                         last_name,
                         email,
                         avatar)
-          VALUES ('u1', $1, 'U1F', 'U1L','u1@email.com',  'test url'),
-                ('u2', $2, 'U2F', 'U2L','u2@email.com',  'test url')
-          RETURNING username`,
+          VALUES ($1, 'U1F', 'U1L','u1@email.com',  'test url'),
+                 ($2, 'U2F', 'U2L','u2@email.com',  'test url')
+          RETURNING id`,
     [
       await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
       await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
     ]
   );
+
+  userIds.splice(0, 0, ...resultUsers.rows.map((r: UserData) => r.id));
 }
 
 /** Seed properties DB with test properties, creates an array of property Ids */
 async function seedProperties() {
-  const resultsProperties = await db.query(`
+  const resultsProperties = await db.query(
+    `
       INSERT INTO properties (title,
                               street,
                               city,
@@ -79,18 +77,20 @@ async function seedProperties() {
                               longitude,
                               description,
                               price,
-                              owner_username,
+                              owner_id,
                               archived)
           VALUES ('property one', '123 lane', 'test city', 'test state', '11111',
-                  '180.0000000', '-180.0000000', 'test description', 100, 'u1',
+                  '180.0000000', '-180.0000000', 'test description', 100, $1,
                   false),
                  ('property two', '123 lane', 'test city', 'test state', '11111',
                   '180.0000000', '-180.0000000', 'test description pool', 200,
-                  'u2', false),
+                  $2, false),
                  ('property three', '123 lane', 'test city', 'test state',
                  '11111', '180.0000000', '-180.0000000', 'test description', 200,
-                 'u2', true)
-          RETURNING id`);
+                 $2, true)
+          RETURNING id`,
+    [userIds[0], userIds[1]]
+  );
 
   propertyIds.splice(
     0,
@@ -101,10 +101,13 @@ async function seedProperties() {
 
 /** Seed messages DB with test messages, creates an array of message Ids */
 async function seedMessages() {
-  const resultsMessages = await db.query(`
-      INSERT INTO messages (from_username, to_username, body, sent_at)
-          VALUES ('u1', 'u2', 'test message', current_timestamp)
-              RETURNING id`);
+  const resultsMessages = await db.query(
+    `
+      INSERT INTO messages (from_id, to_id, body, sent_at)
+          VALUES ($1, $2, 'test message', current_timestamp)
+              RETURNING id`,
+    [userIds[0], userIds[1]]
+  );
 
   messageIds.splice(
     0,
@@ -129,15 +132,27 @@ async function seedImages() {
 /** Seed bookings DB with test bookings, creates an array of booking Ids */
 async function seedBookings() {
   const resultsBookings = await db.query(`
-      INSERT INTO bookings (start_date, end_date, property_id, guest_username)
+      INSERT INTO bookings (start_date, end_date, property_id, guest_id)
           VALUES('2022-11-29T05:00:00.000Z',
                 '2022-11-30T05:00:00.000Z',
-                ${propertyIds[0]}, 'u2')
+                ${propertyIds[0]}, ${userIds[1]})
               RETURNING id`);
-              
+
   bookingIds.splice(
     0,
     0,
     ...resultsBookings.rows.map((r: BookingData) => r.id)
   );
 }
+
+export {
+  commonBeforeAll,
+  commonBeforeEach,
+  commonAfterEach,
+  commonAfterAll,
+  propertyIds,
+  messageIds,
+  imageIds,
+  bookingIds,
+  userIds,
+};

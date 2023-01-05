@@ -1,5 +1,5 @@
 type UserData = {
-  username: string;
+  id: number;
   password: string;
   firstName: string;
   lastName: string;
@@ -12,7 +12,7 @@ type UserResponse = Omit<UserData, "password">;
 
 type UserMessageData = {
   id: number;
-  username: string;
+  userId: number;
   firstName: string;
   lastName: string;
   avatar: string;
@@ -23,8 +23,8 @@ type UserMessageData = {
 
 type MessageData = {
   id: number;
-  fromUsername: string;
-  toUsername: string;
+  fromId: number;
+  toId: number;
   body: string;
   sentAt: string;
   readAt?: string;
@@ -32,11 +32,11 @@ type MessageData = {
 
 type MessageQueryResult = {
   id: number;
-  fromUsername: string;
+  fromId: number;
   fromFirstName: string;
   fromLastName: string;
   fromAvatar: string;
-  toUsername: string;
+  toId: number;
   toFirstName: string;
   toLastName: string;
   toAvatar: string;
@@ -47,8 +47,8 @@ type MessageQueryResult = {
 
 type MessageResultData = {
   id: number;
-  fromUser: Pick<UserData, "username" | "firstName" | "lastName" | "avatar">;
-  toUser: Pick<UserData, "username" | "firstName" | "lastName" | "avatar">;
+  fromUser: Pick<UserData, "id" | "firstName" | "lastName" | "avatar">;
+  toUser: Pick<UserData, "id" | "firstName" | "lastName" | "avatar">;
   body: string;
   sentAt: string;
   readAt: string;
@@ -68,7 +68,7 @@ type PropertyData = {
   longitude: string;
   description: string;
   price: number;
-  ownerUsername: string;
+  ownerId: number;
   images?: Omit<ImageData, "propertyId">[];
 };
 
@@ -97,7 +97,7 @@ type BookingData = {
   startDate: string;
   endDate: string;
   propertyId: number;
-  guestUsername: string;
+  guestId: number;
 };
 
 type BookingResultData = Omit<BookingData, "propertyId"> & {
@@ -116,7 +116,7 @@ type PropertyResponse = {
   pagination: PaginationInfo;
 };
 
-type TokenPayload = Pick<UserData, "isAdmin" | "username">;
+type TokenPayload = Pick<UserData, "isAdmin" | "id">;
 
 export {
   BookingData,

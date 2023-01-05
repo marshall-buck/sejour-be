@@ -17,7 +17,7 @@ afterAll(commonAfterAll);
 describe("POST /auth/login", function () {
   test("works", async function () {
     const resp = await request(app).post("/auth/login").send({
-      username: "u1",
+      id: "u1",
       password: "password1",
     });
     expect(resp.body).toEqual({
@@ -27,7 +27,7 @@ describe("POST /auth/login", function () {
 
   test("unauth with non-existent user", async function () {
     const resp = await request(app).post("/auth/login").send({
-      username: "no-such-user",
+      id: "no-such-user",
       password: "password1",
     });
     expect(resp.statusCode).toEqual(401);
@@ -35,7 +35,7 @@ describe("POST /auth/login", function () {
 
   test("unauth with wrong password", async function () {
     const resp = await request(app).post("/auth/login").send({
-      username: "u1",
+      id: "u1",
       password: "nope",
     });
     expect(resp.statusCode).toEqual(401);
@@ -43,14 +43,14 @@ describe("POST /auth/login", function () {
 
   test("bad request with missing data", async function () {
     const resp = await request(app).post("/auth/login").send({
-      username: "u1",
+      id: "u1",
     });
     expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request with invalid data", async function () {
     const resp = await request(app).post("/auth/login").send({
-      username: 42,
+      id: 42,
       password: "above-is-a-number",
     });
     expect(resp.statusCode).toEqual(400);
@@ -62,7 +62,7 @@ describe("POST /auth/login", function () {
 describe("POST /auth/register", function () {
   test("works", async function () {
     const resp = await request(app).post("/auth/register").send({
-      username: "new_user",
+      id: "new_user",
       firstName: "first",
       lastName: "last",
       password: "password",
@@ -77,14 +77,14 @@ describe("POST /auth/register", function () {
 
   test("bad request with missing fields", async function () {
     const resp = await request(app).post("/auth/register").send({
-      username: "new",
+      id: "new",
     });
     expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request with invalid data", async function () {
     const resp = await request(app).post("/auth/register").send({
-      username: "new",
+      id: "new",
       firstName: "first",
       lastName: "last",
       password: "password",

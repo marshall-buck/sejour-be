@@ -4,9 +4,8 @@ import { createToken } from "../helpers/tokens";
 // import Company from "../models/company";
 // import Job from "../models/job";
 
-
 async function commonBeforeAll() {
-  await db.query("DELETE FROM messages")
+  await db.query("DELETE FROM messages");
   await db.query("DELETE FROM users");
 
   await registerTestUsers();
@@ -25,9 +24,9 @@ async function commonAfterAll() {
 }
 
 /** Test JWT tokens */
-const u1Token = createToken({ username: "u1", isAdmin: false });
-const u2Token = createToken({ username: "u2", isAdmin: false });
-const adminToken = createToken({ username: "admin", isAdmin: true });
+const u1Token = createToken({ id: "u1", isAdmin: false });
+const u2Token = createToken({ id: "u2", isAdmin: false });
+const adminToken = createToken({ id: "admin", isAdmin: true });
 
 export {
   commonBeforeAll,
@@ -44,7 +43,7 @@ export {
 /** Add users to DB with test users */
 async function registerTestUsers() {
   await User.register({
-    username: "u1",
+    id: "u1",
     firstName: "U1F",
     lastName: "U1L",
     email: "user1@user.com",
@@ -53,7 +52,7 @@ async function registerTestUsers() {
     avatar: "test_url1",
   });
   await User.register({
-    username: "u2",
+    id: "u2",
     firstName: "U2F",
     lastName: "U2L",
     email: "user2@user.com",
@@ -62,7 +61,7 @@ async function registerTestUsers() {
     avatar: "test_url2",
   });
   await User.register({
-    username: "u3",
+    id: "u3",
     firstName: "U3F",
     lastName: "U3L",
     email: "user3@user.com",

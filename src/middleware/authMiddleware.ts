@@ -5,11 +5,10 @@ import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config";
 import { UnauthorizedError } from "../expressError";
 
-
 /** Middleware: Authenticate user.
  *
  * If a token was provided, verify it, and, if valid, store the token payload
- * on res.locals (this will include the username and isAdmin field.)
+ * on res.locals (this will include the id and isAdmin field.)
  *
  * It's not an error if no token was provided or if the token is not valid.
  */
@@ -40,14 +39,14 @@ function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
 }
 
 /** Middleware to use when they must provide a valid token & be user matching
- *  username provided as route param.
+ *  id provided as route param.
  *
  *  If not, raises Unauthorized.
  */
 function ensureCorrectUser(req: Request, res: Response, next: NextFunction) {
   try {
     const user = res.locals.user;
-    if (!user || user.username !== req.params.username) {
+    if (!user || user.id !== req.params.id) {
       throw new UnauthorizedError();
     }
     return next();

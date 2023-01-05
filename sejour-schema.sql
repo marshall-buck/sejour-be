@@ -5,11 +5,11 @@
 -- DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
-  username VARCHAR(25) PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   password TEXT NOT NULL,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
-  email TEXT NOT NULL CHECK (position('@' IN email) > 1),
+  email TEXT NOT NULL CHECK (position('@' IN email) > 1) UNIQUE,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
   avatar TEXT NOT NULL DEFAULT 'https://picsum.photos/100'
 );
@@ -25,7 +25,7 @@ CREATE TABLE properties (
   longitude VARCHAR(14) NOT NULL,
   description TEXT NOT NULL,
   price INTEGER NOT NULL,
-  owner_username VARCHAR(25) NOT NULL REFERENCES users ON DELETE CASCADE,
+  owner_id INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
   archived BOOLEAN NOT NULL DEFAULT FALSE
 );
 
@@ -33,14 +33,14 @@ CREATE TABLE bookings (
   id SERIAL PRIMARY KEY,
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
-  property_id INT NOT NULL REFERENCES properties ON DELETE CASCADE,
-  guest_username VARCHAR(25) NOT NULL REFERENCES users ON DELETE CASCADE
+  property_id INTEGER NOT NULL REFERENCES properties ON DELETE CASCADE,
+  guest_id INTEGER NOT NULL REFERENCES users ON DELETE CASCADE
 );
 
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
-  from_username TEXT NOT NULL REFERENCES users,
-  to_username TEXT NOT NULL REFERENCES users,
+  from_id INTEGER NOT NULL REFERENCES users,
+  to_id INTEGER NOT NULL REFERENCES users,
   body TEXT NOT NULL,
   sent_at TIMESTAMP WITH TIME ZONE NOT NULL,
   read_at TIMESTAMP WITH TIME ZONE
@@ -49,6 +49,6 @@ CREATE TABLE messages (
 CREATE TABLE images (
   id SERIAL PRIMARY KEY,
   image_key VARCHAR(255) NOT NULL,
-  property_id INT NOT NULL REFERENCES properties ON DELETE CASCADE,
+  property_id INTEGER NOT NULL REFERENCES properties ON DELETE CASCADE,
   is_cover_image BOOLEAN DEFAULT FALSE
 );

@@ -27,7 +27,7 @@ describe("create", function () {
       description:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, rerum.",
       price: 200,
-      ownerUsername: "u1",
+      ownerId: "u1",
     };
     const property = await Property.create(newProperty);
 
@@ -72,7 +72,7 @@ describe("findAll", function () {
           ],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerUsername: "u1",
+          ownerId: "u1",
           price: 100,
           state: "test state",
           street: "123 lane",
@@ -86,7 +86,7 @@ describe("findAll", function () {
           images: [],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerUsername: "u2",
+          ownerId: "u2",
           price: 200,
           state: "test state",
           street: "123 lane",
@@ -125,7 +125,7 @@ describe("findAll", function () {
           ],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerUsername: "u1",
+          ownerId: "u1",
           price: 100,
           state: "test state",
           street: "123 lane",
@@ -153,7 +153,7 @@ describe("findAll", function () {
           images: [],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerUsername: "u2",
+          ownerId: "u2",
           price: 200,
           state: "test state",
           street: "123 lane",
@@ -176,7 +176,7 @@ describe("findAll", function () {
           images: [],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerUsername: "u2",
+          ownerId: "u2",
           price: 200,
           state: "test state",
           street: "123 lane",
@@ -215,7 +215,7 @@ describe("findAll", function () {
           ],
           latitude: "180.0000000",
           longitude: "-180.0000000",
-          ownerUsername: "u1",
+          ownerId: "u1",
           price: 100,
           state: "test state",
           street: "123 lane",
@@ -252,7 +252,7 @@ describe("findAll", function () {
           longitude: "-180.0000000",
           description: "test description pool",
           price: 200,
-          ownerUsername: "u2",
+          ownerId: "u2",
           images: [],
         },
       ],
@@ -282,7 +282,7 @@ describe("get by id", function () {
       longitude: "-180.0000000",
       description: "test description",
       price: 100,
-      ownerUsername: "u1",
+      ownerId: "u1",
       images: [
         { id: expect.any(Number), imageKey: "12345678", isCoverImage: true },
         { id: expect.any(Number), imageKey: "23456789", isCoverImage: false },
@@ -325,7 +325,7 @@ describe("update", function () {
       longitude: "-180.0000000",
       description: "updated description",
       price: 1000,
-      ownerUsername: "u1",
+      ownerId: "u1",
     });
   });
 

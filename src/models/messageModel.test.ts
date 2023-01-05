@@ -18,8 +18,8 @@ afterAll(commonAfterAll);
 describe("create", function () {
   test("can create a new message", async function () {
     const newMessage = {
-      fromUsername: "u1",
-      toUsername: "u2",
+      fromId: "u1",
+      toId: "u2",
       body: "hello world",
     };
     const message = await Message.create(newMessage);
@@ -36,7 +36,7 @@ describe("create", function () {
 
 describe("markRead", function () {
   test("can mark a message as read by id", async function () {
-    const result = await Message.markRead({id: messageIds[0]});
+    const result = await Message.markRead({ id: messageIds[0] });
 
     expect(result).toEqual({
       id: expect.any(Number),
@@ -47,7 +47,7 @@ describe("markRead", function () {
   test(`throws NotFoundError if no message found for id,
     cannot mark as read`, async function () {
     try {
-      const result = await Message.markRead({id: 0});
+      const result = await Message.markRead({ id: 0 });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -63,18 +63,18 @@ describe("markRead", function () {
 
 describe("get", function () {
   test("can get a message details by id", async function () {
-    const result = await Message.get({id: messageIds[0]});
+    const result = await Message.get({ id: messageIds[0] });
 
     expect(result).toEqual({
       id: expect.any(Number),
       fromUser: {
-        username: "u1",
+        id: "u1",
         firstName: "U1F",
         lastName: "U1L",
         avatar: "test url",
       },
       toUser: {
-        username: "u2",
+        id: "u2",
         firstName: "U2F",
         lastName: "U2L",
         avatar: "test url",
@@ -87,7 +87,7 @@ describe("get", function () {
 
   test(`throws NotFoundError if no message found for id`, async function () {
     try {
-      await Message.get({id: 0});
+      await Message.get({ id: 0 });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();

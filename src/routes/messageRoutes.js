@@ -13,38 +13,36 @@ const { UnauthorizedError, BadRequestError } = require("../expressError");
  *               body,
  *               sent_at,
  *               read_at,
- *               from_user: {username, first_name, last_name, phone},
- *               to_user: {username, first_name, last_name, phone}}
+ *               from_user: {id, first_name, last_name, phone},
+ *               to_user: {id, first_name, last_name, phone}}
  *
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
 router.get("/:id", async function (req, res, next) {
-  const username = res.locals.user.username;
+  const id = res.locals.user.id;
   const id = req.params.id;
   const message = await Message.get(id);
 
-  if (username !== message.from_user.username
-    && username !== message.to_user.username) {
+  if (id !== message.from_user.id && id !== message.to_user.id) {
     throw new UnauthorizedError("access not allowed");
   }
 
   return res.json({ message });
 });
 
-
 /** POST / - post message.
  *
- * {to_username, body} =>
- *   {message: {id, from_username, to_username, body, sent_at}}
+ * {to_id, body} =>
+ *   {message: {id, from_id, to_id, body, sent_at}}
  *
  **/
 router.post("/", async function (req, res, next) {
-  const fromUsername = res.locals.user.username;
-  const { toUsername, body } = req.body;
+  const fromId = res.locals.user.id;
+  const { toId, body } = req.body;
   const message = await Message.create({
-    fromUsername,
-    toUsername,
+    fromId,
+    toId,
     body,
   });
 
@@ -59,11 +57,11 @@ router.post("/", async function (req, res, next) {
  *
  **/
 router.post("/:id/read", async function (req, res, next) {
-  const username = res.locals.user.username;
+  const id = res.locals.user.id;
   const id = req.params.id;
   const result = await Message.get(id);
 
-  if (username !== result.to_user.username) {
+  if (id !== result.to_user.id) {
     throw new UnauthorizedError("access not allowed");
   }
 
@@ -71,6 +69,5 @@ router.post("/:id/read", async function (req, res, next) {
 
   return res.json({ message });
 });
-
 
 module.exports = router;

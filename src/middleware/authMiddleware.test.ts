@@ -7,8 +7,8 @@ import {
 } from "./authMiddleware";
 
 import { SECRET_KEY } from "../config";
-const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
-const badJwt = jwt.sign({ username: "test", isAdmin: false }, "wrong");
+const testJwt = jwt.sign({ id: "test", isAdmin: false }, SECRET_KEY);
+const badJwt = jwt.sign({ id: "test", isAdmin: false }, "wrong");
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
@@ -24,7 +24,7 @@ describe("authenticateJWT", function () {
     expect(res.locals).toEqual({
       user: {
         iat: expect.any(Number),
-        username: "test",
+        id: "test",
         isAdmin: false,
       },
     });
@@ -57,7 +57,7 @@ describe("ensureLoggedIn", function () {
   test("works", function () {
     expect.assertions(1);
     const req: any = {};
-    const res: any = { locals: { user: { username: "test" } } };
+    const res: any = { locals: { user: { id: "test" } } };
     const next = function (err: any) {
       expect(err).toBeFalsy();
     };
@@ -78,18 +78,18 @@ describe("ensureLoggedIn", function () {
 describe("ensureCorrectUser", function () {
   test("works", function () {
     expect.assertions(1);
-    const req: any = { params: { username: "test" } };
-    const res: any = { locals: { user: { username: "test" } } };
+    const req: any = { params: { id: "test" } };
+    const res: any = { locals: { user: { id: "test" } } };
     const next = function (err: any) {
       expect(err).toBeFalsy();
     };
     ensureCorrectUser(req, res, next);
   });
 
-  test("username doesn't match", function () {
+  test("id doesn't match", function () {
     expect.assertions(3);
-    const req: any = { params: { username: "test" } };
-    const res: any = { locals: { user: { username: "bad user" } } };
+    const req: any = { params: { id: "test" } };
+    const res: any = { locals: { user: { id: "bad user" } } };
     const next = function (err: any) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
       expect(err.status).toEqual(401);

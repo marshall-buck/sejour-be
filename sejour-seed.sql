@@ -1,4 +1,4 @@
--- INSERT INTO users (username, password, first_name, last_name, email, is_admin, avatar)
+-- INSERT INTO users (id, password, first_name, last_name, email, is_admin, avatar)
 -- VALUES ('testuser1',
 --         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
 --         'Test1',
@@ -18,7 +18,7 @@
 --         '3@3.com',
 --         TRUE,'https://picsum.photos/100');
 
--- INSERT INTO properties (title, address, description, price, owner_username)
+-- INSERT INTO properties (title, address, description, price, owner_id)
 -- VALUES ('syndicate 24/7 methodologies', '18 Montana Road', 'Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus.', 897, 'testuser1'),
 -- ('revolutionize visionary e-tailers', '83347 Dayton Lane', 'Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi. Nam ultrices, libero non mattis pulvinar, nulla pede ullamcorper augue, a suscipit nulla elit ac nulla. Sed vel enim sit amet nunc viverra dapibus. Nulla suscipit ligula in lacus.', 740, 'testuser3'),
 -- ('strategize user-centric schemas', '192 Reindahl Point', 'Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus.Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh.', 647, 'testuser1'),

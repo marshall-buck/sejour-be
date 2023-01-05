@@ -6,12 +6,10 @@ import { User } from "../models/userModel";
 import userAuthSchema from "../schemas/userAuth.json";
 import userRegisterSchema from "../schemas/userRegister.json";
 
-
 /** Routes for authentication. */
 const router: Router = express.Router();
 
-
-/** POST /auth/login:  { username, password } => { token }
+/** POST /auth/login:  { id, password } => { token }
  *
  * Returns JWT token which can be used to authenticate further requests.
  *
@@ -19,19 +17,15 @@ const router: Router = express.Router();
  */
 router.post(
   "/login",
-  async function (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  async function (req: Request, res: Response, next: NextFunction) {
     const validator = jsonschema.validate(req.body, userAuthSchema, {
       required: true,
     });
     if (!validator.valid) {
       throw new BadRequestError();
     }
-    const { username, password } = req.body;
-    const user = await User.authenticate({ username, password });
+    const { id, password } = req.body;
+    const user = await User.authenticate({ id, password });
     const token = createToken(user);
     return res.json({ token });
   }
@@ -39,7 +33,7 @@ router.post(
 
 /** POST /auth/register:   { user } => { token }
  *
- * { user } must include { username, password, firstName, lastName, email }
+ * { user } must include { id, password, firstName, lastName, email }
  *
  * Returns JWT token which can be used to authenticate further requests.
  *

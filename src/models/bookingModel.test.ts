@@ -24,14 +24,14 @@ describe("create", function () {
       startDate: "2022-12-30T05:00:00.000Z",
       endDate: "2022-12-31T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
     const booking = await Booking.create(newBooking);
-    const property = await Property.get({id: propertyIds[0]});
+    const property = await Property.get({ id: propertyIds[0] });
 
     expect(booking).toEqual({
       id: expect.any(Number),
-      guestUsername: "u2",
+      guestId: "u2",
       startDate: new Date("2022-12-30T05:00:00.000Z"),
       endDate: new Date("2022-12-31T05:00:00.000Z"),
       property: property,
@@ -43,7 +43,7 @@ describe("create", function () {
       startDate: "2022-12-31T05:00:00.000Z",
       endDate: "2022-12-30T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
 
     try {
@@ -59,13 +59,13 @@ describe("create", function () {
       startDate: "2022-12-30T05:00:00.000Z",
       endDate: "2022-12-31T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
     const booking2 = {
       startDate: "2022-12-30T05:00:00.000Z",
       endDate: "2022-12-31T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
 
     try {
@@ -82,13 +82,13 @@ describe("create", function () {
       startDate: "2022-12-30T05:00:00.000Z",
       endDate: "2022-12-31T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
     const booking2 = {
       startDate: "2022-12-29T05:00:00.000Z",
       endDate: "2022-12-31T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
 
     try {
@@ -105,13 +105,13 @@ describe("create", function () {
       startDate: "2022-12-30T05:00:00.000Z",
       endDate: "2022-12-31T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
     const booking2 = {
       startDate: "2022-12-30T05:00:00.000Z",
       endDate: "2023-01-01T05:00:00.000Z",
       propertyId: propertyIds[0],
-      guestUsername: "u2",
+      guestId: "u2",
     };
 
     try {

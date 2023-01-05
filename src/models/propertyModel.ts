@@ -17,11 +17,11 @@ const PAGINATION = {
 /** Related functions for Properties */
 class Property {
   /** Create new Property given property data params
-   * { title, street, city, state, zipcode, description, price, ownerUsername, }
+   * { title, street, city, state, zipcode, description, price, ownerId, }
    *
    * Returns newly created Property:
    * { id, title, street, city, state, zipcode, latitude, longitude,
-   * description, price, username }
+   * description, price, id }
    */
   static async create({
     title,
@@ -31,7 +31,7 @@ class Property {
     zipcode,
     description,
     price,
-    ownerUsername,
+    ownerId,
   }: Omit<
     PropertyData,
     "id" | "latitude" | "longitude"
@@ -50,7 +50,7 @@ class Property {
               longitude,
               description,
               price,
-              owner_username)
+              owner_id)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
               RETURNING id,
                     title,
@@ -62,7 +62,7 @@ class Property {
                     longitude,
                     price,
                     description,
-                    owner_username AS "ownerUsername"`,
+                    owner_id AS "ownerId"`,
       [
         title,
         street,
@@ -73,7 +73,7 @@ class Property {
         longitude,
         description,
         price,
-        ownerUsername,
+        ownerId,
       ]
     );
 
@@ -137,7 +137,7 @@ class Property {
    *
    * Returns array:
    *  [{id, title, street, city, state, zipcode, description, price,
-   *  ownerUsername, images}, ...]
+   *  ownerId, images}, ...]
    * where images is [{id, imageKey, isCoverImage}, ...]
    */
   static async findAll({
@@ -180,7 +180,7 @@ class Property {
               p.longitude,
               p.description,
               p.price,
-              p.owner_username AS "ownerUsername"
+              p.owner_id AS "ownerId"
             FROM properties AS p
                 WHERE archived = false
                 ${filter}
@@ -218,7 +218,7 @@ class Property {
    *
    * Returns property data if found:
    *  {id, title, street, city, state, zipcode, description, price,
-   *  owner_username, images }
+   *  owner_id, images }
    * where images is [{id, imagKey, isCoverImage}, ...]
    *
    * Throws new NotFoundError if not found.
@@ -235,7 +235,7 @@ class Property {
               longitude,
               description,
               price,
-              owner_username AS "ownerUsername"
+              owner_id AS "ownerId"
           FROM properties
               WHERE id = $1`,
       [id]
@@ -255,7 +255,7 @@ class Property {
    *
    * Returns updated Property:
    * { id, title, street,  city, state, zipcode, latitude, longitude,
-   * description, price, username }
+   * description, price, id }
    * Throws NotFoundError if no property found for id
    */
   static async update({
@@ -278,7 +278,7 @@ class Property {
                             longitude,
                             price,
                             description,
-                            owner_username AS "ownerUsername"`,
+                            owner_id AS "ownerId"`,
       [title, description, price, id]
     );
 

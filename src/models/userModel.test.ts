@@ -10,6 +10,7 @@ import {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  userIds,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -17,17 +18,16 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-
 /************************************** authenticate */
 
 describe("authenticate", function () {
   test("works", async function () {
     const user = await User.authenticate({
-      username: "u1",
+      email: "u1@email.com",
       password: "password1",
     });
     expect(user).toEqual({
-      username: "u1",
+      id: expect.any(Number),
       firstName: "U1F",
       lastName: "U1L",
       avatar: "test url",
@@ -38,7 +38,7 @@ describe("authenticate", function () {
 
   test("unauth if no such user", async function () {
     try {
-      await User.authenticate({ username: "nope", password: "password" });
+      await User.authenticate({ email: "nope@nope.io", password: "password" });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -47,7 +47,7 @@ describe("authenticate", function () {
 
   test("unauth if wrong password", async function () {
     try {
-      await User.authenticate({ username: "c1", password: "wrong" });
+      await User.authenticate({ email: "u1@email.com", password: "wrong" });
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof UnauthorizedError).toBeTruthy();
@@ -59,7 +59,6 @@ describe("authenticate", function () {
 
 describe("register", function () {
   const newUser = {
-    username: "new",
     firstName: "Test",
     lastName: "Tester",
     avatar: "",
@@ -72,8 +71,10 @@ describe("register", function () {
       ...newUser,
       password: "password",
     });
-    expect(user).toEqual(newUser);
-    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
+    expect(user).toEqual({ ...newUser, id: expect.any(Number) });
+    const found = await db.query(
+      "SELECT * FROM users WHERE email = 'test@test.com'"
+    );
     expect(found.rows.length).toEqual(1);
     expect(found.rows[0].is_admin).toEqual(false);
     expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
@@ -85,8 +86,10 @@ describe("register", function () {
       password: "password",
       isAdmin: true,
     });
-    expect(user).toEqual({ ...newUser, isAdmin: true });
-    const found = await db.query("SELECT * FROM users WHERE username = 'new'");
+    expect(user).toEqual({ ...newUser, id: expect.any(Number), isAdmin: true });
+    const found = await db.query(
+      "SELECT * FROM users WHERE email = 'test@test.com'"
+    );
     expect(found.rows.length).toEqual(1);
     expect(found.rows[0].is_admin).toEqual(true);
     expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
@@ -113,9 +116,9 @@ describe("register", function () {
 
 describe("get", function () {
   test("works", async function () {
-    const user = await User.get({ username: "u1" });
+    const user = await User.get({ id: userIds[0] });
     expect(user).toEqual({
-      username: "u1",
+      id: userIds[0],
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
@@ -126,11 +129,11 @@ describe("get", function () {
 
   test("not found if no result", async function () {
     try {
-      await User.get({username: "bad_user"});
+      await User.get({ id: 0 });
       throw new Error("fail test, you shouldn't get here");
     } catch (err: any) {
       expect(err instanceof NotFoundError).toBeTruthy();
-      expect(err.message).toEqual("No user: bad_user");
+      expect(err.message).toEqual("No user: 0");
     }
   });
 });
@@ -139,12 +142,12 @@ describe("get", function () {
 
 describe("messagesFrom", function () {
   test("successfully get messages from user", async function () {
-    const message = await User.messagesFrom({ username: "u1" });
+    const message = await User.messagesFrom({ id: userIds[0] });
     expect(message).toEqual([
       {
         id: expect.any(Number),
         toUser: {
-          username: "u2",
+          id: userIds[1],
           firstName: "U2F",
           lastName: "U2L",
           avatar: "test url",
@@ -161,12 +164,12 @@ describe("messagesFrom", function () {
 
 describe("messagesTo", function () {
   test("successfully get messages to user", async function () {
-    const message = await User.messagesTo({ username: "u2" });
+    const message = await User.messagesTo({ id: userIds[1] });
     expect(message).toEqual([
       {
         id: expect.any(Number),
         fromUser: {
-          username: "u1",
+          id: userIds[0],
           firstName: "U1F",
           lastName: "U1L",
           avatar: "test url",
