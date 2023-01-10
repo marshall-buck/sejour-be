@@ -12,6 +12,7 @@ const testUsers: UserTestData[] = [];
 const testPropertyIds: number[] = [];
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM properties");
   await db.query("DELETE FROM messages");
   await db.query("DELETE FROM users");
 
