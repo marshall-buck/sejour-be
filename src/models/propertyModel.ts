@@ -217,7 +217,7 @@ class Property {
   /** Given a property id:
    *
    * Returns property data if found:
-   *  {id, title, street, city, state, zipcode, description, price,
+   *  { id, title, street, city, state, zipcode, description, price,
    *  owner_id, images }
    * where images is [{id, imagKey, isCoverImage}, ...]
    *

@@ -1,29 +1,24 @@
-/** Routes for companies. */
-
 import jsonschema from "jsonschema";
 import express from "express";
-
 import { ensureLoggedIn } from "../middleware/authMiddleware";
 import { BadRequestError } from "../expressError";
 import { Property } from "../models/propertyModel";
 import { Booking } from "../models/bookingModel";
 import { Image } from "../models/imageModel";
-
 import propertyNewSchema from "../schemas/propertyNew.json";
 import propertySearchSchema from "../schemas/propertySearch.json";
 import { PropertySearchFilters } from "../types";
 
-// import { uploadImg, getUrlFromBucket } from "../helpers/s3";
-
+/** Routes for companies. */
 const router = express.Router();
 
-/** POST Create Property / { property } =>  { property }
+/** POST Create Property
  *
- * property: { title, street, city, state, zipcode, description, price }
+ * Input property: { title, street, city, state, zipcode, description, price }
  *
  * Returns newly created Property:
- * { id, title, street, city, state, zipcode, latitude, longitude,
- * description, price }
+ * { property: { id, title, street, city, state, zipcode, latitude, longitude,
+ * description, price }}
  *
  * Authorization required: logged in user
  */
@@ -33,11 +28,9 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   const validator = jsonschema.validate(newReqBody, propertyNewSchema, {
     required: true,
   });
-
   if (!validator.valid) {
     throw new BadRequestError();
   }
-
   const data = { ...newReqBody, ownerId: res.locals.user.id };
 
   const property = await Property.create(data);
@@ -45,33 +38,41 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 });
 
 /** GET /  =>
- *   { properties: [
- *     {id, title, address, description ,price, ownerId, key }, ...] }
+ * Accepts a list of optional filter parameters
  *
  * Can filter on provided search filters:
  * - minPrice
  * - maxPrice
  * - description (will find case-insensitive, partial matches)
  *
+ * Pagination:
+ * - limit
+ * - pageNumber
+ *
+ * Returns all properties fitting filter & pagication specifications
+ *   { properties: [ {id, title, street, city, state, zipcode, latitude,
+ *                    longitude, description, price, ownerId, key }, ...] }
+ *
  * Authorization required: none
  */
 
 router.get("/", async function (req, res, next) {
-  const query: PropertySearchFilters = {
-    description: req.query.description as string,
-    minPrice: Number(req.query.minPrice as string),
-    maxPrice: Number(req.query.maxPrice as string),
-    limit: Number(req.query.limit as string),
-    pageNumber: Number(req.query.limit as string),
-  };
+  const query: PropertySearchFilters = { ...req.query };
+  const q = req.query;
+
+  query.description = q.description as string;
+  if (q.minPrice) query.minPrice = Number(q.minPrice as string);
+  if (q.maxPrice) query.maxPrice = Number(q.maxPrice as string);
+  if (q.limit) query.limit = Number(q.limit as string);
+  if (q.pageNumber) query.pageNumber = Number(q.pageNumber as string);
 
   const validator = jsonschema.validate(query, propertySearchSchema, {
     required: true,
   });
+  console.log(validator);
   if (!validator.valid) {
     throw new BadRequestError();
   }
-
   const properties = await Property.findAll(query);
   return res.json({ properties });
 });
@@ -108,29 +109,32 @@ router.get("/:id", async function (req, res, next) {
 //   }
 // );
 
-/** POST /[id]/bookings/[id]  { state } => { application }
+/** POST /:id
+ * Creates a new booking with the specified startDate and endDate from request
  *
- * Returns {"booked": propertyId}
+ * Returns { booking: { id, startDate, endDate, guestId, property: {}} }
+ *  with property is { id, title, street, city, state, zipcode, description,
+ *                     price, owner_id, images}
  *
  * Authorization required: same-user-as-:id
  * */
 
-router.post("/:id/bookings/", ensureLoggedIn, async function (req, res, next) {
-  try {
-    const propertyId = +req.params.id;
-    const guestId = res.locals.user.id;
-    const { startDate, endDate } = req.body;
+router.post("/:id", ensureLoggedIn, async function (req, res, next) {
+  const propertyId = +req.params.id;
+  const guestId = res.locals.user.id;
+  const { startDate, endDate } = req.body;
 
-    const booking = await Booking.create({
-      startDate,
-      endDate,
-      propertyId,
-      guestId,
-    });
-    return res.json({ booking });
-  } catch (err) {
-    return next(err);
-  }
+  const booking = await Booking.create({
+    startDate,
+    endDate,
+    propertyId,
+    guestId,
+  });
+  return res.status(201).json({ booking });
 });
+
+/** PATCH /:id */
+
+/** DELETE /:id */
 
 export { router as propertyRoutes };
