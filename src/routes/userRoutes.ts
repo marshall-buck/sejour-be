@@ -1,8 +1,10 @@
 import express, { NextFunction, Router, Request, Response } from "express";
 import { ensureCorrectUser } from "../middleware/authMiddleware";
+import jsonschema from "jsonschema";
 import { User } from "../models/userModel";
 import { MessageFromResponse, MessageToResponse, UserResponse } from "../types";
-
+import userUpdate from "../schemas/userUpdate.json";
+import { BadRequestError } from "../expressError";
 /** Routes for users. */
 const router: Router = express.Router();
 
@@ -42,7 +44,7 @@ router.get(
 /** GET /:id/from
  * Get messages from user by user id
  *
- * Returns => { messages: [{id, body, sentAtreadAt, toUser: {}}, ...]}
+ * Returns => { messages: [{id, body, sentAt, readAt, toUser: {}}, ...]}
  *  where toUser is: { id, firstName, lastName, avatar }
  */
 router.get(
@@ -56,13 +58,37 @@ router.get(
 );
 
 /** PATCH /:id/
- * Updates the user by id with new user name {firstName, lastName}
+ * Updates the user by id with new user name and email
+ *  {email, firstName, lastName}
+ *
+ * Returns => {user: { id, firstName, lastName, avatar, email, isAdmin  }}
  */
-// router.patch(
-//   "/:id/",
-//   async function (req: Request, res: Response, next: NextFunction) {
-//     const id: number = +req.params.id;
-//   }
-// );
+router.patch(
+  "/:id",
+  ensureCorrectUser,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const id: number = +req.params.id;
+
+    const validator = jsonschema.validate(req.body, userUpdate, {
+      required: true,
+    });
+
+    if (!validator.valid) {
+      throw new BadRequestError();
+    }
+
+    const { email, firstName, lastName } = req.body;
+
+    let user;
+    if (email) {
+      user = await User.updateEmail({ id, email });
+    }
+    if (firstName && lastName) {
+      user = await User.updateName({ id, firstName, lastName });
+    }
+
+    return res.json({ user });
+  }
+);
 
 export { router as userRoutes };
