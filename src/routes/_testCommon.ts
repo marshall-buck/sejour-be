@@ -3,7 +3,6 @@ import { User } from "../models/userModel";
 import { Message } from "../models/messageModel";
 import { createToken } from "../helpers/tokens";
 import { Property } from "../models/propertyModel";
-import { userIds } from "../models/_testCommon";
 
 type UserTestData = {
   id: number;
