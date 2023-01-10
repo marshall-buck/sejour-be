@@ -8,10 +8,25 @@
       "minLength": 1,
       "maxLength": 25
     },
-    "address": {
+    "street": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 255
+      "maxLength": 50
+    },
+    "city": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "state": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50
+    },
+    "zipcode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10
     },
     "description": {
       "type": "string"
@@ -24,7 +39,10 @@
   "additionalProperties": false,
   "required": [
     "title",
-    "address",
+    "street",
+    "city",
+    "state",
+    "zipcode",
     "description",
     "price"
   ]
