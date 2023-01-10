@@ -4,6 +4,7 @@ import { NotFoundError } from "./expressError";
 import { authenticateJWT } from "./middleware/authMiddleware";
 import { authRoutes } from "./routes/authRoutes";
 import { userRoutes } from "./routes/userRoutes";
+import { propertyRoutes } from "./routes/propertyRoutes";
 
 const app: Application = express();
 
@@ -14,6 +15,7 @@ app.use(authenticateJWT);
 /** Routes */
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
+app.use("/property", propertyRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
