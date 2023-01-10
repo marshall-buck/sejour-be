@@ -17,7 +17,7 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-/************************************** create */
+/********************************************************************* create */
 
 describe("create", function () {
   test("can create a new booking", async function () {
@@ -39,6 +39,21 @@ describe("create", function () {
     });
   });
 
+  test("throws an error if guest is owner", async function () {
+    const newBooking = {
+      startDate: "2022-12-31T05:00:00.000Z",
+      endDate: "2022-12-30T05:00:00.000Z",
+      propertyId: propertyIds[0],
+      guestId: userIds[0],
+    };
+    try {
+      await Booking.create(newBooking);
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+
   test("throws an error if start date is after end date", async function () {
     const newBooking = {
       startDate: "2022-12-31T05:00:00.000Z",
@@ -46,7 +61,6 @@ describe("create", function () {
       propertyId: propertyIds[0],
       guestId: userIds[1],
     };
-
     try {
       await Booking.create(newBooking);
       throw new Error("fail test, you shouldn't get here");
@@ -124,6 +138,8 @@ describe("create", function () {
     }
   });
 });
+
+/********************************************************************* delete */
 
 describe("delete", function () {
   test("Deletes booking", async function () {

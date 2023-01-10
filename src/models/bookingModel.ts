@@ -7,8 +7,9 @@ import { Property } from "./propertyModel";
 class Booking {
   /** Create a new booking with {startDate, endDate, propertyId, guestId}
    *
-   * Returns booking {id, startDate, endDate, property, guestId}
-   * with property as {id, title, address, description, price, ownerId}
+   * Returns { booking: { id, startDate, endDate, guestId, property: {}} }
+   *  with property is { id, title, street, city, state, zipcode, description,
+   *                     price, owner_id, images}
    */
   static async create({
     startDate,
@@ -16,32 +17,31 @@ class Booking {
     propertyId,
     guestId,
   }: Omit<BookingData, "id">): Promise<BookingResultData> {
+    // check that guestId is not equal to ownerId
+    const guestIsOwner = await this.isGuestOwner({ guestId, propertyId });
+    if (guestIsOwner) {
+      throw new BadRequestError(`Sorry, there was an error creating booking`);
+    }
+
+    // check startDate and endDate logic
     if (!this.validateDates({ startDate, endDate })) {
       throw new BadRequestError(`Sorry, there was an error creating booking`);
     }
 
     // checks if the property is available, throws error if overlapping dates
-    const validateBooking = await db.query(
-      `
-        SELECT id, start_date, end_date
-            FROM bookings
-                WHERE property_id = $1
-                    AND ((start_date  between $2 and $3)
-                    OR (end_date  between $2 and $3)
-                    OR ($2 between start_date and end_date)
-                    OR ($3 between start_date and end_date));
-      `,
-      [propertyId, startDate, endDate]
-    );
-
-    if (validateBooking.rows.length) {
+    const bookingConflict = await this.isBookingAvailable({
+      startDate,
+      endDate,
+      propertyId,
+    });
+    if (bookingConflict.length) {
       throw new BadRequestError(`Sorry, this property is already
-                                booked from ${validateBooking.rows[0].start_date}
-                                to ${validateBooking.rows[0].end_date}`);
+                                booked from ${bookingConflict[0].startDate}
+                                to ${bookingConflict[0].endDate}`);
     }
 
     // if property is available, add booking reservation
-    const bookingRes = await db.query(
+    const result = await db.query(
       `
       INSERT INTO bookings (start_date, end_date, property_id, guest_id)
           VALUES ($1, $2, $3, $4)
@@ -52,7 +52,7 @@ class Booking {
       [startDate, endDate, propertyId, guestId]
     );
 
-    const booking: BookingResultData = bookingRes.rows[0];
+    const booking: BookingResultData = result.rows[0];
     booking.property = await Property.get({ id: propertyId });
 
     return booking;
@@ -85,6 +85,51 @@ class Booking {
     endDate,
   }: Pick<BookingData, "startDate" | "endDate">): boolean {
     return endDate > startDate;
+  }
+
+  /** Checking if a property is already booked between startDate and endDate
+   *
+   * Returns an empty array if the property is NOT booked
+   * Returns an array of { id, startDate, endDate } if the property is booked
+   */
+  private static async isBookingAvailable({
+    propertyId,
+    startDate,
+    endDate,
+  }: Omit<BookingData, "id" | "guestId">) {
+    const result = await db.query(
+      `
+        SELECT id, start_date AS "startDate", end_date AS "endDate"
+            FROM bookings
+                WHERE property_id = $1
+                    AND ((start_date between $2 and $3)
+                    OR (end_date between $2 and $3)
+                    OR ($2 between start_date and end_date)
+                    OR ($3 between start_date and end_date));
+      `,
+      [propertyId, startDate, endDate]
+    );
+    return result.rows;
+  }
+
+  /** Validating that guest is not the owner
+   * Finds ownerId by propertyId and compares it against guestId
+   *
+   * Returns true if the guest is the owner
+   */
+  private static async isGuestOwner({
+    guestId,
+    propertyId,
+  }: Pick<BookingData, "propertyId" | "guestId">) {
+    const result = await db.query(
+      `
+       SELECT owner_id AS "ownerId"
+          FROM properties
+              WHERE id = $1`,
+      [propertyId]
+    );
+    const ownerId = result.rows[0].ownerId;
+    return ownerId === guestId;
   }
 }
 
