@@ -21,7 +21,7 @@ class Property {
    *
    * Returns newly created Property:
    * { id, title, street, city, state, zipcode, latitude, longitude,
-   * description, price, id }
+   * description, price}
    */
   static async create({
     title,

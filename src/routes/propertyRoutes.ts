@@ -1,28 +1,29 @@
-"use strict";
-
 /** Routes for companies. */
 
-const jsonschema = require("jsonschema");
-const express = require("express");
+import jsonschema from "jsonschema";
+import express from "express";
 
-const { ensureLoggedIn } = require("../middleware/authMiddleware");
-const { BadRequestError } = require("../expressError");
-const Property = require("../models/propertyModel");
-const Booking = require("../models/bookingModel");
-const Image = require("../models/imageModel");
+import { ensureLoggedIn } from "../middleware/authMiddleware";
+import { BadRequestError } from "../expressError";
+import { Property } from "../models/propertyModel";
+import { Booking } from "../models/bookingModel";
+import { Image } from "../models/imageModel";
 
-const propertyNewSchema = require("../schemas/propertyNew.json");
-const propertySearchSchema = require("../schemas/propertySearch.json");
+import propertyNewSchema from "../schemas/propertyNew.json";
+import propertySearchSchema from "../schemas/propertySearch.json";
+import { PropertySearchFilters } from "../types";
 
-const { uploadImg, getUrlFromBucket } = require("../helpers/s3");
+// import { uploadImg, getUrlFromBucket } from "../helpers/s3";
 
-const router = new express.Router();
+const router = express.Router();
 
 /** POST Create Property / { property } =>  { property }
  *
- * property should be { title, address, description ,price }
+ * property: { title, street, city, state, zipcode, description, price }
  *
- * return {id, title, address, description ,price, owner_id }
+ * Returns newly created Property:
+ * { id, title, street, city, state, zipcode, latitude, longitude,
+ * description, price }
  *
  * Authorization required: logged in user
  */
@@ -34,8 +35,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   });
 
   if (!validator.valid) {
-    const errs = validator.errors.map((e) => e.stack);
-    throw new BadRequestError(errs);
+    throw new BadRequestError();
   }
 
   const data = { ...newReqBody, ownerId: res.locals.user.id };
@@ -57,20 +57,22 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  const q = req.query;
-  // arrive as strings from querystring, but we want as ints
-  if (q.minPrice !== undefined) q.minPrice = +q.minPrice;
-  if (q.maxPrice !== undefined) q.maxPrice = +q.maxPrice;
+  const query: PropertySearchFilters = {
+    description: req.query.description as string,
+    minPrice: Number(req.query.minPrice as string),
+    maxPrice: Number(req.query.maxPrice as string),
+    limit: Number(req.query.limit as string),
+    pageNumber: Number(req.query.limit as string),
+  };
 
-  const validator = jsonschema.validate(q, propertySearchSchema, {
+  const validator = jsonschema.validate(query, propertySearchSchema, {
     required: true,
   });
   if (!validator.valid) {
-    const errs = validator.errors.map((e) => e.stack);
-    throw new BadRequestError(errs);
+    throw new BadRequestError();
   }
 
-  const properties = await Property.findAll(q);
+  const properties = await Property.findAll(query);
   return res.json({ properties });
 });
 
@@ -83,7 +85,7 @@ router.get("/", async function (req, res, next) {
  */
 
 router.get("/:id", async function (req, res, next) {
-  const property = await Property.get(req.params.id);
+  const property = await Property.get({ id: +req.params.id });
   return res.json({ property });
 });
 
@@ -92,19 +94,19 @@ router.get("/:id", async function (req, res, next) {
  *  where images is [{key, property_id}, ...]
  */
 
-router.post(
-  "/images",
-  uploadImg.array("photos", 3),
-  async function (req, res, next) {
-    const id = req.body.id;
-    const key = req.files[0].key;
-    const imgUrl = getUrlFromBucket(key);
+// router.post(
+//   "/images",
+//   uploadImg.array("photos", 3),
+//   async function (req, res, next) {
+//     const id = req.body.id;
+//     const key = req.files[0].key;
+//     const imgUrl = getUrlFromBucket(key);
 
-    await Image.create({ key: imgUrl, propertyId: id });
-    const property = await Property.get(id);
-    return res.json({ property });
-  }
-);
+//     await Image.create({ key: imgUrl, propertyId: id });
+//     const property = await Property.get(id);
+//     return res.json({ property });
+//   }
+// );
 
 /** POST /[id]/bookings/[id]  { state } => { application }
  *
@@ -131,4 +133,4 @@ router.post("/:id/bookings/", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
-module.exports = router;
+export { router as propertyRoutes };

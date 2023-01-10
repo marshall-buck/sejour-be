@@ -5,7 +5,7 @@ import {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testUserIds,
+  testUsers,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -18,11 +18,11 @@ afterAll(commonAfterAll);
 describe("GET /user/id", function () {
   test("works", async function () {
     const res = await request(app)
-      .get(`/user/${testUserIds[0].id}`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`);
+      .get(`/user/${testUsers[0].id}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`);
     expect(res.body).toEqual({
       user: {
-        id: testUserIds[0].id,
+        id: testUsers[0].id,
         firstName: "U1F",
         lastName: "U1L",
         email: "user1@user.com",
@@ -33,13 +33,13 @@ describe("GET /user/id", function () {
   });
   test("unauth for other users", async function () {
     const res = await request(app)
-      .get(`/user/${testUserIds[0].id}`)
+      .get(`/user/${testUsers[0].id}`)
       .set("authorization", "Bearer INVALID_TOKEN");
     expect(res.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
-    const res = await request(app).get(`/user/${testUserIds[0].id}`);
+    const res = await request(app).get(`/user/${testUsers[0].id}`);
     expect(res.statusCode).toEqual(401);
   });
 });
@@ -49,8 +49,8 @@ describe("GET /user/id", function () {
 describe("GET /user/id/messages-to", function () {
   test("works", async function () {
     const res = await request(app)
-      .get(`/user/${testUserIds[0].id}/messages-to`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`);
+      .get(`/user/${testUsers[0].id}/messages-to`)
+      .set("authorization", `Bearer ${testUsers[0].token}`);
     expect(res.body).toEqual({
       messages: [
         {
@@ -59,7 +59,7 @@ describe("GET /user/id/messages-to", function () {
           sentAt: expect.any(String),
           readAt: null,
           fromUser: {
-            id: testUserIds[1].id,
+            id: testUsers[1].id,
             firstName: "U2F",
             lastName: "U2L",
             avatar: "test_url2",
@@ -70,15 +70,13 @@ describe("GET /user/id/messages-to", function () {
   });
   test("unauth for other users", async function () {
     const res = await request(app)
-      .get(`/user/${testUserIds[0].id}/messages-to`)
+      .get(`/user/${testUsers[0].id}/messages-to`)
       .set("authorization", "Bearer INVALID_TOKEN");
     expect(res.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
-    const res = await request(app).get(
-      `/user/${testUserIds[0].id}/messages-to`
-    );
+    const res = await request(app).get(`/user/${testUsers[0].id}/messages-to`);
     expect(res.statusCode).toEqual(401);
   });
 });
@@ -88,8 +86,8 @@ describe("GET /user/id/messages-to", function () {
 describe("GET /user/id/messages-from", function () {
   test("works", async function () {
     const res = await request(app)
-      .get(`/user/${testUserIds[0].id}/messages-from`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`);
+      .get(`/user/${testUsers[0].id}/messages-from`)
+      .set("authorization", `Bearer ${testUsers[0].token}`);
     expect(res.body).toEqual({
       messages: [
         {
@@ -98,7 +96,7 @@ describe("GET /user/id/messages-from", function () {
           sentAt: expect.any(String),
           readAt: null,
           toUser: {
-            id: testUserIds[1].id,
+            id: testUsers[1].id,
             firstName: "U2F",
             lastName: "U2L",
             avatar: "test_url2",
@@ -109,14 +107,14 @@ describe("GET /user/id/messages-from", function () {
   });
   test("unauth for other users", async function () {
     const res = await request(app)
-      .get(`/user/${testUserIds[0].id}/messages-from`)
+      .get(`/user/${testUsers[0].id}/messages-from`)
       .set("authorization", "Bearer INVALID_TOKEN");
     expect(res.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
     const res = await request(app).get(
-      `/user/${testUserIds[0].id}/messages-from`
+      `/user/${testUsers[0].id}/messages-from`
     );
     expect(res.statusCode).toEqual(401);
   });
@@ -127,15 +125,15 @@ describe("GET /user/id/messages-from", function () {
 describe("PATCH /user/id/", function () {
   test("update firstName or lastName works", async function () {
     const res = await request(app)
-      .patch(`/user/${testUserIds[0].id}`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`)
+      .patch(`/user/${testUsers[0].id}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
       .send({
         firstName: "firstNew",
         lastName: "lastNew",
       });
     expect(res.body).toEqual({
       user: {
-        id: testUserIds[0].id,
+        id: testUsers[0].id,
         firstName: "firstNew",
         lastName: "lastNew",
         email: "user1@user.com",
@@ -147,14 +145,14 @@ describe("PATCH /user/id/", function () {
 
   test("update email works", async function () {
     const res = await request(app)
-      .patch(`/user/${testUserIds[0].id}`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`)
+      .patch(`/user/${testUsers[0].id}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
       .send({
         email: "user1new@user.com",
       });
     expect(res.body).toEqual({
       user: {
-        id: testUserIds[0].id,
+        id: testUsers[0].id,
         firstName: "U1F",
         lastName: "U1L",
         email: "user1new@user.com",
@@ -166,8 +164,8 @@ describe("PATCH /user/id/", function () {
 
   test("update firstName, lastName and email works", async function () {
     const res = await request(app)
-      .patch(`/user/${testUserIds[0].id}`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`)
+      .patch(`/user/${testUsers[0].id}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
       .send({
         firstName: "firstNew",
         lastName: "lastNew",
@@ -175,7 +173,7 @@ describe("PATCH /user/id/", function () {
       });
     expect(res.body).toEqual({
       user: {
-        id: testUserIds[0].id,
+        id: testUsers[0].id,
         firstName: "firstNew",
         lastName: "lastNew",
         email: "newb@newb.com",
@@ -186,8 +184,8 @@ describe("PATCH /user/id/", function () {
   });
   test("validator works", async function () {
     const res = await request(app)
-      .patch(`/user/${testUserIds[0].id}`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`)
+      .patch(`/user/${testUsers[0].id}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
       .send({
         firstName: "firstNew",
         lastName: "lastNew",
@@ -198,7 +196,7 @@ describe("PATCH /user/id/", function () {
 
   test("unauth for other users", async function () {
     const res = await request(app)
-      .patch(`/user/${testUserIds[0].id}`)
+      .patch(`/user/${testUsers[0].id}`)
       .set("authorization", `invalidToken`)
       .send({
         email: "user1new@user.com",
@@ -207,14 +205,14 @@ describe("PATCH /user/id/", function () {
   });
 
   test("unauth for anon", async function () {
-    const res = await request(app).patch(`/user/${testUserIds[0].id}`);
+    const res = await request(app).patch(`/user/${testUsers[0].id}`);
     expect(res.statusCode).toEqual(401);
   });
 
   test("throws error if user's email already exits", async function () {
     const res = await request(app)
-      .patch(`/user/${testUserIds[0].id}`)
-      .set("authorization", `Bearer ${testUserIds[0].token}`)
+      .patch(`/user/${testUsers[0].id}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
       .send({
         email: "user2@user.com",
       });

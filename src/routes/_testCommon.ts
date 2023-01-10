@@ -2,13 +2,15 @@ import { db } from "../db";
 import { User } from "../models/userModel";
 import { Message } from "../models/messageModel";
 import { createToken } from "../helpers/tokens";
-
+import { Property } from "../models/propertyModel";
+import { userIds } from "../models/_testCommon";
 
 type UserTestData = {
   id: number;
   token: string;
 };
-const testUserIds: UserTestData[] = [];
+const testUsers: UserTestData[] = [];
+const testPropertyIds: number[] = [];
 
 async function commonBeforeAll() {
   await db.query("DELETE FROM messages");
@@ -16,6 +18,7 @@ async function commonBeforeAll() {
 
   await registerTestUsers();
   await createTestMessages();
+  await createTestProperties();
 }
 
 async function commonBeforeEach() {
@@ -35,7 +38,8 @@ export {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testUserIds,
+  testUsers,
+  testPropertyIds,
 };
 
 /***************** HELPER FUNCTIONS FOR POPULATING DB BEFORE ALL **************/
@@ -67,7 +71,7 @@ async function registerTestUsers() {
     avatar: "test_url3",
   });
 
-  testUserIds.push(
+  testUsers.push(
     {
       id: u1.id,
       token: createToken({ id: u1.id, isAdmin: false }),
@@ -82,17 +86,43 @@ async function registerTestUsers() {
     }
   );
 }
-
+/** Add messages to DB with test messages */
 async function createTestMessages() {
   await Message.create({
-    fromId: testUserIds[1].id,
-    toId: testUserIds[0].id,
-    body: "hello u1"
-  })
+    fromId: testUsers[1].id,
+    toId: testUsers[0].id,
+    body: "hello u1",
+  });
 
   await Message.create({
-    fromId: testUserIds[0].id,
-    toId: testUserIds[1].id,
-    body: "hello u2"
-  })
+    fromId: testUsers[0].id,
+    toId: testUsers[1].id,
+    body: "hello u2",
+  });
+}
+
+/** Add properties to DB with test properties */
+async function createTestProperties() {
+  const p1 = await Property.create({
+    title: "Prop 1",
+    street: "street 1",
+    city: "city 1",
+    state: "state 1",
+    zipcode: "zipcode 1",
+    ownerId: testUsers[0].id,
+    description: "description 1",
+    price: 100,
+  });
+  const p2 = await Property.create({
+    title: "Prop 2",
+    street: "street 2",
+    city: "city 2",
+    state: "state 2",
+    zipcode: "zipcode 2",
+    ownerId: testUsers[0].id,
+    description: "description 2",
+    price: 200,
+  });
+
+  testPropertyIds.push(p1.id, p2.id);
 }
