@@ -8,3 +8,4 @@ Please note tests are set to EST timezone
 
 ### TODOs
 - [ ] refactor findAll fn() in propertyModels
+- [ ] implement csrf
