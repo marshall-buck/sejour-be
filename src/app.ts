@@ -5,6 +5,7 @@ import { authenticateJWT } from "./middleware/authMiddleware";
 import { authRoutes } from "./routes/authRoutes";
 import { userRoutes } from "./routes/userRoutes";
 import { propertyRoutes } from "./routes/propertyRoutes";
+import { messageRoutes } from "./routes/messageRoutes";
 
 const app: Application = express();
 
@@ -16,6 +17,7 @@ app.use(authenticateJWT);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/property", propertyRoutes);
+app.use("/message", messageRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
