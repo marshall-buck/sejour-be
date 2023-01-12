@@ -124,7 +124,7 @@ router.get("/:id", async function (req, res, next) {
 
 router.post("/:id", ensureLoggedIn, async function (req, res, next) {
   const propertyId = +req.params.id;
-  const guestId = res.locals.user.id;
+  const guestId: number = res.locals.user.id;
   const { startDate, endDate } = req.body;
 
   const booking = await Booking.create({
@@ -148,7 +148,8 @@ router.post("/:id", ensureLoggedIn, async function (req, res, next) {
 router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
   const id = +req.params.id;
   const ownerId = await Property.getOwnerId({ id });
-  if (ownerId !== res.locals.user.id) {
+
+  if (+ownerId.ownerId !== res.locals.user.id) {
     throw new UnauthorizedError();
   }
   const reqBody: Omit<PropertyUpdateData, "id"> = { ...req.body };
@@ -178,7 +179,7 @@ router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
 router.delete("/:id", ensureLoggedIn, async function (req, res, next) {
   const id = +req.params.id;
   const ownerId = await Property.getOwnerId({ id });
-  if (ownerId !== res.locals.user.id) {
+  if (+ownerId.ownerId !== res.locals.user.id) {
     throw new UnauthorizedError();
   }
   await Property.delete({ id });

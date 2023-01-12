@@ -398,9 +398,8 @@ describe("POST /property/id/", function () {
 
 /********************************************************* GET /property/id/ */
 describe("GET /property/id/", function () {
-  test("Can get property by id", async function () {
+  test("can get property by id", async function () {
     const res = await request(app).get(`/property/${testPropertyIds[1]}`);
-
     expect(res.body).toEqual({
       property: {
         id: expect.any(Number),
@@ -422,5 +421,92 @@ describe("GET /property/id/", function () {
     const res = await request(app).get(`/property/0`);
 
     expect(res.statusCode).toEqual(404);
+  });
+});
+
+/******************************************************** PATCH /property/id/ */
+describe("PATCH /property/id/", function () {
+  test("can update a property by title", async function () {
+    const res = await request(app)
+      .patch(`/property/${testPropertyIds[1]}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({
+        title: "NEW prop 2",
+        description: "NEW description 2",
+        price: 999,
+      });
+    expect(res.body).toEqual({
+      property: {
+        id: expect.any(Number),
+        title: "NEW prop 2",
+        street: "street 2",
+        city: "city 2",
+        state: "state 2",
+        zipcode: "zipcode 2",
+        ownerId: testUsers[0].id,
+        description: "NEW description 2",
+        price: 999,
+        latitude: "-100.234234234",
+        longitude: "50.234234234",
+      },
+    });
+  });
+
+  test("throws Unauthorized if userId not ownerId", async function () {
+    const res = await request(app)
+      .patch(`/property/${testPropertyIds[1]}`)
+      .set("authorization", `Bearer ${testUsers[1].token}`)
+      .send({ title: "NEW prop 2" });
+    expect(res.statusCode).toEqual(401);
+  });
+
+  test("throws BadRequest if invalid req data", async function () {
+    const res = await request(app)
+      .patch(`/property/${testPropertyIds[1]}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ ownerId: "new owner" });
+    expect(res.statusCode).toEqual(400);
+  });
+
+  test("throws BadRequest if missing req data", async function () {
+    const res = await request(app)
+      .patch(`/property/${testPropertyIds[1]}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ title: "NEW prop 2" });
+    expect(res.statusCode).toEqual(400);
+  });
+
+  test("throws NotFound if no property by propertyId", async function () {
+    const res = await request(app)
+      .patch("/property/0")
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ title: "NEW prop 2" });
+    expect(res.statusCode).toEqual(404);
+  });
+});
+
+/******************************************************* DELETE /property/id/ */
+describe("DELETE /property/id/", function () {
+  test("can archive a property by id", async function () {
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[1]}`)
+      .set("authorization", `Bearer ${testUsers[0].token}`);
+    expect(res.body).toEqual({
+      message: `Successfully archived Property ${testPropertyIds[1]}`,
+    });
+  });
+
+  test("throws NotFound if no property found by id", async function () {
+    const res = await request(app)
+      .delete("/property/0")
+      .set("authorization", `Bearer ${testUsers[0].token}`);
+    expect(res.statusCode).toEqual(404);
+  });
+
+  test("throws Unauthorized if userId not ownerId", async function () {
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[1]}`)
+      .set("authorization", `Bearer ${testUsers[1].token}`)
+    expect(res.statusCode).toEqual(401);
   });
 });
