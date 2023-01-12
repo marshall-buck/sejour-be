@@ -10,6 +10,7 @@ type UserTestData = {
 };
 const testUsers: UserTestData[] = [];
 const testPropertyIds: number[] = [];
+const testMessageIds: number[] = [];
 
 async function commonBeforeAll() {
   await db.query("DELETE FROM properties");
@@ -40,6 +41,7 @@ export {
   commonAfterAll,
   testUsers,
   testPropertyIds,
+  testMessageIds,
 };
 
 /***************** HELPER FUNCTIONS FOR POPULATING DB BEFORE ALL **************/
@@ -88,17 +90,19 @@ async function registerTestUsers() {
 }
 /** Add messages to DB with test messages */
 async function createTestMessages() {
-  await Message.create({
+  const m1 = await Message.create({
     fromId: testUsers[1].id,
     toId: testUsers[0].id,
     body: "hello u1",
   });
 
-  await Message.create({
+  const m2 = await Message.create({
     fromId: testUsers[0].id,
     toId: testUsers[1].id,
     body: "hello u2",
   });
+
+  testMessageIds.push(m1.id, m2.id);
 }
 
 /** Add properties to DB with test properties */
