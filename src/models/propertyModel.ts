@@ -310,7 +310,7 @@ class Property {
 
   /** Finds ownerId by propertyId
    *
-   * Returns ownerId
+   * Returns ownerId: { ownerId }
    */
   static async getOwnerId({ id }: Pick<PropertyData, "id">) {
     const result = await db.query(
@@ -320,7 +320,8 @@ class Property {
                 WHERE id = $1`,
       [id]
     );
-    const ownerId = result.rows[0].ownerId;
+    const ownerId = result.rows[0]
+    NotFoundError.handler(ownerId, `No property: ${id}`);
     return ownerId;
   }
 }

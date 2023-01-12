@@ -375,3 +375,23 @@ describe("delete", function () {
     }
   });
 });
+
+/************************************** getOwnerId */
+
+describe("getOwnerId", function () {
+  test("finds a ownerId by propertyId", async function () {
+    const ownerId = await Property.getOwnerId({ id: propertyIds[0] });
+    expect(ownerId).toEqual({ownerId: userIds[0]});
+  });
+
+  test("throws not found if no such property", async function () {
+    try {
+      await Property.getOwnerId({ id: 0 });
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      const errStatus = (err as NotFoundError).status;
+      expect(errStatus).toEqual(404);
+    }
+  });
+});
