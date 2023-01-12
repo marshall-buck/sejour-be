@@ -13,7 +13,8 @@ import { PropertySearchFilters, PropertyUpdateData } from "../types";
 /** Routes for companies. */
 const router = express.Router();
 
-/** POST Create Property
+/** POST /
+ * Create Property
  *
  * Input property: { title, street, city, state, zipcode, description, price }
  *
@@ -23,7 +24,6 @@ const router = express.Router();
  *
  * Authorization required: logged in user
  */
-
 router.post("/", ensureLoggedIn, async function (req, res, next) {
   const newReqBody = { ...req.body, price: +req.body.price };
   const validator = jsonschema.validate(newReqBody, propertyNewSchema, {
@@ -38,7 +38,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   return res.status(201).json({ property });
 });
 
-/** GET /  =>
+/** GET /
  * Accepts a list of optional filter parameters
  *
  * Can filter on provided search filters:
@@ -56,7 +56,6 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * where images is [{id, imageKey, isCoverImage}, ...]
  * Authorization required: none
  */
-
 router.get("/", async function (req, res, next) {
   const query: PropertySearchFilters = { ...req.query };
   const q = req.query;
@@ -78,38 +77,20 @@ router.get("/", async function (req, res, next) {
   return res.json({ properties });
 });
 
-/** GET /[id]  =>  { property }
+/** GET /[id]
  *
- *  property: {id, title, street, city, state, zipcode, latitude,
+ * Get a property by id from params
+ * Returns property: {id, title, street, city, state, zipcode, latitude,
  *                    longitude, description, price, ownerId, images[] }
  * where images is [{id, imageKey, isCoverImage}, ...]
  *
  * Authorization required: none
+ * Throws NotFoundError if no property found for id
  */
-
 router.get("/:id", async function (req, res, next) {
   const property = await Property.get({ id: +req.params.id });
   return res.json({ property });
 });
-
-/** POST {fileData, id: property.id}
- * - returns  Property: { id, title, address, description ,price, owner_id, images }
- *  where images is [{key, property_id}, ...]
- */
-
-// router.post(
-//   "/images",
-//   uploadImg.array("photos", 3),
-//   async function (req, res, next) {
-//     const id = req.body.id;
-//     const key = req.files[0].key;
-//     const imgUrl = getUrlFromBucket(key);
-
-//     await Image.create({ key: imgUrl, propertyId: id });
-//     const property = await Property.get(id);
-//     return res.json({ property });
-//   }
-// );
 
 /** POST /:id
  * Creates a new booking with the specified startDate and endDate from request
@@ -119,9 +100,10 @@ router.get("/:id", async function (req, res, next) {
  *                     price, owner_id, images[]}
  * where images is [{id, imageKey, isCoverImage}, ...]
  *
- * Authorization required: same-user-as-:id
- * */
-
+ * Authorization required: authenticated user
+ * Throws UnAuthorizedError if the user is same property owner
+ * Throws NotFoundError if no property found for id
+ */
 router.post("/:id", ensureLoggedIn, async function (req, res, next) {
   const propertyId = +req.params.id;
   const guestId: number = res.locals.user.id;
@@ -142,9 +124,10 @@ router.post("/:id", ensureLoggedIn, async function (req, res, next) {
  * Returns updated Property:
  * { id, title, street,  city, state, zipcode, latitude, longitude,
  * description, price, id }
+ *
+ * Throws UnAuthorizedError if the user is not property owner
  * Throws NotFoundError if no property found for id
  */
-
 router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
   const id = +req.params.id;
   const ownerId = await Property.getOwnerId({ id });
@@ -174,6 +157,9 @@ router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
 
 /** DELETE /:id
  * Set archived status to true
+ * Returns successful message
+ *
+ * Throws UnAuthorizedError if the user is not property owner
  * Throws NotFoundError if no property found for id
  */
 router.delete("/:id", ensureLoggedIn, async function (req, res, next) {
