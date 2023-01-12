@@ -6,6 +6,7 @@ import { authRoutes } from "./routes/authRoutes";
 import { userRoutes } from "./routes/userRoutes";
 import { propertyRoutes } from "./routes/propertyRoutes";
 import { messageRoutes } from "./routes/messageRoutes";
+import { imageRoutes } from "./routes/imageRoutes";
 
 const app: Application = express();
 
@@ -18,6 +19,7 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/property", propertyRoutes);
 app.use("/message", messageRoutes);
+app.use("/property/:id/image", imageRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {

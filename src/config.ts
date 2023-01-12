@@ -21,6 +21,8 @@ const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME;
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 const AWS_REGION = process.env.AWS_REGION;
+const AWS_BUCKET = process.env.AWS_BUCKET;
+const AWS_BUCKET_PUBLIC_FOLDER = process.env.AWS_BUCKET_PUBLIC_FOLDER;
 
 export {
   SECRET_KEY,
@@ -31,4 +33,6 @@ export {
   AWS_SECRET_ACCESS_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_REGION,
+  AWS_BUCKET,
+  AWS_BUCKET_PUBLIC_FOLDER,
 };
