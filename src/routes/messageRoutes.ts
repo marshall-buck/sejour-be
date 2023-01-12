@@ -34,7 +34,7 @@ router.get("/:id", ensureLoggedIn, async function (req, res, next) {
 /** POST / - create a new message
  *
  * Creates a new message from request { toId, body } and fromId
- * Returns the new message {id, fromId, toId, body, sent_at}
+ * Returns the new message {id, fromId, toId, body, sentAt}
  *
  * Authorization: authenticated user
  */

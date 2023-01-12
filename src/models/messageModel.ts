@@ -7,7 +7,7 @@ class Message {
   /** Add new message to database --
    *
    * Returns newly created message:
-   *  {id, fromId, toId, body, sent_at}
+   *  {id, fromId, toId, body, sentAt}
    */
   static async create({
     fromId,
@@ -24,7 +24,6 @@ class Message {
                     to_id AS "toId", body, sent_at AS "sentAt"`,
       [fromId, toId, body]
     );
-
     const message: MessageData = result.rows[0];
     return message;
   }
@@ -33,7 +32,7 @@ class Message {
    *
    * Modify read_at property to the current timestamp
    *
-   * Returns {id, read_at}
+   * Returns {id, readAt}
    * Throws NotFoundError if no message found for id
    *
    **/
