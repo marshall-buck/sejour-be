@@ -11,7 +11,7 @@ const router: Router = express.Router();
 /** GET /:id - get detail of message
  *
  * Returns {{id, fromUser, toUser, body, sentAt, readAt}
- * where both toUser and fromUser = {id, firstName, lastName, phone}
+ * where both toUser and fromUser = {id, firstName, lastName, avatar}
  *
  * Authorization: authenticated user
  *

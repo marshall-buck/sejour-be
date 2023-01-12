@@ -56,7 +56,7 @@ class Message {
   /** Get a message by id
    *
    * Returns {id, fromUser, toUser, body, sentAt, readAt}
-   * where both toUser and fromUser = {id, firstName, lastName, phone}
+   * where both toUser and fromUser = {id, firstName, lastName, avatar}
    * Throws NotFoundError if no message found for id
    */
   static async get({
