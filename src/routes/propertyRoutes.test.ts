@@ -353,5 +353,74 @@ describe("POST /property/id/", function () {
       },
     });
   });
-  //test non-happy booking paths.
+
+  test("new booking overlaps ", async function () {
+    const res1 = await request(app)
+      .post(`/property/${testPropertyIds[0]}/`)
+      .set("authorization", `Bearer ${testUsers[1].token}`)
+      .send({
+        startDate: "2022-12-30T05:00:00.000Z",
+        endDate: "2022-12-31T05:00:00.000Z",
+      });
+    const res2 = await request(app)
+      .post(`/property/${testPropertyIds[0]}/`)
+      .set("authorization", `Bearer ${testUsers[1].token}`)
+      .send({
+        startDate: "2022-12-30T05:00:00.000Z",
+        endDate: "2022-12-31T05:00:00.000Z",
+      });
+    expect(res2.statusCode).toEqual(400);
+  });
+
+  test("owner can't book own property", async function () {
+    const res = await request(app)
+      .post(`/property/${testPropertyIds[0]}/`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({
+        startDate: "2022-12-30T05:00:00.000Z",
+        endDate: "2022-12-31T05:00:00.000Z",
+      });
+
+    expect(res.statusCode).toEqual(400);
+  });
+
+  test("unauth throws error", async function () {
+    const res = await request(app)
+      .post(`/property/${testPropertyIds[0]}/`)
+      .send({
+        startDate: "2022-12-30T05:00:00.000Z",
+        endDate: "2022-12-31T05:00:00.000Z",
+      });
+
+    expect(res.statusCode).toEqual(401);
+  });
+});
+
+/********************************************************* GET /property/id/ */
+describe("GET /property/id/", function () {
+  test("Can get property by id", async function () {
+    const res = await request(app).get(`/property/${testPropertyIds[1]}`);
+
+    expect(res.body).toEqual({
+      property: {
+        id: expect.any(Number),
+        title: "Prop 2",
+        street: "street 2",
+        city: "city 2",
+        state: "state 2",
+        zipcode: "zipcode 2",
+        ownerId: testUsers[0].id,
+        description: "description 2",
+        price: 200,
+        latitude: "-100.234234234",
+        longitude: "50.234234234",
+        images: [],
+      },
+    });
+  });
+  test("Invalid throws error", async function () {
+    const res = await request(app).get(`/property/0`);
+
+    expect(res.statusCode).toEqual(404);
+  });
 });

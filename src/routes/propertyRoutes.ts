@@ -1,13 +1,14 @@
 import jsonschema from "jsonschema";
 import express from "express";
 import { ensureLoggedIn } from "../middleware/authMiddleware";
-import { BadRequestError } from "../expressError";
+import { BadRequestError, UnauthorizedError } from "../expressError";
 import { Property } from "../models/propertyModel";
 import { Booking } from "../models/bookingModel";
 import { Image } from "../models/imageModel";
 import propertyNewSchema from "../schemas/propertyNew.json";
 import propertySearchSchema from "../schemas/propertySearch.json";
-import { PropertySearchFilters } from "../types";
+import propertyUpdateSchema from "../schemas/propertyUpdate.json";
+import { PropertySearchFilters, PropertyUpdateData } from "../types";
 
 /** Routes for companies. */
 const router = express.Router();
@@ -49,10 +50,10 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * - limit
  * - pageNumber
  *
- * Returns all properties fitting filter & pagication specifications
+ * Returns all properties fitting filter & pagination specifications
  *   { properties: [ {id, title, street, city, state, zipcode, latitude,
- *                    longitude, description, price, ownerId, key }, ...] }
- *
+ *                    longitude, description, price, ownerId, images[] }, ...] }
+ * where images is [{id, imageKey, isCoverImage}, ...]
  * Authorization required: none
  */
 
@@ -69,7 +70,7 @@ router.get("/", async function (req, res, next) {
   const validator = jsonschema.validate(query, propertySearchSchema, {
     required: true,
   });
-  console.log(validator);
+
   if (!validator.valid) {
     throw new BadRequestError();
   }
@@ -79,8 +80,9 @@ router.get("/", async function (req, res, next) {
 
 /** GET /[id]  =>  { property }
  *
- *  Property: { id, title, address, description ,price, owner_id, images }
- *  where images is [{key, property_id}, ...]
+ *  property: {id, title, street, city, state, zipcode, latitude,
+ *                    longitude, description, price, ownerId, images[] }
+ * where images is [{id, imageKey, isCoverImage}, ...]
  *
  * Authorization required: none
  */
@@ -114,7 +116,8 @@ router.get("/:id", async function (req, res, next) {
  *
  * Returns { booking: { id, startDate, endDate, guestId, property: {}} }
  *  with property is { id, title, street, city, state, zipcode, description,
- *                     price, owner_id, images}
+ *                     price, owner_id, images[]}
+ * where images is [{id, imageKey, isCoverImage}, ...]
  *
  * Authorization required: same-user-as-:id
  * */
@@ -133,8 +136,54 @@ router.post("/:id", ensureLoggedIn, async function (req, res, next) {
   return res.status(201).json({ booking });
 });
 
-/** PATCH /:id */
+/** PATCH /:id
+ * Updates the properties title, description and/or price
+ *
+ * Returns updated Property:
+ * { id, title, street,  city, state, zipcode, latitude, longitude,
+ * description, price, id }
+ * Throws NotFoundError if no property found for id
+ */
 
-/** DELETE /:id */
+router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
+  const id = +req.params.id;
+  const ownerId = await Property.getOwnerId({ id });
+  if (ownerId !== res.locals.user.id) {
+    throw new UnauthorizedError();
+  }
+  const reqBody: Omit<PropertyUpdateData, "id"> = { ...req.body };
+  const q = req.body;
+
+  reqBody.description = q.description as string;
+  reqBody.title = q.title as string;
+  if (q.price) reqBody.price = Number(q.price as string);
+
+  const validator = jsonschema.validate(reqBody, propertyUpdateSchema, {
+    required: true,
+  });
+  if (!validator.valid) {
+    throw new BadRequestError();
+  }
+  const property = await Property.update({
+    id,
+    ...reqBody,
+  });
+  return res.json({ property });
+});
+
+/** DELETE /:id
+ * Set archived status to true
+ * Throws NotFoundError if no property found for id
+ */
+router.delete("/:id", ensureLoggedIn, async function (req, res, next) {
+  const id = +req.params.id;
+  const ownerId = await Property.getOwnerId({ id });
+  if (ownerId !== res.locals.user.id) {
+    throw new UnauthorizedError();
+  }
+  await Property.delete({ id });
+
+  return res.json({ message: `Successfully archived Property ${id}` });
+});
 
 export { router as propertyRoutes };

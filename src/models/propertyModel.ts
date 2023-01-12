@@ -307,6 +307,22 @@ class Property {
 
     return;
   }
+
+  /** Finds ownerId by propertyId
+   *
+   * Returns ownerId
+   */
+  static async getOwnerId({ id }: Pick<PropertyData, "id">) {
+    const result = await db.query(
+      `
+         SELECT owner_id AS "ownerId"
+            FROM properties
+                WHERE id = $1`,
+      [id]
+    );
+    const ownerId = result.rows[0].ownerId;
+    return ownerId;
+  }
 }
 
 export { Property };

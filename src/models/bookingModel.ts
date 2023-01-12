@@ -18,18 +18,18 @@ class Booking {
     guestId,
   }: Omit<BookingData, "id">): Promise<BookingResultData> {
     // check that guestId is not equal to ownerId
-    const guestIsOwner = await this.isGuestOwner({ guestId, propertyId });
+    const guestIsOwner = await this._isGuestOwner({ guestId, propertyId });
     if (guestIsOwner) {
       throw new BadRequestError(`Sorry, there was an error creating booking`);
     }
 
     // check startDate and endDate logic
-    if (!this.validateDates({ startDate, endDate })) {
+    if (!this._validateDates({ startDate, endDate })) {
       throw new BadRequestError(`Sorry, there was an error creating booking`);
     }
 
     // checks if the property is available, throws error if overlapping dates
-    const bookingConflict = await this.isBookingAvailable({
+    const bookingConflict = await this._isBookingAvailable({
       startDate,
       endDate,
       propertyId,
@@ -80,7 +80,7 @@ class Booking {
   /** Validates booking end date is after start date
    * Returns true if valid, false otherwise
    */
-  private static validateDates({
+  private static _validateDates({
     startDate,
     endDate,
   }: Pick<BookingData, "startDate" | "endDate">): boolean {
@@ -92,7 +92,7 @@ class Booking {
    * Returns an empty array if the property is NOT booked
    * Returns an array of { id, startDate, endDate } if the property is booked
    */
-  private static async isBookingAvailable({
+  private static async _isBookingAvailable({
     propertyId,
     startDate,
     endDate,
@@ -117,7 +117,7 @@ class Booking {
    *
    * Returns true if the guest is the owner
    */
-  private static async isGuestOwner({
+  private static async _isGuestOwner({
     guestId,
     propertyId,
   }: Pick<BookingData, "propertyId" | "guestId">) {
