@@ -1,0 +1,15 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://sejour.com/messageNew.schema.json",
+    "type": "object",
+    "properties": {
+      "toId": {
+        "type": "integer"
+      },
+      "body": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["toId", "body"]
+  }
