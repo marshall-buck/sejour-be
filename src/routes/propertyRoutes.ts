@@ -1,17 +1,16 @@
 import jsonschema from "jsonschema";
-import express from "express";
+import express, { Router } from "express";
 import { ensureLoggedIn } from "../middleware/authMiddleware";
 import { BadRequestError, UnauthorizedError } from "../expressError";
 import { Property } from "../models/propertyModel";
 import { Booking } from "../models/bookingModel";
-import { Image } from "../models/imageModel";
 import propertyNewSchema from "../schemas/propertyNew.json";
 import propertySearchSchema from "../schemas/propertySearch.json";
 import propertyUpdateSchema from "../schemas/propertyUpdate.json";
 import { PropertySearchFilters, PropertyUpdateData } from "../types";
 
-/** Routes for companies. */
-const router = express.Router();
+/** Routes for properties */
+const router: Router = express.Router();
 
 /** POST /
  * Create Property
@@ -25,14 +24,14 @@ const router = express.Router();
  * Authorization required: logged in user
  */
 router.post("/", ensureLoggedIn, async function (req, res, next) {
-  const newReqBody = { ...req.body, price: +req.body.price };
-  const validator = jsonschema.validate(newReqBody, propertyNewSchema, {
+  const reqBody = { ...req.body, price: +req.body.price };
+  const validator = jsonschema.validate(reqBody, propertyNewSchema, {
     required: true,
   });
   if (!validator.valid) {
     throw new BadRequestError();
   }
-  const data = { ...newReqBody, ownerId: res.locals.user.id };
+  const data = { ...reqBody, ownerId: res.locals.user.id };
 
   const property = await Property.create(data);
   return res.status(201).json({ property });
