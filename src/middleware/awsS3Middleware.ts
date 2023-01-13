@@ -5,6 +5,7 @@ import { BadRequestError } from "../expressError";
 const FILE_SIZE_LIMIT = 1000000;
 
 /** Handles files from multer.upload
+ * 
  * checks mime type and files size
  * uploads each file to s3 bucket
  * adds array of keys to req.locals.imageKeys
@@ -27,7 +28,7 @@ async function handleMulterFiles(
   return next();
 }
 
-/** Checks if file is  correct mime type, [jpeg, jpg, png]
+/** Checks if file is correct mime type, [jpeg, jpg, png]
  *
  * Returns undefined if correct
  * throws BadRequestError on incorrect mime type
