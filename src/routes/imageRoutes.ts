@@ -1,9 +1,9 @@
 import express, { Router } from "express";
-import { ensureLoggedIn } from "../middleware/authMiddleware";
-import { upload, uploadImage } from "../helpers/awsS3";
-import { handleMulterFiles } from "../middleware/awsS3Middleware";
-import { Image } from "../models/imageModel";
 import { randomUUID } from "node:crypto";
+import { uploadImage } from "../helpers/awsS3";
+import { upload } from "../helpers/fileServices";
+import { ensureLoggedIn } from "../middleware/authMiddleware";
+import { Image } from "../models/imageModel";
 const router: Router = express.Router({ mergeParams: true });
 
 /** POST /property/:id/image
@@ -16,7 +16,6 @@ router.post(
   "/",
   ensureLoggedIn,
   upload.array("files", 12),
-  handleMulterFiles,
   async function (req, res, next) {
     const files = req.files as Express.Multer.File[];
     const keys = files.map((_file) => randomUUID());

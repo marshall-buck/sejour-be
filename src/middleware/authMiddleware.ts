@@ -1,5 +1,4 @@
 /** Convenience middleware to handle common auth cases in routes. */
-
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config";
