@@ -2,10 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import { uploadImage } from "../helpers/awsS3";
 import { BadRequestError } from "../expressError";
 
+
+/** AWS s3 bucket middleware */
+
 const FILE_SIZE_LIMIT = 1000000;
 
 /** Handles files from multer.upload
- * 
+ *
  * checks mime type and files size
  * uploads each file to s3 bucket
  * adds array of keys to req.locals.imageKeys
@@ -43,6 +46,7 @@ function checkMimeType(file: Express.Multer.File) {
     throw new BadRequestError();
   }
 }
+
 /** Checks if file is less than 1 megabyte
  *
  * Returns undefined if under limit
