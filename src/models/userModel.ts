@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { BCRYPT_WORK_FACTOR } from "../config";
+import { BCRYPT_WORK_FACTOR, AVATAR_ICON } from "../config";
 import { db } from "../db";
 import {
   BadRequestError,
@@ -87,6 +87,8 @@ class User {
     }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
+
+    if (!avatar) avatar = AVATAR_ICON;
 
     const result = await db.query(
       `INSERT INTO users

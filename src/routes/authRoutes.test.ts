@@ -66,7 +66,6 @@ describe("POST /auth/register", function () {
       lastName: "last",
       password: "password",
       email: "new@email.com",
-      avatar: "avatar_url",
     });
     expect(res.statusCode).toEqual(201);
     expect(res.body).toEqual({

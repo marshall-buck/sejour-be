@@ -11,7 +11,7 @@ CREATE TABLE users (
   last_name TEXT NOT NULL,
   email TEXT NOT NULL CHECK (position('@' IN email) > 1) UNIQUE,
   is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-  avatar TEXT NOT NULL DEFAULT 'https://picsum.photos/100'
+  avatar TEXT NOT NULL DEFAULT 'https://img.icons8.com/fluency-systems-filled/96/null/guest-male.png'
 );
 
 CREATE TABLE properties (
