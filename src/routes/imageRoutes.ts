@@ -1,9 +1,14 @@
 import express, { Router } from "express";
 import { randomUUID } from "node:crypto";
+import { UnauthorizedError } from "../expressError";
 import { uploadImage } from "../helpers/awsS3";
 import { upload } from "../helpers/fileServices";
-import { ensureLoggedIn } from "../middleware/authMiddleware";
+import {
+  ensureLoggedIn,
+  ensureUserIsPropertyOwner,
+} from "../middleware/authMiddleware";
 import { Image } from "../models/imageModel";
+import { Property } from "../models/propertyModel";
 const router: Router = express.Router({ mergeParams: true });
 
 /** POST /property/:id/image
@@ -15,14 +20,16 @@ const router: Router = express.Router({ mergeParams: true });
 router.post(
   "/",
   ensureLoggedIn,
+  ensureUserIsPropertyOwner,
   upload.array("files", 12),
   async function (req, res, next) {
+    const id = +req.params.id;
+
     const files = req.files as Express.Multer.File[];
-    console.log("req", req.files);
     const keys = files.map((_file) => randomUUID());
 
     const promises = files.map((file, index) =>
-      uploadImage(keys[index], file.buffer, +req.params.id)
+      uploadImage(keys[index], file.buffer, id)
     );
 
     const results = await Promise.allSettled(promises);
@@ -35,7 +42,7 @@ router.post(
 
       const image = await Image.create({
         imageKey: keys[index],
-        propertyId: +req.params.id,
+        propertyId: id,
       });
       return image;
     });

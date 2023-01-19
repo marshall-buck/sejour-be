@@ -1,6 +1,6 @@
 import jsonschema from "jsonschema";
 import express, { Router } from "express";
-import { ensureLoggedIn } from "../middleware/authMiddleware";
+import { ensureLoggedIn, ensureUserIsPropertyOwner } from "../middleware/authMiddleware";
 import { BadRequestError, UnauthorizedError } from "../expressError";
 import { Property } from "../models/propertyModel";
 import { Booking } from "../models/bookingModel";
@@ -127,13 +127,9 @@ router.post("/:id", ensureLoggedIn, async function (req, res, next) {
  * Throws UnAuthorizedError if the user is not property owner
  * Throws NotFoundError if no property found for id
  */
-router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
+router.patch("/:id", ensureLoggedIn, ensureUserIsPropertyOwner, async function (req, res, next) {
   const id = +req.params.id;
-  const ownerId = await Property.getOwnerId({ id });
-
-  if (+ownerId.ownerId !== res.locals.user.id) {
-    throw new UnauthorizedError();
-  }
+  
   const reqBody: Omit<PropertyUpdateData, "id"> = { ...req.body };
   const q = req.body;
 

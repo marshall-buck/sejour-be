@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config";
 import { UnauthorizedError } from "../expressError";
+import { Property } from "../models/propertyModel";
 
 /** Middleware: Authenticate user.
  *
@@ -53,4 +54,31 @@ function ensureCorrectUser(req: Request, res: Response, next: NextFunction) {
     return next(err);
   }
 }
-export { authenticateJWT, ensureLoggedIn, ensureCorrectUser };
+
+/** Middleware to use to check that the logged in user id is the same as
+ * property owner id to authorize patch and post request to property routes
+ *
+ * If not, raises Unauthorized.
+ */
+async function ensureUserIsPropertyOwner(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const ownerId = await Property.getOwnerId({ id: +req.params.id });
+    if (+ownerId.ownerId !== res.locals.user.id) {
+      throw new UnauthorizedError();
+    }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+export {
+  authenticateJWT,
+  ensureLoggedIn,
+  ensureCorrectUser,
+  ensureUserIsPropertyOwner,
+};
