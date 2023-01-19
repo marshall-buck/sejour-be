@@ -25,10 +25,11 @@ const AWS_BUCKET = process.env.AWS_BUCKET;
 const AWS_BUCKET_PUBLIC_FOLDER = process.env.AWS_BUCKET_PUBLIC_FOLDER;
 
 // File upload config
-const MAX_SIZE_LIMIT = process.env.NODE_ENV === "test" ? 1000 : 1048576; // 1024 * 1024 * 1 or 10mb
+const MAX_SIZE_LIMIT = process.env.NODE_ENV === "test" ? 1000 : 10485760; // 1024 * 1024 * 10 or 10mb
 
 // Default avatar
-const AVATAR_ICON = "https://img.icons8.com/fluency-systems-filled/96/null/guest-male.png"
+const AVATAR_ICON =
+  "https://img.icons8.com/fluency-systems-filled/96/null/guest-male.png";
 
 export {
   SECRET_KEY,

@@ -1,3 +1,4 @@
+import { PolicyStatus } from "@aws-sdk/client-s3";
 import express, { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { UnauthorizedError } from "../expressError";
@@ -28,24 +29,38 @@ router.post(
     const files = req.files as Express.Multer.File[];
     const keys = files.map((_file) => randomUUID());
 
-    const promises = files.map((file, index) =>
+    const s3Promises = files.map((file, index) =>
       uploadImage(keys[index], file.buffer, id)
     );
 
-    const results = await Promise.allSettled(promises);
+    const s3Results = await Promise.allSettled(s3Promises);
 
-    const images = results.map(async (result, index) => {
+    const errors: { error: string }[] = [];
+    
+    const imgPromises = s3Results.map((result, index) => {
       if (result.status === "rejected") {
         const filename = files[index].filename;
-        return { error: `Error uploading ${filename}` };
+        errors.push({ error: `Error uploading ${filename}` });
       }
-
-      const image = await Image.create({
+      return Image.create({
         imageKey: keys[index],
         propertyId: id,
       });
-      return image;
     });
+
+    const imgResults = await Promise.allSettled(imgPromises);
+
+    const images: any[] = (imgResults as PromiseFulfilledResult<any>[])
+      .filter((res) => res.status === "fulfilled")
+      .map((res) => res.value);
+
+    (imgResults as PromiseRejectedResult[])
+      .filter((res) => res.status === "rejected")
+      .map((res) => errors.push({ error: res.reason }));
+
+    if (errors.length > 0) {
+      return res.status(210).json({ images, errors });
+    }
 
     return res.status(201).json({ images });
   }
