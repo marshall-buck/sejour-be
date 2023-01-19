@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { uploadImage } from "../helpers/awsS3";
 import { BadRequestError } from "../expressError";
-
 
 /** AWS s3 bucket middleware */
 
@@ -10,8 +8,6 @@ const FILE_SIZE_LIMIT = 1000000;
 /** Handles files from multer.upload
  *
  * checks mime type and files size
- * uploads each file to s3 bucket
- * adds array of keys to req.locals.imageKeys
  */
 async function handleMulterFiles(
   req: Request,
@@ -19,15 +15,11 @@ async function handleMulterFiles(
   next: NextFunction
 ) {
   const files = req.files as Express.Multer.File[];
-  res.locals.imageKeys = [];
   for (const file of files) {
     checkMimeType(file);
     checkFileSize(file);
-    const key = Date.now().toString();
-
-    await uploadImage(key, file.buffer);
-    res.locals.imageKeys.push(key);
   }
+
   return next();
 }
 
