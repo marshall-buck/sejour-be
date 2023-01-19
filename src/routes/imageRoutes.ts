@@ -18,6 +18,7 @@ router.post(
   upload.array("files", 12),
   async function (req, res, next) {
     const files = req.files as Express.Multer.File[];
+    console.log("req", req.files);
     const keys = files.map((_file) => randomUUID());
 
     const promises = files.map((file, index) =>

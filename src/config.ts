@@ -18,7 +18,6 @@ function getDatabaseUri() {
 const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
 
 // AWS config
-const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME;
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 const AWS_REGION = process.env.AWS_REGION;
@@ -28,16 +27,19 @@ const AWS_BUCKET_PUBLIC_FOLDER = process.env.AWS_BUCKET_PUBLIC_FOLDER;
 // File upload config
 const MAX_SIZE_LIMIT = process.env.NODE_ENV === "test" ? 1000 : 1048576; // 1024 * 1024 * 1 or 10mb
 
+// Default avatar
+const AVATAR_ICON = "https://img.icons8.com/fluency-systems-filled/96/null/guest-male.png"
+
 export {
   SECRET_KEY,
   PORT,
   BCRYPT_WORK_FACTOR,
   getDatabaseUri,
-  AWS_BUCKET_NAME,
   AWS_SECRET_ACCESS_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_REGION,
   AWS_BUCKET,
   AWS_BUCKET_PUBLIC_FOLDER,
   MAX_SIZE_LIMIT,
+  AVATAR_ICON,
 };
