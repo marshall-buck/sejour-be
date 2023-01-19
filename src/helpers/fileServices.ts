@@ -3,6 +3,17 @@ import multer from "multer";
 import Path from "path";
 import { MAX_SIZE_LIMIT } from "../config";
 
+/**
+ * Upload a file with multer library
+ *
+ * Params:
+ * - limits.fileSize: MAX_SIZE_LIMIT
+ * - fileFilter: accepts exptensions specified in acceptableExtensions:
+ *   [".png", ".jpg", "jpeg"];
+ *
+ * Returns callback (null, true) to accept the file is pass
+ * Else callback (new Error)
+ */
 const upload = multer({
   limits: {
     fileSize: MAX_SIZE_LIMIT,
