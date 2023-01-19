@@ -21,7 +21,6 @@ const s3 = new S3Client({
  * Returns - PutObjectCommand
  *
  */
-
 function uploadImage(key: string, body: Buffer, propertyId: number) {
   const uploadParams = {
     Bucket: AWS_BUCKET,

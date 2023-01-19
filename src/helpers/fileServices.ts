@@ -23,7 +23,8 @@ const upload = multer({
     if (!acceptableExtensions.includes(Path.extname(file.originalname))) {
       return callback(
         new Error(
-          `${file.mimetype} is not an accepted image file extension, please use: ${acceptableExtensions}`
+          `${file.mimetype} is not an accepted image file extension,
+          please use: ${acceptableExtensions}`
         )
       );
     }
@@ -36,6 +37,6 @@ const upload = multer({
     callback(null, true);
   },
 });
-// const upload = multer();
+
 
 export { upload };
