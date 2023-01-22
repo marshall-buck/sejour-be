@@ -1,3 +1,4 @@
+/** File services/multer related middleware */
 import { Request } from "express";
 import multer from "multer";
 import Path from "path";
@@ -12,7 +13,7 @@ import { MAX_SIZE_LIMIT } from "../config";
  *   [".png", ".jpg", "jpeg"];
  *
  * Returns callback (null, true) to accept the file is pass
- * Else callback (new Error)
+ * Else throws new Error
  */
 const upload = multer({
   limits: {
