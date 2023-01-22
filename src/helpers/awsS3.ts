@@ -1,3 +1,4 @@
+/** AWS s3 bucket functions */
 import {
   S3Client,
   PutObjectCommand,
@@ -15,11 +16,8 @@ const s3 = new S3Client({
 });
 
 /** Uploads a file to AWS s3 bucket
- *
- * Params- { key: string, body: Buffer, propertyId: number }
- *
+ * Params - { key: string, body: Buffer, propertyId: number }
  * Returns - PutObjectCommand
- *
  */
 function uploadImage(key: string, body: Buffer, propertyId: number) {
   const uploadParams = {
