@@ -13,9 +13,9 @@ import { Property } from "../models/propertyModel";
 const router: Router = express.Router({ mergeParams: true });
 
 /** POST /property/:id/image
- * Create Image
- * Takes in a { imageKey, propertyId, isCoverImage }
- *  Returns [{ id, imageKey, propertyId, isCoverImage },
+ * Uploads image files to AWS S3 and creates new images in DB
+ *
+ * Returns [{ id, imageKey, propertyId, isCoverImage },
  *            { error: `Error uploading ${filename}` }... ]
  */
 router.post(
@@ -36,7 +36,7 @@ router.post(
     const s3Results = await Promise.allSettled(s3Promises);
 
     const errors: { error: string }[] = [];
-    
+
     const imgPromises = s3Results.map((result, index) => {
       if (result.status === "rejected") {
         const filename = files[index].filename;
