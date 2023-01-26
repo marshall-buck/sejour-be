@@ -61,7 +61,7 @@ describe("register", function () {
   const newUser = {
     firstName: "Test",
     lastName: "Tester",
-    avatar: "",
+    avatar: "http://avatar_url.com",
     email: "test@test.com",
     isAdmin: false,
   };
