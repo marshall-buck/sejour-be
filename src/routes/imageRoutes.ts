@@ -32,26 +32,34 @@ router.post(
     const propertyId = +req.params.id;
 
     const files = req.files as Express.Multer.File[];
+    // generate an array of unique keys for each file
     const keys = files.map((_file) => randomUUID());
 
     const errors: { error: string }[] = [];
 
+    // generate Promise[] for each file to upload
     const s3Promises = files.map((file, index) =>
       uploadImage(keys[index], file.buffer, propertyId)
     );
     const s3Results = await Promise.allSettled(s3Promises);
+
+    /** for all fulfilled Promises, handles rejected/resolved promises
+     * generates Promise[] for each uploaded image file to add to database */
     const imgPromises = s3Results.map((result, index) => {
       if (result.status === "rejected") {
         const filename = files[index].filename;
         errors.push({ error: `Error uploading ${filename}` });
+      } else {
+        return Image.create({
+          imageKey: keys[index],
+          propertyId: propertyId,
+        });
       }
-      return Image.create({
-        imageKey: keys[index],
-        propertyId: propertyId,
-      });
     });
 
     const imgResults = await Promise.allSettled(imgPromises);
+
+    // for all fulfilled Promises, handles rejected/resolved promises
     const images: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => res.value);
@@ -125,30 +133,35 @@ router.delete(
   async function (req: Request, res, next) {
     const propertyId = +req.params.id;
     const imageKeys = req.body.imageKeys;
-    console.log("type of imageKeys", Array.isArray(imageKeys));
+
     const validator = jsonschema.validate(imageKeys, imageDeleteSchema, {
       required: true,
     });
-    console.log("validator", validator);
     if (!validator.valid) {
       throw new BadRequestError();
     }
 
     const errors: { error: string }[] = [];
 
+    // generate Promise[] for each file to upload
     const s3Promises = imageKeys.map((key: string) => {
       deleteImage(key, propertyId);
     });
     const s3Results = await Promise.allSettled(s3Promises);
+
+    /** for all fulfilled Promises, handles rejected/resolved promises
+     * generates Promise[] for each deleted image file to delete from database */
     const imgPromises = s3Results.map((result, index) => {
       console.log("result", result);
       if (result.status === "rejected") {
-        errors.push({ error: `Error deleting ${imageKeys[index]}` });
+        errors.push({ error: `AWS error deleting ${imageKeys[index]}` });
       }
       return Image.delete({ imageKey: imageKeys[index] });
     });
 
     const imgResults = await Promise.allSettled(imgPromises);
+
+    // for all fulfilled Promises, handles rejected/resolved promises
     const success: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => `Successfully deleted ${res.value}`);

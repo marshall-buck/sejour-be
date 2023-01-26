@@ -1,18 +1,23 @@
 import { db } from "../db";
 import { User } from "../models/userModel";
 import { Message } from "../models/messageModel";
+import { Image } from "../models/imageModel";
 import { createToken } from "../helpers/tokens";
 import { Property } from "../models/propertyModel";
+import { randomUUID } from "node:crypto";
 
 type UserTestData = {
   id: number;
   token: string;
 };
+
 const testUsers: UserTestData[] = [];
 const testPropertyIds: number[] = [];
 const testMessageIds: number[] = [];
+const testImageIds: number[] = [];
 
 async function commonBeforeAll() {
+  await db.query("DELETE FROM images");
   await db.query("DELETE FROM properties");
   await db.query("DELETE FROM messages");
   await db.query("DELETE FROM users");
@@ -20,6 +25,7 @@ async function commonBeforeAll() {
   await registerTestUsers();
   await createTestMessages();
   await createTestProperties();
+  await createTestImages();
 }
 
 async function commonBeforeEach() {
@@ -42,6 +48,7 @@ export {
   testUsers,
   testPropertyIds,
   testMessageIds,
+  testImageIds,
 };
 
 /***************** HELPER FUNCTIONS FOR POPULATING DB BEFORE ALL **************/
@@ -129,4 +136,20 @@ async function createTestProperties() {
   });
 
   testPropertyIds.push(p1.id, p2.id);
+}
+
+/** Add images to DB with test images */
+async function createTestImages() {
+  const i1 = await Image.create({
+    imageKey: randomUUID(),
+    propertyId: testPropertyIds[0],
+    isCoverImage: true,
+  });
+  const i2 = await Image.create({
+    imageKey: randomUUID(),
+    propertyId: testPropertyIds[0],
+    isCoverImage: false,
+  });
+
+  testImageIds.push(i1.id, i2.id);
 }

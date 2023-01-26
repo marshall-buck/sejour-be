@@ -102,7 +102,18 @@ describe("GET /property", function () {
             price: 100,
             latitude: "-100.234234234",
             longitude: "50.234234234",
-            images: [],
+            images: [
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: true,
+              },
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: false,
+              },
+            ],
           },
           {
             id: expect.any(Number),
@@ -180,7 +191,18 @@ describe("GET /property", function () {
             price: 100,
             latitude: "-100.234234234",
             longitude: "50.234234234",
-            images: [],
+            images: [
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: true,
+              },
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: false,
+              },
+            ],
           },
         ],
       },
@@ -212,7 +234,18 @@ describe("GET /property", function () {
             price: 100,
             latitude: "-100.234234234",
             longitude: "50.234234234",
-            images: [],
+            images: [
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: true,
+              },
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: false,
+              },
+            ],
           },
         ],
       },
@@ -244,7 +277,18 @@ describe("GET /property", function () {
             price: 100,
             latitude: "-100.234234234",
             longitude: "50.234234234",
-            images: [],
+            images: [
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: true,
+              },
+              {
+                id: expect.any(Number),
+                imageKey: expect.any(String),
+                isCoverImage: false,
+              },
+            ],
           },
         ],
       },
@@ -348,7 +392,18 @@ describe("POST /property/id/", function () {
           ownerId: testUsers[0].id,
           description: "description 1",
           price: 100,
-          images: [],
+          images: [
+            {
+              id: expect.any(Number),
+              imageKey: expect.any(String),
+              isCoverImage: true,
+            },
+            {
+              id: expect.any(Number),
+              imageKey: expect.any(String),
+              isCoverImage: false,
+            },
+          ],
         },
       },
     });
@@ -506,7 +561,7 @@ describe("DELETE /property/id/", function () {
   test("throws Unauthorized if userId not ownerId", async function () {
     const res = await request(app)
       .delete(`/property/${testPropertyIds[1]}`)
-      .set("authorization", `Bearer ${testUsers[1].token}`)
+      .set("authorization", `Bearer ${testUsers[1].token}`);
     expect(res.statusCode).toEqual(401);
   });
 });
