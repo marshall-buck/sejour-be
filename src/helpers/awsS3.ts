@@ -1,4 +1,4 @@
-/** AWS s3 bucket functions */
+/** AWS S3 bucket functions */
 import {
   S3Client,
   PutObjectCommand,
@@ -15,9 +15,9 @@ const s3 = new S3Client({
   region: AWS_REGION,
 });
 
-/** Uploads a file to AWS s3 bucket
+/** Uploads a file to AWS S3 bucket
  * Params - { key: string, body: Buffer, propertyId: number }
- * Returns - PutObjectCommand
+ * Returns a PutObjectCommand Promise
  */
 function uploadImage(key: string, body: Buffer, propertyId: number) {
   const uploadParams = {
@@ -28,4 +28,16 @@ function uploadImage(key: string, body: Buffer, propertyId: number) {
   return s3.send(new PutObjectCommand(uploadParams));
 }
 
-export { uploadImage };
+/** Deletes a file from AWS S3 bucket
+ * Params - { key: string, propertyId: number }
+ * Returns a DeleteObjectCommand Promise
+ */
+function deleteImage(key: string, propertyId: number) {
+  const deleteParams = {
+    Bucket: AWS_BUCKET,
+    Key: `${AWS_BUCKET_PUBLIC_FOLDER}/${propertyId}/${key}`,
+  };
+  return s3.send(new DeleteObjectCommand(deleteParams));
+}
+
+export { uploadImage, deleteImage };
