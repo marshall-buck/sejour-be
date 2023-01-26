@@ -68,18 +68,22 @@ describe("create image", function () {
 
 describe("delete image", function () {
   test("deletes image from db", async function () {
-    await Image.delete({id: imageIds[0]});
+    const result = await db.query(`
+        SELECT image_key AS "imageKey"
+          FROM images
+            WHERE id = ${imageIds[0]}`);
+    const imageKey = result.rows[0].imageKey;
+    await Image.delete({ imageKey });
     const images = await db.query(`
         SELECT id
           FROM images
             WHERE id = ${imageIds[0]}`);
-
     expect(images.rows).toEqual([]);
   });
 
   test("throws not found if no such image", async function () {
     try {
-      await Image.delete({id: 0});
+      await Image.delete({ imageKey: "0"});
       throw new Error("fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();

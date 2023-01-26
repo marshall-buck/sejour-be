@@ -30,7 +30,7 @@ class Image {
 
   /** Get all images by property id
    * Throws NotFoundError if no property
-   * Returns [{id,imageKey, isCoverImage}, ...] or [] if no images
+   * Returns [{id, imageKey, isCoverImage}, ...] or [] if no images
    */
   static async getAllByProperty(
     propertyId: number
@@ -56,21 +56,21 @@ class Image {
     return imageData;
   }
 
-  /** Delete image from DB by image id
-   * Throws NotFoundError if no id exists
+  /** Delete image from DB by image imageKey
+   * Throws NotFoundError if no imageKey exists
    *
    * Returns undefined on success
    */
-  static async delete({id}: Pick<ImageData, "id">) {
+  static async delete({ imageKey }: Pick<ImageData, "imageKey">) {
     const result = await db.query(
       `DELETE FROM images
-          WHERE id = $1
-              RETURNING id
+          WHERE image_key = $1
+              RETURNING image_key AS "imageKey"
       `,
-      [id]
+      [imageKey]
     );
-    const imageId: Pick<ImageData, "id"> = result.rows[0];
-    NotFoundError.handler(imageId, `No image: ${id}`);
+    const image: Pick<ImageData, "imageKey"> = result.rows[0];
+    NotFoundError.handler(image, `No image: ${imageKey}`);
 
     return;
   }
@@ -81,7 +81,10 @@ class Image {
    * Throws a new NotFoundError if no image id
    * Returns image object {id, imageKey, propertyId, isCoverImage}
    */
-  static async update({id, propertyId}: Pick<ImageData, "id" | "propertyId">): Promise<ImageData> {
+  static async update({
+    id,
+    propertyId,
+  }: Pick<ImageData, "id" | "propertyId">): Promise<ImageData> {
     await db.query(
       `UPDATE images
           SET is_cover_image = FALSE
