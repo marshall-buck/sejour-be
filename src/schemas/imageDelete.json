@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://sejour.com/imageDelete.schema.json",
+  "type": "array",
+  "maxItems": 12,
+  "items": {
+    "type": "string",
+    "format": "uuid"
+  },
+  "additionalProperties": false
+}
