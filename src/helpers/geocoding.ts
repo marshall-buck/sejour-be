@@ -7,7 +7,7 @@ const client = new Client({});
 // const GOOGLE_GEOCODE_API: `https://maps.googleapis.com/maps/api/geocode/json?address=${}&key=${}`
 
 /**
- * Transform address string into a JSON string
+ * Transform address string into a formatted output string
  * Example:
  * 1600 Amphitheatre Parkway, Mountain View, CA =>
  * 1600+Amphitheatre+Parkway,+Mountain+View,+CA
