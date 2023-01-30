@@ -28,5 +28,6 @@ function findGeocode(address: string) {
 
 
 export {
-  transformAddress
+  transformAddress,
+  findGeocode
 }
