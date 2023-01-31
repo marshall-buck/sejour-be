@@ -5,13 +5,21 @@ import {
   ensureLoggedIn,
   ensureCorrectUser,
 } from "./authMiddleware";
-
+import { db } from "../db";
 import { SECRET_KEY } from "../config";
 
+// User ID for test purposes
 const USER_ID = 1;
 
 const testJwt = jwt.sign({ id: USER_ID, isAdmin: false }, SECRET_KEY);
 const badJwt = jwt.sign({ id: USER_ID, isAdmin: false }, "wrong");
+
+async function commonAfterAll() {
+  await db.end();
+}
+afterAll(commonAfterAll)
+
+/******************************************************************************/
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
