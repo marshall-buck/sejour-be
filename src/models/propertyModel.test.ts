@@ -25,6 +25,8 @@ describe("create", function () {
       city: "New York",
       state: "NY",
       zipcode: "11111",
+      latitude: "-100.234234234",
+      longitude: "50.234234234",
       description:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, rerum.",
       price: 200,
@@ -34,9 +36,6 @@ describe("create", function () {
 
     expect(property).toEqual({
       ...newProperty,
-      latitude: "-100.234234234",
-      longitude: "50.234234234",
-
       id: expect.any(Number),
     });
   });

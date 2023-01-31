@@ -29,16 +29,12 @@ class Property {
     city,
     state,
     zipcode,
+    latitude,
+    longitude,
     description,
     price,
     ownerId,
-  }: Omit<
-    PropertyData,
-    "id" | "latitude" | "longitude"
-  >): Promise<PropertyData> {
-    // TODO: figure out lat and long
-    const latitude = "-100.234234234";
-    const longitude = "50.234234234";
+  }: Omit<PropertyData, "id">): Promise<PropertyData> {
     const result = await db.query(
       `INSERT INTO properties
              (title,
@@ -76,7 +72,6 @@ class Property {
         ownerId,
       ]
     );
-
     const property: PropertyData = result.rows[0];
 
     return property;
@@ -320,7 +315,7 @@ class Property {
                 WHERE id = $1`,
       [id]
     );
-    const ownerId = result.rows[0]
+    const ownerId = result.rows[0];
     NotFoundError.handler(ownerId, `No property: ${id}`);
     return ownerId;
   }
