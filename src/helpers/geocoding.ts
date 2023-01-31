@@ -31,11 +31,11 @@ async function getGeocode({
   try {
     const result = await google.geocode(args);
     const coordinates = result.data.results[0].geometry.location;
-    console.log(`Geocode: ${coordinates}`);
+
     return coordinates;
   } catch (error) {
     throw new BadRequestError();
   }
 }
 
-export { getGeocode };
+export { getGeocode, google };
