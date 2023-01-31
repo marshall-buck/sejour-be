@@ -1,6 +1,9 @@
 import jsonschema from "jsonschema";
 import express, { Router } from "express";
-import { ensureLoggedIn, ensureUserIsPropertyOwner } from "../middleware/authMiddleware";
+import {
+  ensureLoggedIn,
+  ensureUserIsPropertyOwner,
+} from "../middleware/authMiddleware";
 import { BadRequestError, UnauthorizedError } from "../expressError";
 import { Property } from "../models/propertyModel";
 import { Booking } from "../models/bookingModel";
@@ -8,6 +11,8 @@ import propertyNewSchema from "../schemas/propertyNew.json";
 import propertySearchSchema from "../schemas/propertySearch.json";
 import propertyUpdateSchema from "../schemas/propertyUpdate.json";
 import { PropertySearchFilters, PropertyUpdateData } from "../types";
+import { GeocodingAddressComponentType } from "@googlemaps/google-maps-services-js";
+import { getGeocode } from "../helpers/geocoding";
 
 /** Routes for properties */
 const router: Router = express.Router();
@@ -31,7 +36,16 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   if (!validator.valid) {
     throw new BadRequestError();
   }
-  const data = { ...reqBody, ownerId: res.locals.user.id };
+
+  const { street, city, state } = reqBody;
+  const { lat, lng } = await getGeocode({ street, city, state });
+
+  const data = {
+    ...reqBody,
+    ownerId: res.locals.user.id,
+    latitude: lat.toString(),
+    longitude: lng.toString(),
+  };
 
   const property = await Property.create(data);
   return res.status(201).json({ property });
@@ -127,28 +141,33 @@ router.post("/:id", ensureLoggedIn, async function (req, res, next) {
  * Throws UnAuthorizedError if the user is not property owner
  * Throws NotFoundError if no property found for id
  */
-router.patch("/:id", ensureLoggedIn, ensureUserIsPropertyOwner, async function (req, res, next) {
-  const id = +req.params.id;
-  
-  const reqBody: Omit<PropertyUpdateData, "id"> = { ...req.body };
-  const q = req.body;
+router.patch(
+  "/:id",
+  ensureLoggedIn,
+  ensureUserIsPropertyOwner,
+  async function (req, res, next) {
+    const id = +req.params.id;
 
-  reqBody.description = q.description as string;
-  reqBody.title = q.title as string;
-  if (q.price) reqBody.price = Number(q.price as string);
+    const reqBody: Omit<PropertyUpdateData, "id"> = { ...req.body };
+    const q = req.body;
 
-  const validator = jsonschema.validate(reqBody, propertyUpdateSchema, {
-    required: true,
-  });
-  if (!validator.valid) {
-    throw new BadRequestError();
+    reqBody.description = q.description as string;
+    reqBody.title = q.title as string;
+    if (q.price) reqBody.price = Number(q.price as string);
+
+    const validator = jsonschema.validate(reqBody, propertyUpdateSchema, {
+      required: true,
+    });
+    if (!validator.valid) {
+      throw new BadRequestError();
+    }
+    const property = await Property.update({
+      id,
+      ...reqBody,
+    });
+    return res.json({ property });
   }
-  const property = await Property.update({
-    id,
-    ...reqBody,
-  });
-  return res.json({ property });
-});
+);
 
 /** DELETE /:id
  * Set archived status to true

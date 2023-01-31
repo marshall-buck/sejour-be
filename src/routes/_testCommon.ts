@@ -5,6 +5,8 @@ import { Image } from "../models/imageModel";
 import { createToken } from "../helpers/tokens";
 import { Property } from "../models/propertyModel";
 import { randomUUID } from "node:crypto";
+import { getGeocode } from "../helpers/geocoding";
+import { LatLngLiteral } from "@googlemaps/google-maps-services-js";
 
 type UserTestData = {
   id: number;
@@ -28,6 +30,24 @@ async function commonBeforeAll() {
   await createTestImages();
 }
 
+const geocodeMockSetup = () => {
+  const mock = jest.mock("../helpers/geocoding", () => {
+    const originalModule = jest.requireActual("../helpers/geocoding");
+
+    //Mock the default export and named export 'foo'
+    return {
+      __esModule: true,
+      ...originalModule,
+      default: jest.fn(() => 'mocked baz'),
+      foo: 'mocked foo',
+    };
+  });
+  mockedGeocode.mockResolvedValue({
+    lat: 123.123456,
+    lng: -123.123456,
+  } as LatLngLiteral);
+};
+
 async function commonBeforeEach() {
   await db.query("BEGIN");
 }
@@ -45,6 +65,7 @@ export {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  geocodeMockSetup,
   testUsers,
   testPropertyIds,
   testMessageIds,
@@ -120,6 +141,8 @@ async function createTestProperties() {
     city: "city 1",
     state: "state 1",
     zipcode: "zipcode 1",
+    latitude: "123.123123",
+    longitude: "-123.123123",
     ownerId: testUsers[0].id,
     description: "description 1",
     price: 100,
@@ -130,6 +153,8 @@ async function createTestProperties() {
     city: "city 2",
     state: "state 2",
     zipcode: "zipcode 2",
+    latitude: "-123.123123",
+    longitude: "123.123123",
     ownerId: testUsers[0].id,
     description: "description 2",
     price: 200,

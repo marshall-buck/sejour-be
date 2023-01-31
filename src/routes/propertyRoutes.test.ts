@@ -7,6 +7,7 @@ import {
   commonAfterAll,
   testUsers,
   testPropertyIds,
+  geocodeMockSetup,
 } from "./_testCommon";
 
 beforeAll(commonBeforeAll);
@@ -22,26 +23,26 @@ describe("POST /property", function () {
       .post("/property")
       .set("authorization", `Bearer ${testUsers[0].token}`)
       .send({
-        title: "Prop test",
-        street: "street test",
-        city: "city test",
-        state: "state test",
-        zipcode: "77019",
+        title: "prop test",
+        street: "357 w 30th",
+        city: "new york",
+        state: "new york",
+        zipcode: "10001",
         description: "description test",
         price: 200,
       });
     expect(res.body).toEqual({
       property: {
         id: expect.any(Number),
-        title: "Prop test",
-        street: "street test",
-        city: "city test",
-        state: "state test",
-        zipcode: "77019",
+        title: "prop test",
+        street: "357 w 30th",
+        city: "new york",
+        state: "new york",
+        zipcode: "10001",
         ownerId: testUsers[0].id,
         description: "description test",
-        latitude: "-100.234234234",
-        longitude: "50.234234234",
+        lat: "123.123456",
+        lng: "-123.123456",
         price: 200,
       },
     });
@@ -100,8 +101,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 1",
             price: 100,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "123.123123",
+            longitude: "-123.123123",
             images: [
               {
                 id: expect.any(Number),
@@ -125,8 +126,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 2",
             price: 200,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "-123.123123",
+            longitude: "123.123123",
             images: [],
           },
         ],
@@ -157,8 +158,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 2",
             price: 200,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "-123.123123",
+            longitude: "123.123123",
             images: [],
           },
         ],
@@ -189,8 +190,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 1",
             price: 100,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "123.123123",
+            longitude: "-123.123123",
             images: [
               {
                 id: expect.any(Number),
@@ -232,8 +233,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 1",
             price: 100,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "123.123123",
+            longitude: "-123.123123",
             images: [
               {
                 id: expect.any(Number),
@@ -275,8 +276,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 1",
             price: 100,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "123.123123",
+            longitude: "-123.123123",
             images: [
               {
                 id: expect.any(Number),
@@ -319,8 +320,8 @@ describe("GET /property", function () {
             ownerId: testUsers[0].id,
             description: "description 2",
             price: 200,
-            latitude: "-100.234234234",
-            longitude: "50.234234234",
+            latitude: "-123.123123",
+            longitude: "123.123123",
             images: [],
           },
         ],
@@ -387,8 +388,8 @@ describe("POST /property/id/", function () {
           city: "city 1",
           state: "state 1",
           zipcode: "zipcode 1",
-          latitude: "-100.234234234",
-          longitude: "50.234234234",
+          latitude: "123.123123",
+          longitude: "-123.123123",
           ownerId: testUsers[0].id,
           description: "description 1",
           price: 100,
@@ -453,6 +454,7 @@ describe("POST /property/id/", function () {
 
 /********************************************************* GET /property/id/ */
 describe("GET /property/id/", function () {
+  geocodeMockSetup
   test("can get property by id", async function () {
     const res = await request(app).get(`/property/${testPropertyIds[1]}`);
     expect(res.body).toEqual({
@@ -466,8 +468,8 @@ describe("GET /property/id/", function () {
         ownerId: testUsers[0].id,
         description: "description 2",
         price: 200,
-        latitude: "-100.234234234",
-        longitude: "50.234234234",
+        latitude: "-123.123123",
+        longitude: "123.123123",
         images: [],
       },
     });
@@ -501,8 +503,8 @@ describe("PATCH /property/id/", function () {
         ownerId: testUsers[0].id,
         description: "NEW description 2",
         price: 999,
-        latitude: "-100.234234234",
-        longitude: "50.234234234",
+        latitude: "-123.123123",
+        longitude: "123.123123",
       },
     });
   });
