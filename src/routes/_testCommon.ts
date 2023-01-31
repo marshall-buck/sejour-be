@@ -30,23 +30,23 @@ async function commonBeforeAll() {
   await createTestImages();
 }
 
-const geocodeMockSetup = () => {
-  const mock = jest.mock("../helpers/geocoding", () => {
-    const originalModule = jest.requireActual("../helpers/geocoding");
+// const geocodeMockSetup = () => {
+//   const mock = jest.mock("../helpers/geocoding", () => {
+//     const originalModule = jest.requireActual("../helpers/geocoding");
 
-    //Mock the default export and named export 'foo'
-    return {
-      __esModule: true,
-      ...originalModule,
-      default: jest.fn(() => 'mocked baz'),
-      foo: 'mocked foo',
-    };
-  });
-  mockedGeocode.mockResolvedValue({
-    lat: 123.123456,
-    lng: -123.123456,
-  } as LatLngLiteral);
-};
+//     //Mock the default export and named export 'foo'
+//     return {
+//       __esModule: true,
+//       ...originalModule,
+//       default: jest.fn(() => 'mocked baz'),
+//       foo: 'mocked foo',
+//     };
+//   });
+//   mockedGeocode.mockResolvedValue({
+//     lat: 123.123456,
+//     lng: -123.123456,
+//   } as LatLngLiteral);
+// };
 
 async function commonBeforeEach() {
   await db.query("BEGIN");
@@ -65,7 +65,7 @@ export {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  geocodeMockSetup,
+  // geocodeMockSetup,
   testUsers,
   testPropertyIds,
   testMessageIds,

@@ -7,18 +7,55 @@ import {
   commonAfterAll,
   testUsers,
   testPropertyIds,
-  geocodeMockSetup,
 } from "./_testCommon";
+
+import { google } from "../helpers/geocoding";
+import {
+  AddressType,
+  GeocodeResponse,
+  GeocodeResult,
+} from "@googlemaps/google-maps-services-js";
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
+const mockGeocodeService = jest.spyOn(google, "geocode");
+
+// Mock API response for geocode method to google client for testing purposes
+const mockGoogleResponse = [
+  {
+    types: ["geocode"] as AddressType[],
+    formatted_address: "",
+    address_components: {
+      short_name: "",
+      long_name: "",
+      postcode_localities: "",
+      types: "",
+    },
+    partial_match: true,
+    place_id: "",
+    postcode_localities: "",
+    geometry: {
+      location: { lat: 123456789, lng: 123456789 },
+      location_type: "GeocoderLocationType",
+      viewport: { lat: 123456789, lng: 123456789 },
+      bounds: { lat: 123456789, lng: 123456789 },
+    },
+  },
+] as unknown as GeocodeResult[];
+
+afterEach(() => jest.clearAllMocks);
+
 /************************************** POST /property */
 
 describe("POST /property", function () {
   test("creates property", async function () {
+    mockGeocodeService.mockResolvedValue({
+      data: { results: mockGoogleResponse },
+    } as GeocodeResponse);
+
     const res = await request(app)
       .post("/property")
       .set("authorization", `Bearer ${testUsers[0].token}`)
@@ -41,8 +78,8 @@ describe("POST /property", function () {
         zipcode: "10001",
         ownerId: testUsers[0].id,
         description: "description test",
-        lat: "123.123456",
-        lng: "-123.123456",
+        latitude: "123456789",
+        longitude: "123456789",
         price: 200,
       },
     });
@@ -454,7 +491,7 @@ describe("POST /property/id/", function () {
 
 /********************************************************* GET /property/id/ */
 describe("GET /property/id/", function () {
-  geocodeMockSetup
+  // geocodeMockSetup;
   test("can get property by id", async function () {
     const res = await request(app).get(`/property/${testPropertyIds[1]}`);
     expect(res.body).toEqual({
