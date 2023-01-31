@@ -24,6 +24,9 @@ const AWS_REGION = process.env.AWS_REGION;
 const AWS_BUCKET = process.env.AWS_BUCKET;
 const AWS_BUCKET_PUBLIC_FOLDER = process.env.AWS_BUCKET_PUBLIC_FOLDER;
 
+// GCP config
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
+
 // File upload config
 const MAX_SIZE_LIMIT = process.env.NODE_ENV === "test" ? 1000 : 10485760; // 1024 * 1024 * 10 or 10mb
 
@@ -43,4 +46,5 @@ export {
   AWS_BUCKET_PUBLIC_FOLDER,
   MAX_SIZE_LIMIT,
   AVATAR_ICON,
+  GOOGLE_MAPS_API_KEY
 };
