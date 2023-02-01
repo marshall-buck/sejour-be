@@ -1,8 +1,10 @@
+/** JWT token functions */
 import jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config";
 import { TokenPayload } from "../types";
 
-/** return signed JWT from user data. */
+/** Create a new token from id and isAdmin params
+ * Return signed JWT from user data. */
 function createToken({ id, isAdmin }: TokenPayload) {
   console.assert(
     isAdmin !== undefined,
@@ -15,4 +17,6 @@ function createToken({ id, isAdmin }: TokenPayload) {
   };
   return jwt.sign(payload, SECRET_KEY);
 }
+
+
 export { createToken };

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://our.company.com/propertyNew.schema.json",
+  "$id": "http://sejour.com/propertyNew.schema.json",
   "type": "object",
   "properties": {
     "title": {

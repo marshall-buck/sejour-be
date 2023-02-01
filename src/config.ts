@@ -24,15 +24,16 @@ const AWS_REGION = process.env.AWS_REGION;
 const AWS_BUCKET = process.env.AWS_BUCKET;
 const AWS_BUCKET_PUBLIC_FOLDER = process.env.AWS_BUCKET_PUBLIC_FOLDER;
 
-// GCP config
+// Google Maps config
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY as string;
 
-// File upload config
-const MAX_SIZE_LIMIT = process.env.NODE_ENV === "test" ? 1000 : 10485760; // 1024 * 1024 * 10 or 10mb
+// File upload config (1024 * 1024 * 10 or 10mb)
+const MAX_SIZE_LIMIT = process.env.NODE_ENV === "test" ? 1000 : 10485760;
 
 // Default avatar
 const AVATAR_ICON =
   "https://img.icons8.com/fluency-systems-filled/96/null/guest-male.png";
+
 
 export {
   SECRET_KEY,

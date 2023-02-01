@@ -15,6 +15,7 @@ test("not found for site 404 (test stack print)", async function () {
   process.env.END
 });
 
+// TODO: figure out how to do this
 // test("500 server error", async function () {
 //   const res = await request(app)
 //     .get("/message/$0")

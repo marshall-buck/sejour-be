@@ -34,6 +34,8 @@ const mockGoogleResponse = [
 
 afterEach(() => jest.clearAllMocks);
 
+/********************************************************************** TESTS */
+
 describe("get geocode", function () {
   test("get successful Google geocode from address input", async function () {
     mockGeocodeService.mockResolvedValue({

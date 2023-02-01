@@ -76,6 +76,7 @@ async function ensureUserIsPropertyOwner(
   }
 }
 
+
 export {
   authenticateJWT,
   ensureLoggedIn,

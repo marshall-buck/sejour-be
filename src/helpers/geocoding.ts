@@ -1,12 +1,10 @@
+/** Geocoding and Google Maps services related functions */
 import { PropertyData } from "../types";
 import { Client } from "@googlemaps/google-maps-services-js";
 import { GOOGLE_MAPS_API_KEY } from "../config";
 import { BadRequestError } from "../expressError";
 
-// Geocoding and Google Maps services related functions
 const google = new Client({});
-
-// const GOOGLE_GEOCODE_API: `https://maps.googleapis.com/maps/api/geocode/json?address=${}&key=${}`
 
 /** Make a call to Google Maps Geocode API
  *
@@ -37,5 +35,6 @@ async function getGeocode({
     throw new BadRequestError();
   }
 }
+
 
 export { getGeocode, google };

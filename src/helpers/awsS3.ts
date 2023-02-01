@@ -1,15 +1,10 @@
 /** AWS S3 bucket functions */
 import {
-  S3Client,
-  PutObjectCommand,
   DeleteObjectCommand,
-  GetObjectCommand,
-  PutObjectCommandOutput,
-  GetObjectCommandOutput,
-  ListObjectsCommand,
-  ListObjectsCommandOutput,
+  PutObjectCommand,
+  S3Client,
 } from "@aws-sdk/client-s3";
-import { AWS_REGION, AWS_BUCKET, AWS_BUCKET_PUBLIC_FOLDER } from "../config";
+import { AWS_BUCKET, AWS_BUCKET_PUBLIC_FOLDER, AWS_REGION } from "../config";
 
 const s3 = new S3Client({
   region: AWS_REGION,
@@ -39,5 +34,6 @@ function deleteImage(key: string, propertyId: number) {
   };
   return s3.send(new DeleteObjectCommand(deleteParams));
 }
+
 
 export { uploadImage, deleteImage };
