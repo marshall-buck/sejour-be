@@ -43,31 +43,37 @@ router.post(
       File.uploadImage(keys[index], file.buffer, propertyId)
     );
     const s3Results = await Promise.allSettled(s3Promises);
-    console.log("s3Results", s3Results);
 
-    /** for all fulfilled Promises, handles rejected/resolved promises
-     * generates Promise[] for each uploaded image file to add to database */
-    const imgPromises = s3Results.map((result, index) => {
-      if (result.status === "rejected") {
-        const filename = files[index].filename;
+    /** For each Rejected Promises
+     * Add Error message to to Error[] */
+    s3Results
+      .filter((res) => res.status === "rejected")
+      .forEach((_, i) => {
+        const filename = files[i].originalname;
         errors.push({ error: `Error uploading ${filename}` });
-      } else {
+      });
+
+    /** For each Fulfilled Promises
+     * Generates Promise[] for each uploaded image file to add to database */
+    const imgPromises = s3Results
+      .filter((res) => res.status === "fulfilled")
+      .map((_, i) => {
         return Image.create({
-          imageKey: keys[index],
+          imageKey: keys[i],
           propertyId: propertyId,
         });
-      }
-    });
+      });
 
     const imgResults = await Promise.allSettled(imgPromises);
 
-    // for all fulfilled Promises, handles rejected/resolved promises
+    // for all resolved Promises, handles fulfilled promises
     const images: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => res.value);
+    // for all resolved Promises, handles rejected promises
     (imgResults as PromiseRejectedResult[])
       .filter((res) => res.status === "rejected")
-      .map((res) => errors.push({ error: res.reason }));
+      .forEach((res) => errors.push({ error: res.reason }));
 
     if (errors.length > 0) {
       return res.status(210).json({ images, errors });
@@ -150,15 +156,22 @@ router.delete(
       File.deleteImage(key, propertyId);
     });
     const s3Results = await Promise.allSettled(s3Promises);
+    console.log(s3Results);
+    /** For each Rejected Promises
+     * Add Error message to to Error[] */
+    s3Results
+      .filter((res) => res.status === "rejected")
+      .forEach((_, i) => {
+        errors.push({ error: `AWS error deleting ${imageKeys[i]}` });
+      });
 
-    /** for all fulfilled Promises, handles rejected/resolved promises
-     * generates Promise[] for each deleted image file to delete from database */
-    const imgPromises = s3Results.map((result, index) => {
-      if (result.status === "rejected") {
-        errors.push({ error: `AWS error deleting ${imageKeys[index]}` });
-      }
-      return Image.delete({ imageKey: imageKeys[index] });
-    });
+    /** For each Fulfilled Promises
+     * Generates Promise[] for each deleted image file to delete to database */
+    const imgPromises = s3Results
+      .filter((res) => res.status === "fulfilled")
+      .map((_, i) => {
+        return Image.delete({ imageKey: imageKeys[i] });
+      });
 
     const imgResults = await Promise.allSettled(imgPromises);
 
@@ -166,9 +179,10 @@ router.delete(
     const success: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => `Successfully deleted ${res.value}`);
+
     (imgResults as PromiseRejectedResult[])
       .filter((res) => res.status === "rejected")
-      .map((res) => errors.push({ error: res.reason }));
+      .forEach((res) => errors.push({ error: res.reason }));
 
     if (errors.length > 0) {
       return res.status(210).json({ success, errors });
