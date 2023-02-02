@@ -156,7 +156,7 @@ router.delete(
       File.deleteImage(key, propertyId);
     });
     const s3Results = await Promise.allSettled(s3Promises);
-    console.log(s3Results);
+ 
     /** For each Rejected Promises
      * Add Error message to to Error[] */
     s3Results
