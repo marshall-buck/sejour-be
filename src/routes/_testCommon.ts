@@ -34,6 +34,7 @@ async function commonBeforeEach() {
 
 async function commonAfterEach() {
   await db.query("ROLLBACK");
+  jest.clearAllMocks();
 }
 
 async function commonAfterAll() {

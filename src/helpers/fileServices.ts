@@ -1,6 +1,6 @@
 /** File services/multer related middleware */
 import { Request } from "express";
-import multer from "multer";
+import multer, { MulterError } from "multer";
 import Path from "path";
 import { MAX_SIZE_LIMIT } from "../config";
 

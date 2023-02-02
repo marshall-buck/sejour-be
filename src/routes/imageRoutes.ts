@@ -32,6 +32,7 @@ router.post(
     const propertyId = +req.params.id;
 
     const files = req.files as Express.Multer.File[];
+
     // generate an array of unique keys for each file
     const keys = files.map((_file) => randomUUID());
 
@@ -176,6 +177,5 @@ router.delete(
     return res.json({ message: "Successfully deleted all selected image(s)" });
   }
 );
-
 
 export { router as imageRoutes };
