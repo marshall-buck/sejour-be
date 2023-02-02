@@ -9,7 +9,7 @@ import { MAX_SIZE_LIMIT } from "../config";
  *
  * Params:
  * - limits.fileSize: MAX_SIZE_LIMIT
- * - fileFilter: accepts exptensions specified in acceptableExtensions:
+ * - fileFilter: accepts extensions specified in acceptableExtensions:
  *   [".png", ".jpg", "jpeg"];
  *
  * Returns callback (null, true) to accept the file is pass
@@ -38,6 +38,5 @@ const upload = multer({
     callback(null, true);
   },
 });
-
 
 export { upload };

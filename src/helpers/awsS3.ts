@@ -35,5 +35,4 @@ function deleteImage(key: string, propertyId: number) {
   return s3.send(new DeleteObjectCommand(deleteParams));
 }
 
-
-export { uploadImage, deleteImage };
+export { uploadImage, deleteImage, s3 };

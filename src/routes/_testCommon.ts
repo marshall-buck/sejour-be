@@ -5,8 +5,6 @@ import { Image } from "../models/imageModel";
 import { createToken } from "../helpers/tokens";
 import { Property } from "../models/propertyModel";
 import { randomUUID } from "node:crypto";
-import { getGeocode } from "../helpers/geocoding";
-import { LatLngLiteral } from "@googlemaps/google-maps-services-js";
 
 type UserTestData = {
   id: number;
@@ -30,24 +28,6 @@ async function commonBeforeAll() {
   await createTestImages();
 }
 
-// const geocodeMockSetup = () => {
-//   const mock = jest.mock("../helpers/geocoding", () => {
-//     const originalModule = jest.requireActual("../helpers/geocoding");
-
-//     //Mock the default export and named export 'foo'
-//     return {
-//       __esModule: true,
-//       ...originalModule,
-//       default: jest.fn(() => 'mocked baz'),
-//       foo: 'mocked foo',
-//     };
-//   });
-//   mockedGeocode.mockResolvedValue({
-//     lat: 123.123456,
-//     lng: -123.123456,
-//   } as LatLngLiteral);
-// };
-
 async function commonBeforeEach() {
   await db.query("BEGIN");
 }
@@ -65,7 +45,6 @@ export {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  // geocodeMockSetup,
   testUsers,
   testPropertyIds,
   testMessageIds,
