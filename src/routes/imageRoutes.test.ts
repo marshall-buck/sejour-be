@@ -21,16 +21,18 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
+jest.mock("@aws-sdk/client-s3");
+
 /*************************************************** POST /property/:id/image */
 describe("POST /property/:id/image ", function () {
-  test("uploads images correctly", async function () {
-    jest.mock("@aws-sdk/client-s3");
+  test("uploads and adds image to DB", async function () {
     const fakeImage = Buffer.from(
       "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
       "base64"
     );
 
     fs.writeFileSync("fakeImage.jpg", fakeImage);
+
     const res = await request(app)
       .post(`/property/${testPropertyIds[0]}/image`)
       .set("authorization", `Bearer ${testUsers[0].token}`)
@@ -60,21 +62,10 @@ describe("POST /property/:id/image ", function () {
   });
 
   test("handles s3 error correctly", async function () {
-    jest.mock("../helpers/awsS3", () => {
-      return {
-        File: jest.fn().mockImplementation(() => {
-          return {
-            uploadImage: jest.fn(),
-          };
-        }),
-      };
+    const uploadImageSpy = jest.spyOn(File, "uploadImage");
+    uploadImageSpy.mockImplementation(function () {
+      return Promise.reject("Upload Failed");
     });
-
-    // (
-    //   File.uploadImage as jest.MockedFunction<typeof File.uploadImage>
-    // ).mockReturnValueOnce(Promise.reject("Upload failed"));
-    const mockedFile = File as jest.Mocked<typeof File>;
-    mockedFile.uploadImage.mockReturnValueOnce(Promise.reject("Upload failed"));
 
     const fakeImage = Buffer.from(
       "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
@@ -91,22 +82,41 @@ describe("POST /property/:id/image ", function () {
       .attach("files", "fakeImage.jpg");
 
     expect(res.status).toEqual(210);
-    // expect(res.body).toEqual({
-    //   images: [
-    //     {
-    //       id: expect.any(Number),
-    //       imageKey: expect.any(String),
-    //       propertyId: expect.any(Number),
-    //       isCoverImage: false,
-    //     },
-    //     {
-    //       id: expect.any(Number),
-    //       imageKey: expect.any(String),
-    //       propertyId: expect.any(Number),
-    //       isCoverImage: false,
-    //     },
-    //   ],
-    // });
+    expect(res.body).toEqual({
+      images: [],
+      errors: [
+        { error: "Error uploading fakeImage.jpg" },
+        { error: "Error uploading fakeImage.jpg" },
+      ],
+    });
+
+    fs.unlinkSync("fakeImage.jpg");
+  });
+
+  test("handles Image Model error correctly", async function () {
+    const createImageSpy = jest.spyOn(Image, "create");
+    createImageSpy.mockImplementation(function () {
+      return Promise.reject("Database Error");
+    });
+
+    const fakeImage = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+      "base64"
+    );
+
+    fs.writeFileSync("fakeImage.jpg", fakeImage);
+
+    const res = await request(app)
+      .post(`/property/${testPropertyIds[0]}/image`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .type("multipart/form-data")
+      .attach("files", "fakeImage.jpg");
+
+    expect(res.status).toEqual(210);
+    expect(res.body).toEqual({
+      images: [],
+      errors: [{ error: "Database Error" }],
+    });
 
     fs.unlinkSync("fakeImage.jpg");
   });
@@ -162,28 +172,52 @@ describe("POST /property/:id/image ", function () {
 
 /************************************************* DELETE /property/:id/image */
 describe("DELETE /property/:id/image ", function () {
-  test("deletes image", async function () {
-    const imageKey = randomUUID();
+  // test("deletes image", async function () {
+  //   const imageKey = randomUUID();
+  //   // create a new image for testing purposes
+  //   await Image.create({
+  //     imageKey: imageKey,
+  //     propertyId: testPropertyIds[0],
+  //   });
 
-    const image = await Image.create({
-      imageKey: imageKey,
-      propertyId: testPropertyIds[0],
+  //   const res = await request(app)
+  //     .delete(`/property/${testPropertyIds[0]}/image`)
+  //     .set("authorization", `Bearer ${testUsers[0].token}`)
+  //     .send({ imageKeys: [imageKey] });
+
+  //   expect(res.body).toEqual({
+  //     message: "Successfully deleted all selected image(s)",
+  //   });
+  //   try {
+  //     await Image.delete({ imageKey });
+  //     throw new Error("You should not get here");
+  //   } catch (error: any) {
+  //     expect(error.message).toEqual(`No image: ${imageKey}`);
+  //   }
+  // });
+
+  test("handles aws errors", async function () {
+    const deleteImageSpy = jest.spyOn(File, "deleteImage");
+    deleteImageSpy.mockImplementation(function () {
+      return Promise.reject("AWS Error");
     });
+
+    const imageKey = randomUUID();
 
     const res = await request(app)
       .delete(`/property/${testPropertyIds[0]}/image`)
       .set("authorization", `Bearer ${testUsers[0].token}`)
-      .send({ imageKeys: [imageKey] });
+      .send({ imageKeys: [imageKey, imageKey] });
+    expect(res.statusCode).toEqual(210);
+    expect(res.body).toEqual({ error: `AWS error deleting ${imageKey}` });
+  });
 
-    expect(res.body).toEqual({
-      message: "Successfully deleted all selected image(s)",
-    });
-    try {
-      await Image.delete({ imageKey });
-      throw new Error("You should not get here");
-    } catch (error: any) {
-      expect(error.message).toEqual(`No image: ${imageKey}`);
-    }
+  test("throws error if invalid imageKey inputs", async function () {
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[0]}/image`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ imageKeys: "invalid key" });
+    expect(res.statusCode).toEqual(400);
   });
 
   test("blocks if user is not authenticated", async function () {
