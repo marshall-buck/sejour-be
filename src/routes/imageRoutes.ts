@@ -2,7 +2,7 @@ import express, { Request, Router } from "express";
 import jsonschema from "jsonschema";
 import { randomUUID } from "node:crypto";
 import { BadRequestError } from "../expressError";
-import { deleteImage, uploadImage } from "../helpers/awsS3";
+import { File } from "../helpers/awsS3";
 import { upload } from "../helpers/fileServices";
 import {
   ensureLoggedIn,
@@ -40,9 +40,10 @@ router.post(
 
     // generate Promise[] for each file to upload
     const s3Promises = files.map((file, index) =>
-      uploadImage(keys[index], file.buffer, propertyId)
+      File.uploadImage(keys[index], file.buffer, propertyId)
     );
     const s3Results = await Promise.allSettled(s3Promises);
+    console.log("s3Results", s3Results);
 
     /** for all fulfilled Promises, handles rejected/resolved promises
      * generates Promise[] for each uploaded image file to add to database */
@@ -146,14 +147,13 @@ router.delete(
 
     // generate Promise[] for each file to upload
     const s3Promises = imageKeys.map((key: string) => {
-      deleteImage(key, propertyId);
+      File.deleteImage(key, propertyId);
     });
     const s3Results = await Promise.allSettled(s3Promises);
 
     /** for all fulfilled Promises, handles rejected/resolved promises
      * generates Promise[] for each deleted image file to delete from database */
     const imgPromises = s3Results.map((result, index) => {
-      console.log("result", result);
       if (result.status === "rejected") {
         errors.push({ error: `AWS error deleting ${imageKeys[index]}` });
       }

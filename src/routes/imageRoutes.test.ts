@@ -1,6 +1,9 @@
 import request from "supertest";
 import app from "../app";
 import fs from "fs";
+import { Image } from "../models/imageModel";
+import { File } from "../helpers/awsS3";
+
 import {
   commonBeforeAll,
   commonBeforeEach,
@@ -11,17 +14,17 @@ import {
   testImageIds,
 } from "./_testCommon";
 import { MAX_SIZE_LIMIT } from "../config";
+import { randomUUID } from "crypto";
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-jest.mock("@aws-sdk/client-s3");
-
 /*************************************************** POST /property/:id/image */
 describe("POST /property/:id/image ", function () {
   test("uploads images correctly", async function () {
+    jest.mock("@aws-sdk/client-s3");
     const fakeImage = Buffer.from(
       "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
       "base64"
@@ -52,6 +55,58 @@ describe("POST /property/:id/image ", function () {
         },
       ],
     });
+
+    fs.unlinkSync("fakeImage.jpg");
+  });
+
+  test("handles s3 error correctly", async function () {
+    jest.mock("../helpers/awsS3", () => {
+      return {
+        File: jest.fn().mockImplementation(() => {
+          return {
+            uploadImage: jest.fn(),
+          };
+        }),
+      };
+    });
+
+    // (
+    //   File.uploadImage as jest.MockedFunction<typeof File.uploadImage>
+    // ).mockReturnValueOnce(Promise.reject("Upload failed"));
+    const mockedFile = File as jest.Mocked<typeof File>;
+    mockedFile.uploadImage.mockReturnValueOnce(Promise.reject("Upload failed"));
+
+    const fakeImage = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+      "base64"
+    );
+
+    fs.writeFileSync("fakeImage.jpg", fakeImage);
+
+    const res = await request(app)
+      .post(`/property/${testPropertyIds[0]}/image`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .type("multipart/form-data")
+      .attach("files", "fakeImage.jpg")
+      .attach("files", "fakeImage.jpg");
+
+    expect(res.status).toEqual(210);
+    // expect(res.body).toEqual({
+    //   images: [
+    //     {
+    //       id: expect.any(Number),
+    //       imageKey: expect.any(String),
+    //       propertyId: expect.any(Number),
+    //       isCoverImage: false,
+    //     },
+    //     {
+    //       id: expect.any(Number),
+    //       imageKey: expect.any(String),
+    //       propertyId: expect.any(Number),
+    //       isCoverImage: false,
+    //     },
+    //   ],
+    // });
 
     fs.unlinkSync("fakeImage.jpg");
   });
@@ -106,6 +161,46 @@ describe("POST /property/:id/image ", function () {
 });
 
 /************************************************* DELETE /property/:id/image */
+describe("DELETE /property/:id/image ", function () {
+  test("deletes image", async function () {
+    const imageKey = randomUUID();
+
+    const image = await Image.create({
+      imageKey: imageKey,
+      propertyId: testPropertyIds[0],
+    });
+
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[0]}/image`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ imageKeys: [imageKey] });
+
+    expect(res.body).toEqual({
+      message: "Successfully deleted all selected image(s)",
+    });
+    try {
+      await Image.delete({ imageKey });
+      throw new Error("You should not get here");
+    } catch (error: any) {
+      expect(error.message).toEqual(`No image: ${imageKey}`);
+    }
+  });
+
+  test("blocks if user is not authenticated", async function () {
+    const res = await request(app).delete(
+      `/property/${testPropertyIds[0]}/image`
+    );
+    expect(res.statusCode).toEqual(401);
+  });
+
+  test("blocks if user is not authorized/property owner", async function () {
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[0]}/image/`)
+      .set("authorization", `Bearer ${testUsers[1].token}`);
+    expect(res.statusCode).toEqual(401);
+  });
+});
+
 /***************************************** PATCH /property/:id/image/:imageId */
 
 describe("PATCH /property/:id/image/imageId", function () {

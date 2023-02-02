@@ -10,29 +10,31 @@ const s3 = new S3Client({
   region: AWS_REGION,
 });
 
-/** Uploads a file to AWS S3 bucket
- * Params - { key: string, body: Buffer, propertyId: number }
- * Returns a PutObjectCommand Promise
- */
-function uploadImage(key: string, body: Buffer, propertyId: number) {
-  const uploadParams = {
-    Bucket: AWS_BUCKET,
-    Key: `${AWS_BUCKET_PUBLIC_FOLDER}/${propertyId}/${key}`,
-    Body: body,
-  };
-  return s3.send(new PutObjectCommand(uploadParams));
+class File {
+  /** Uploads a file to AWS S3 bucket
+   * Params - { key: string, body: Buffer, propertyId: number }
+   * Returns a PutObjectCommand Promise
+   */
+  static uploadImage(key: string, body: Buffer, propertyId: number) {
+    const uploadParams = {
+      Bucket: AWS_BUCKET,
+      Key: `${AWS_BUCKET_PUBLIC_FOLDER}/${propertyId}/${key}`,
+      Body: body,
+    };
+    return s3.send(new PutObjectCommand(uploadParams));
+  }
+
+  /** Deletes a file from AWS S3 bucket
+   * Params - { key: string, propertyId: number }
+   * Returns a DeleteObjectCommand Promise
+   */
+  static deleteImage(key: string, propertyId: number) {
+    const deleteParams = {
+      Bucket: AWS_BUCKET,
+      Key: `${AWS_BUCKET_PUBLIC_FOLDER}/${propertyId}/${key}`,
+    };
+    return s3.send(new DeleteObjectCommand(deleteParams));
+  }
 }
 
-/** Deletes a file from AWS S3 bucket
- * Params - { key: string, propertyId: number }
- * Returns a DeleteObjectCommand Promise
- */
-function deleteImage(key: string, propertyId: number) {
-  const deleteParams = {
-    Bucket: AWS_BUCKET,
-    Key: `${AWS_BUCKET_PUBLIC_FOLDER}/${propertyId}/${key}`,
-  };
-  return s3.send(new DeleteObjectCommand(deleteParams));
-}
-
-export { uploadImage, deleteImage, s3 };
+export { File };
