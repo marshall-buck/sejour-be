@@ -220,6 +220,26 @@ describe("DELETE /property/:id/image ", function () {
     });
   });
 
+  test("handles no image in database error ", async function () {
+    const deleteImageSpy = jest.spyOn(Image, "delete");
+    deleteImageSpy.mockImplementation(() => Promise.reject("DatabaseError"));
+
+    const imageKey = randomUUID();
+
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[0]}/image`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ imageKeys: [imageKey] });
+    console.log("******************", res.body);
+    expect(deleteImageSpy).toHaveBeenCalledTimes(1);
+    expect(res.statusCode).toEqual(210);
+
+    expect(res.body).toEqual({
+      success: [],
+      errors: [{ error: "DatabaseError" }],
+    });
+  });
+
   test("throws error if invalid imageKey inputs", async function () {
     const res = await request(app)
       .delete(`/property/${testPropertyIds[0]}/image`)

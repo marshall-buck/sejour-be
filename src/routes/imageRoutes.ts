@@ -167,7 +167,6 @@ router.delete(
       .forEach((_, i) => {
         errors.push({ error: `AWS error deleting ${imageKeys[i]}` });
       });
-    console.log("errors", errors);
 
     /** For each Fulfilled Promises
      * Generates Promise[] for each deleted image file to delete to database */
