@@ -20,8 +20,11 @@ beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
-
+/**Mocked modules */
 jest.mock("@aws-sdk/client-s3");
+jest.mock("../helpers/awsS3");
+
+const mockedFilesClass = jest.mocked(File);
 
 /*************************************************** POST /property/:id/image */
 describe("POST /property/:id/image ", function () {
@@ -61,11 +64,12 @@ describe("POST /property/:id/image ", function () {
     fs.unlinkSync("fakeImage.jpg");
   });
 
-  test("handles s3 error correctly", async function () {
-    const uploadImageSpy = jest.spyOn(File, "uploadImage");
-    uploadImageSpy.mockImplementation(function () {
-      return Promise.reject("Upload Failed");
-    });
+  test("handles upload s3 error correctly", async function () {
+    // const uploadImageSpy = jest.spyOn(File, "uploadImage");
+    // uploadImageSpy.mockImplementation(function () {
+    //   return Promise.reject("Upload Failed");
+    // });
+    mockedFilesClass.uploadImage.mockImplementation(() => Promise.reject());
 
     const fakeImage = Buffer.from(
       "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
@@ -172,44 +176,48 @@ describe("POST /property/:id/image ", function () {
 
 /************************************************* DELETE /property/:id/image */
 describe("DELETE /property/:id/image ", function () {
-  // test("deletes image", async function () {
-  //   const imageKey = randomUUID();
-  //   // create a new image for testing purposes
-  //   await Image.create({
-  //     imageKey: imageKey,
-  //     propertyId: testPropertyIds[0],
-  //   });
-
-  //   const res = await request(app)
-  //     .delete(`/property/${testPropertyIds[0]}/image`)
-  //     .set("authorization", `Bearer ${testUsers[0].token}`)
-  //     .send({ imageKeys: [imageKey] });
-
-  //   expect(res.body).toEqual({
-  //     message: "Successfully deleted all selected image(s)",
-  //   });
-  //   try {
-  //     await Image.delete({ imageKey });
-  //     throw new Error("You should not get here");
-  //   } catch (error: any) {
-  //     expect(error.message).toEqual(`No image: ${imageKey}`);
-  //   }
-  // });
-
-  test("handles aws errors", async function () {
-    const deleteImageSpy = jest.spyOn(File, "deleteImage");
-    deleteImageSpy.mockImplementation(function () {
-      return Promise.reject("AWS Error");
+  test("deletes image", async function () {
+    const imageKey = randomUUID();
+    // create a new image for testing purposes
+    await Image.create({
+      imageKey: imageKey,
+      propertyId: testPropertyIds[0],
     });
+
+    const res = await request(app)
+      .delete(`/property/${testPropertyIds[0]}/image`)
+      .set("authorization", `Bearer ${testUsers[0].token}`)
+      .send({ imageKeys: [imageKey] });
+
+    expect(res.body).toEqual({
+      message: "Successfully deleted all selected image(s)",
+    });
+    try {
+      await Image.delete({ imageKey });
+      throw new Error("You should not get here");
+    } catch (error: any) {
+      expect(error.message).toEqual(`No image: ${imageKey}`);
+    }
+  });
+
+  test("handles aws errors when deleteImage is called ", async function () {
+    mockedFilesClass.deleteImage.mockImplementation(() =>
+      Promise.reject("AWS error")
+    );
 
     const imageKey = randomUUID();
 
     const res = await request(app)
       .delete(`/property/${testPropertyIds[0]}/image`)
       .set("authorization", `Bearer ${testUsers[0].token}`)
-      .send({ imageKeys: [imageKey, imageKey] });
+      .send({ imageKeys: [imageKey] });
+
+    expect(mockedFilesClass.deleteImage).toHaveBeenCalledTimes(1);
     expect(res.statusCode).toEqual(210);
-    expect(res.body).toEqual({ error: `AWS error deleting ${imageKey}` });
+    expect(res.body).toEqual({
+      errors: [{ error: `AWS error deleting ${imageKey}` }],
+      success: [],
+    });
   });
 
   test("throws error if invalid imageKey inputs", async function () {
@@ -235,7 +243,7 @@ describe("DELETE /property/:id/image ", function () {
   });
 });
 
-/***************************************** PATCH /property/:id/image/:imageId */
+// /***************************************** PATCH /property/:id/image/:imageId */
 
 describe("PATCH /property/:id/image/imageId", function () {
   test("updates an image correctly", async function () {
@@ -267,7 +275,7 @@ describe("PATCH /property/:id/image/imageId", function () {
   });
 });
 
-/*************************************************** GET /property/:id/image/ */
+// /*************************************************** GET /property/:id/image/ */
 
 describe("GET /property/:id/image/:imageId", function () {
   test("gets all images from a property by id", async function () {

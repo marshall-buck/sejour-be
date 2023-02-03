@@ -10,6 +10,7 @@ import {
 } from "../middleware/authMiddleware";
 import { Image } from "../models/imageModel";
 import imageDeleteSchema from "../schemas/imageDelete.json";
+import { DeleteObjectCommandOutput } from "@aws-sdk/client-s3/dist-types/commands/DeleteObjectCommand";
 
 /** Routes for images */
 const router: Router = express.Router({ mergeParams: true });
@@ -153,17 +154,20 @@ router.delete(
 
     // generate Promise[] for each file to upload
     const s3Promises = imageKeys.map((key: string) => {
-      File.deleteImage(key, propertyId);
+      return File.deleteImage(key, propertyId);
     });
+
     const s3Results = await Promise.allSettled(s3Promises);
- 
+
     /** For each Rejected Promises
      * Add Error message to to Error[] */
+
     s3Results
       .filter((res) => res.status === "rejected")
       .forEach((_, i) => {
         errors.push({ error: `AWS error deleting ${imageKeys[i]}` });
       });
+    console.log("errors", errors);
 
     /** For each Fulfilled Promises
      * Generates Promise[] for each deleted image file to delete to database */
@@ -175,7 +179,7 @@ router.delete(
 
     const imgResults = await Promise.allSettled(imgPromises);
 
-    // for all fulfilled Promises, handles rejected/resolved promises
+    // // for all fulfilled Promises, handles rejected/resolved promises
     const success: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => `Successfully deleted ${res.value}`);
