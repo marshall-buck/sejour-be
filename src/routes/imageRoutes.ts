@@ -10,7 +10,7 @@ import {
 } from "../middleware/authMiddleware";
 import { Image } from "../models/imageModel";
 import imageDeleteSchema from "../schemas/imageDelete.json";
-import { DeleteObjectCommandOutput } from "@aws-sdk/client-s3/dist-types/commands/DeleteObjectCommand";
+
 
 /** Routes for images */
 const router: Router = express.Router({ mergeParams: true });
