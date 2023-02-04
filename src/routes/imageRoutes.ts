@@ -178,7 +178,7 @@ router.delete(
 
     const imgResults = await Promise.allSettled(imgPromises);
 
-    // // for all fulfilled Promises, handles rejected/resolved promises
+    // for all fulfilled Promises, handles rejected/resolved promises
     const success: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => `Successfully deleted ${res.value}`);
