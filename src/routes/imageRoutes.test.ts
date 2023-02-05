@@ -20,7 +20,8 @@ beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
-/**Mocked modules */
+
+/** Mocked modules */
 jest.mock("@aws-sdk/client-s3");
 jest.mock("../helpers/awsS3");
 
@@ -65,10 +66,6 @@ describe("POST /property/:id/image ", function () {
   });
 
   test("handles upload s3 error correctly", async function () {
-    // const uploadImageSpy = jest.spyOn(File, "uploadImage");
-    // uploadImageSpy.mockImplementation(function () {
-    //   return Promise.reject("Upload Failed");
-    // });
     mockedFilesClass.uploadImage.mockImplementation(() => Promise.reject());
 
     const fakeImage = Buffer.from(

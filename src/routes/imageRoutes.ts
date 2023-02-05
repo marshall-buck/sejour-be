@@ -10,7 +10,7 @@ import {
 } from "../middleware/authMiddleware";
 import { Image } from "../models/imageModel";
 import imageDeleteSchema from "../schemas/imageDelete.json";
-import { DeleteObjectCommandOutput } from "@aws-sdk/client-s3/dist-types/commands/DeleteObjectCommand";
+
 
 /** Routes for images */
 const router: Router = express.Router({ mergeParams: true });
@@ -178,7 +178,7 @@ router.delete(
 
     const imgResults = await Promise.allSettled(imgPromises);
 
-    // // for all fulfilled Promises, handles rejected/resolved promises
+    // for all fulfilled Promises, handles rejected/resolved promises
     const success: any[] = (imgResults as PromiseFulfilledResult<any>[])
       .filter((res) => res.status === "fulfilled")
       .map((res) => `Successfully deleted ${res.value}`);

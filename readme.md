@@ -10,5 +10,5 @@ Please note tests are set to EST timezone
 
 ### TODOs
 - [ ] refactor findAll fn() in propertyModels
-- [ ] implement tests for image routes and file handling with Multer and S3
 - [ ] implement csrf
+- [ ] user route to change password
